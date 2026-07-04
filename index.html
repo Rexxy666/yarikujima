@@ -229,7 +229,7 @@ img.ic.gem{margin-right:5px}
   line-height:1.5;word-break:keep-all;overflow-wrap:normal;
   animation:speechFloat 3.3s ease-in-out infinite;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:auto;box-sizing:border-box}
 #speech.show{opacity:1;visibility:visible}
-@keyframes speechFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-2px)}}
+@keyframes speechFloat{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 2px))}}
 #speech::after{content:"";position:absolute;left:50%;bottom:calc(-1 * var(--speech-arrow));transform:translateX(-50%);
   border:6px solid transparent;border-top-color:#000;border-bottom:none}
 #speechX{position:absolute;top:-7px;right:-7px;width:15px;height:15px;border-radius:50%;
@@ -417,7 +417,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .dots{display:flex;gap:6px;justify-content:center;margin-top:6px}
 .dots i{width:8px;height:8px;border-radius:50%;background:#5a4a6a}
 .dots i.on{background:var(--gold)}
-.egg{font-size:80px;animation:bob 2s ease-in-out infinite}
+.egg{font-size:80px;animation:eggBob 2s ease-in-out infinite}
+@keyframes eggBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
 .pop{animation:pop .5s}
 .toast{position:absolute;left:50%;bottom:calc(38% + 72px);transform:translateX(-50%);z-index:30;
@@ -2671,11 +2672,51 @@ function closeOverlay(){$('#onboard').style.display='none';}
 
 /* ===== 新手：性向測驗 → 孵蛋 ===== */
 let qi=0;
+/* ── 出生年月日 → 十二生肖 → 命運寵物（ANIMALS 索引：鼠0…豬11）── */
+const ZODIAC_NAMES=['鼠','牛','虎','兔','龍','蛇','馬','羊','猴','雞','狗','豬'];
+function zodiacIndexFromYear(y){return ((y-4)%12+12)%12;}
+let onboardZodiac=null;
+function parseBday(v){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||''); if(!m)return null;
+  const y=+m[1],mo=+m[2],da=+m[3];
+  const d=new Date(y,mo-1,da);
+  if(d.getFullYear()!==y||d.getMonth()!==mo-1||d.getDate()!==da)return null; // 不存在的日期（防呆）
+  if(y<1900||d>new Date())return null;                                       // 太早或未來
+  return d;
+}
+function updateBdayHint(){
+  const el=$('#bdayInput'); if(!el)return;
+  const d=parseBday(el.value),hint=$('#bdayHint'),err=$('#bdayErr');
+  if(err)err.textContent='';
+  if(!hint)return;
+  if(!d){hint.textContent='';return;}
+  const zi=zodiacIndexFromYear(d.getFullYear()),a=ANIMALS[zi];
+  hint.innerHTML=`你的生肖是 <b style="color:#ffd873">${ZODIAC_NAMES[zi]}</b>　命運寵物：${a.e} <b>${a.n}</b>`;
+}
+function showBirthday(){
+  showOverlay(`<div class="qbox">
+    <div class="qn">第一步 · 出生年月日</div>
+    <div class="qt">先告訴我你的生日<br>我會依你的生肖決定命運寵物</div>
+    <input id="bdayInput" type="date" min="1900-01-01" max="${todayStr()}" value="2000-01-01"
+      style="width:100%;font-size:16px;padding:11px;border:3px solid var(--line);border-radius:8px;background:#fffdf7;color:var(--ink);font-weight:700">
+    <div id="bdayErr" class="mini" style="color:#e05a5a;min-height:15px;margin-top:6px"></div>
+    <div id="bdayHint" class="mini" style="text-align:center;min-height:18px;margin-bottom:4px"></div>
+    <button class="btn" style="width:100%" onclick="submitBirthday()">下一步 ▶</button>
+  </div>`);
+  const el=$('#bdayInput'); if(el){el.oninput=updateBdayHint;el.onchange=updateBdayHint;updateBdayHint();}
+}
+function submitBirthday(){
+  const d=parseBday($('#bdayInput')?.value);
+  if(!d){const e=$('#bdayErr'); if(e)e.textContent='請填寫有效的出生年月日';return;}
+  const zi=zodiacIndexFromYear(d.getFullYear());
+  onboardZodiac=zi; S.pet.animal=zi; S.pet.birthday=$('#bdayInput').value;
+  showQuiz();
+}
 function startOnboard(){
-  qi=0;S.quizScore={save:0,plan:0,spend:0,invest:0};
+  qi=0;S.quizScore={save:0,plan:0,spend:0,invest:0};onboardZodiac=null;
   showOverlay(`<h1>🏝️ 浮島記帳</h1>
-    <p>把理財變成一款會呼吸的養成遊戲。<br>先做 4 題輕鬆的<b>理財性向測驗</b>，孵化屬於你的命運寵物蛋。</p>
-    <button class="btn mt" onclick="showQuiz()">開始測驗 ▶</button>
+    <p>把理財變成一款會呼吸的養成遊戲。<br>先填<b>生日</b>決定你的生肖寵物，再做 4 題<b>理財性向測驗</b>。</p>
+    <button class="btn mt" onclick="showBirthday()">開始 ▶</button>
     <p class="mini mt" style="max-width:320px">本遊戲為虛擬模擬養成，不做隱私監控、不強制銀行對帳，代幣不可提領，且不構成投資建議。</p>`);
 }
 function showQuiz(){
@@ -2694,7 +2735,7 @@ function answer(k){
 function hatch(){
   const best=Object.entries(S.quizScore).sort((a,b)=>b[1]-a[1])[0][0];
   const p=PERSONA[best];
-  const idx=PET_TIGER_IDX;
+  const idx=(S.pet.animal!=null?S.pet.animal:(onboardZodiac!=null?onboardZodiac:PET_TIGER_IDX)); // 依生日生肖
   const a=ANIMALS[idx];
   S.pet.persona=best;S.pet.el=p.el;S.pet.baseEmoji=p.emoji;S.pet.animal=idx;S.budget=p.budget;
   showOverlay(`<h1>命運之蛋孵化中…</h1><div class="egg" id="eg">🥚</div><p class="mt">你的理財性格：<b style="color:#ffd873">${p.nm}</b>（${p.el}）</p>`);
@@ -2704,7 +2745,7 @@ function hatch(){
     const pic=PET_IMG[a.k]?`<img class="petImg pop" src="${PET_IMG[a.k]}" style="width:130px;height:150px;animation:pop .5s">`:`<div class="egg pop">${a.e}</div>`;
     showOverlay(`<h1>🎉 孵化成功！</h1>
       ${pic}
-      <p class="mt">命運夥伴 <b style="color:#ffd873">${a.n}</b> ${a.e} 誕生了！<br>理財性格：${p.nm}（${p.el}）— ${p.desc}</p>
+      <p class="mt">生肖 <b>${ZODIAC_NAMES[idx]}</b>・命運夥伴 <b style="color:#ffd873">${a.n}</b> ${a.e} 誕生了！<br>理財性格：${p.nm}（${p.el}）— ${p.desc}</p>
       <p class="mini mt">初始贈送 300${coinIc(true)} + 50${gemIc(true)}。開始記帳來餵養牠、灌溉你的懸空浮島吧！</p>
       <button class="btn mt" onclick="finishOnboard()">進入浮島 ▶</button>`);
   },1800);
