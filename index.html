@@ -436,9 +436,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .dots{display:flex;gap:6px;justify-content:center;margin-top:6px}
 .dots i{width:8px;height:8px;border-radius:50%;background:#5a4a6a}
 .dots i.on{background:var(--gold)}
-.bday-row{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:6px;flex-wrap:nowrap}
-.bday-sel{font-size:15px;padding:9px 4px;border:3px solid var(--line);border-radius:8px;background:#fffdf7;color:var(--ink);font-weight:700;min-width:0}
-.bday-sel:first-child{flex:1.4} .bday-row span{font-weight:800;color:#5a4a6a;font-size:13px;flex:none}
+.bday-row{display:flex;align-items:center;justify-content:center;gap:3px;margin-top:6px;flex-wrap:nowrap}
+.bday-sel{flex:1;min-width:0;font-size:15px;padding:9px 2px;text-align:center;text-align-last:center;
+  border:3px solid var(--line);border-radius:8px;background:#fffdf7;color:var(--ink);font-weight:700}
+.bday-row #bY{flex:1.9}
+.bday-row span{font-weight:800;color:#5a4a6a;font-size:12px;flex:none;margin:0 1px}
 .egg{font-size:80px;animation:eggBob 2s ease-in-out infinite}
 @keyframes eggBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
