@@ -59,12 +59,15 @@ button{font-family:var(--font); cursor:pointer; border:none; color:inherit}
 .btn:disabled{filter:grayscale(.7); opacity:.6; box-shadow:0 4px 0 #777; cursor:not-allowed}
 
 /* ===== HUD：懸浮動態島膠囊 ===== */
-#hud{
+#topChrome{
   position:absolute;
   top:max(var(--float-mt),env(safe-area-inset-top,0px));
   left:var(--float-mx);right:var(--float-mx);
-  z-index:20;display:flex;align-items:center;gap:8px;
-  padding:8px 12px;
+  z-index:20}
+#hud{
+  position:relative;width:100%;
+  display:flex;align-items:center;gap:6px;
+  padding:7px 10px 7px 12px;
   background:rgba(255,255,255,.78);
   -webkit-backdrop-filter:blur(16px) saturate(1.2);
   backdrop-filter:blur(16px) saturate(1.2);
@@ -72,7 +75,7 @@ button{font-family:var(--font); cursor:pointer; border:none; color:inherit}
   border-radius:999px;
   box-shadow:0 4px 20px rgba(0,0,0,.08),0 8px 28px rgba(18,12,36,.14),inset 0 1px 0 rgba(255,255,255,.72);
 }
-.stat-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.65);
+.stat-pill{flex:none;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.65);
   border-radius:20px;padding:4px 10px 4px 6px;font-weight:800;color:#2B2233;font-size:13px;box-shadow:0 1px 4px rgba(30,20,55,.08)}
 .stat-pill .ic{width:20px;height:20px;display:grid;place-items:center;border-radius:50%;font-size:13px}
 img.ic{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;background:none;border-radius:0}
@@ -84,10 +87,22 @@ img.ic.gem{margin-right:5px}
 .toast .money-ic{height:15px;vertical-align:-2px}
 .tx-amt .money-ic{height:14px;vertical-align:-2px}
 .bub .money-ic{height:14px;vertical-align:-2px}
-#lvlWrap{flex:1;min-width:0}
-#lvlWrap .lv{font-size:11px;color:#8a5a10;font-weight:800;display:flex;justify-content:space-between;text-shadow:0 1px 0 rgba(255,255,255,.5)}
-.xpbar{height:9px;background:rgba(80,60,110,.16);border:1px solid rgba(255,255,255,.5);border-radius:6px;overflow:hidden;margin-top:2px}
+#lvlWrap{flex:1;min-width:0;max-width:calc(100% - 168px);margin-right:0}
+#lvlWrap .lv{font-size:10px;color:#8a5a10;font-weight:800;display:flex;justify-content:space-between;gap:6px;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+#lvlWrap .lv #xpTxt{font-size:10px;white-space:nowrap;flex:none}
+.xpbar{height:8px;background:rgba(80,60,110,.16);border:1px solid rgba(255,255,255,.5);border-radius:6px;overflow:hidden;margin-top:1px}
 .xpbar>i{display:block;height:100%;background:linear-gradient(#ffe08a,#f5a623);width:0%}
+#hudShop{
+  flex:none;width:36px;height:36px;padding:0;margin:0 0 0 2px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.65);
+  border-radius:50%;cursor:pointer;box-shadow:0 1px 4px rgba(30,20,55,.08);
+  -webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,transform .05s}
+#hudShop img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;
+  filter:grayscale(.35) brightness(.92);opacity:.78;display:block}
+#hudShop.on,#hudShop:active{background:rgba(245,166,35,.22);border-color:rgba(192,122,16,.35)}
+#hudShop.on img,#hudShop:active img{filter:none;opacity:1}
+#hudShop:active{transform:scale(.94)}
 #gear{display:none}
 #gear .gear-glow{position:absolute;inset:1px;border-radius:50%;opacity:0;pointer-events:none;
   background:radial-gradient(circle,rgba(255,255,255,.42) 0%,rgba(255,255,255,.12) 52%,transparent 72%);
@@ -234,12 +249,23 @@ img.ic.gem{margin-right:5px}
 .food-inv-name{font-size:9px;font-weight:800;color:#5a4a6a;line-height:1.15;text-align:center}
 .food-inv-hint{font-size:11px;color:#9a8a7a;text-align:center;margin-top:10px;font-weight:700}
 .food-inv-hint .money-ic{height:12px;vertical-align:-2px;margin:0 1px}
-#foodInvFab{position:absolute;top:calc(var(--hud-h, 58px) + 12px);right:8px;z-index:21;
-  width:44px;height:44px;display:grid;place-items:center;
-  background:none;border:none;padding:0;margin:0;line-height:0;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;filter:drop-shadow(0 2px 4px rgba(0,0,0,.28))}
-#foodBagIc{width:44px;height:44px;object-fit:contain;image-rendering:pixelated;display:block}
-#foodInvFab:active{transform:scale(.94)}
+#foodInvFab{
+  position:absolute;top:calc(var(--hud-h,58px) + 10px);right:var(--float-mx);z-index:21;
+  width:48px;height:48px;display:none;place-items:center;
+  background:#fffdf7;border:3px solid var(--line);border-radius:50%;
+  padding:0;margin:0;line-height:0;cursor:pointer;
+  box-shadow:0 3px 0 #d8c9b0;
+  -webkit-tap-highlight-color:transparent}
+#foodBagIc{width:40px;height:40px;object-fit:contain;image-rendering:pixelated;display:block}
+#foodInvFab:active{transform:translateY(2px);box-shadow:0 1px 0 #d8c9b0}
+#chatFab{
+  position:relative;top:auto;right:auto;left:auto;flex:none;
+  display:none;margin:0;border:none;overflow:hidden}
+#chatFab img{width:20px;height:20px;object-fit:contain;object-position:center;
+  image-rendering:pixelated;display:block;pointer-events:none;
+  filter:brightness(0) invert(1)}
+#chatFab.show{display:grid}
+#foodInvFab.show{display:grid}
 @keyframes bob{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 8px))}}
 @keyframes shiver{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-53%,-100%)}}
 .petGlyph{font-size:66px;line-height:1;filter:drop-shadow(0 6px 0 rgba(0,0,0,.22));
@@ -274,12 +300,22 @@ img.ic.gem{margin-right:5px}
 
 /* 寵物狀態：輕量毛玻璃 */
 /* 狀態卡：可收合（預設圓點，點開展開）*/
-#petStats{position:absolute;left:8px;top:calc(var(--hud-h) + 12px);z-index:5}
-.stats-dot{width:34px;height:34px;border-radius:50%;padding:0;cursor:pointer;font-size:16px;line-height:1;
-  display:grid;place-items:center;color:#3a3548;
-  background:rgba(255,255,255,.28);-webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2);
-  border:1px solid rgba(255,255,255,.42);box-shadow:0 4px 12px rgba(30,20,55,.12)}
-.stats-dot:active{transform:scale(.94)}
+/* 寵物狀態 + 陪玩聊天（左上角堆疊） */
+#homeLeftChrome{
+  position:absolute;left:8px;top:calc(var(--hud-h) + 12px);z-index:5;
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+#petStats{position:relative;left:auto;top:auto}
+.glass-fab{
+  width:34px;height:34px;border-radius:50%;padding:0;cursor:pointer;line-height:1;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.28);
+  -webkit-backdrop-filter:blur(12px) saturate(1.2);
+  backdrop-filter:blur(12px) saturate(1.2);
+  border:1px solid rgba(255,255,255,.42);
+  box-shadow:0 4px 12px rgba(30,20,55,.12);
+  -webkit-tap-highlight-color:transparent}
+.glass-fab:active{transform:scale(.94)}
+.stats-dot{color:#3a3548;font-size:16px}
 .stats-body{display:flex;flex-direction:column;gap:3px;min-width:118px;
   background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2);
   padding:7px 9px;border:1px solid rgba(255,255,255,.32);border-radius:12px;box-shadow:0 4px 14px rgba(30,20,55,.06)}
@@ -775,18 +811,40 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .quiz-back:active{transform:translateY(1px);box-shadow:0 1px 0 #2b2233}
 .quiz-foot .dots{margin-top:0;flex:1}
 .opt.on{background:var(--gold);color:#4a3410;border-color:#c07a10;box-shadow:0 3px 0 #a07820}
-.bday-row{display:flex;align-items:center;justify-content:center;gap:3px;margin-top:6px;flex-wrap:nowrap}
-.bday-sel,.bday-inp{flex:1;min-width:0;font-size:15px;padding:9px 2px;text-align:center;
+.bday-picker{
+  display:flex;gap:6px;justify-content:center;align-items:flex-end;margin:10px 0 6px;
+  background:#fff8ec;border:3px solid #2b2233;border-radius:14px;
+  padding:10px 8px 8px;box-shadow:0 4px 0 #d8c9b0}
+.bday-wheel-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center}
+.bday-wheel-col-year{flex:1.35}
+.bday-wheel-lbl{font-size:11px;font-weight:900;color:#c07a10;margin-bottom:5px;letter-spacing:.04em}
+.bday-wheel-wrap{
+  position:relative;width:100%;height:200px;overflow:hidden;
+  border-radius:10px;background:#fffdf7;border:2px solid #e8dcc8}
+.bday-wheel-highlight{
+  position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);
+  height:40px;pointer-events:none;z-index:1;
+  background:rgba(255,209,102,.24);border-radius:8px;
+  box-shadow:inset 0 2px 0 rgba(192,122,16,.18),inset 0 -2px 0 rgba(192,122,16,.18)}
+.bday-wheel-list{
+  position:relative;z-index:2;height:100%;overflow-y:auto;scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  scrollbar-width:none;padding:0;margin:0;list-style:none;touch-action:pan-y}
+.bday-wheel-list::-webkit-scrollbar{display:none}
+.bday-wheel-item{
+  height:40px;display:flex;align-items:center;justify-content:center;
+  scroll-snap-align:center;font-size:14px;font-weight:800;color:#b0a090;
+  transition:color .12s,font-size .12s,opacity .12s,transform .12s;cursor:pointer;user-select:none}
+.bday-wheel-item.on{font-size:20px;font-weight:900;color:#2b2233;transform:scale(1.04)}
+.bday-wheel-item.near{font-size:15px;color:#8a7a6a;opacity:.62}
+.bday-wheel-spacer{pointer-events:none;visibility:hidden}
+.bday-inp{flex:1;min-width:0;font-size:15px;padding:9px 2px;text-align:center;
   border:3px solid var(--line);border-radius:8px;background:#fffdf7;color:#2b2233;font-weight:700;
-  -webkit-text-fill-color:#2b2233}
-.bday-inp{-webkit-appearance:none;appearance:none}
+  -webkit-text-fill-color:#2b2233;-webkit-appearance:none;appearance:none}
 /* 生日 Modal：強制深色字（不受全域夜空白字影響） */
 .qbox input,.qbox select,.qbox .bday-inp,.overlay .bday-inp{
   color:#2b2233!important;background:#fffdf7!important;-webkit-text-fill-color:#2b2233!important}
 .qbox input::placeholder,.overlay .bday-inp::placeholder{color:#9a8a7a!important;-webkit-text-fill-color:#9a8a7a!important}
-.bday-row #bY{flex:1.9}
-.bday-row #bM,.bday-row #bD{flex:0.85;max-width:52px}
-.bday-row span{font-weight:800;color:#5a4a6a;font-size:12px;flex:none;margin:0 1px}
 .egg{font-size:80px;animation:eggBob 2s ease-in-out infinite}
 @keyframes eggBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
@@ -899,21 +957,27 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
     <div id="rain"></div>
   </div>
 
-  <!-- HUD -->
-  <div id="hud">
-    <div class="stat-pill"><img class="ic coin" id="coinIc" alt=""><span id="coinTxt">0</span></div>
-    <div class="stat-pill"><img class="ic gem" id="gemIc" alt=""><span id="gemTxt">0</span></div>
-    <div id="lvlWrap">
-      <div class="lv"><span id="lvTxt">Lv.1</span><span id="xpTxt">0/100</span></div>
-      <div class="xpbar"><i id="xpFill"></i></div>
+  <!-- 頂部動態島 -->
+  <div id="topChrome">
+    <div id="hud">
+      <div class="stat-pill"><img class="ic coin" id="coinIc" alt=""><span id="coinTxt">0</span></div>
+      <div class="stat-pill"><img class="ic gem" id="gemIc" alt=""><span id="gemTxt">0</span></div>
+      <div id="lvlWrap">
+        <div class="lv"><span id="lvTxt">Lv.1</span><span id="xpTxt">0/100</span></div>
+        <div class="xpbar"><i id="xpFill"></i></div>
+      </div>
+      <button type="button" id="hudShop" onclick="onHudShopClick()" aria-label="商店" title="商店">
+        <img id="hudShopIc" alt="" aria-hidden="true">
+      </button>
+      <button id="gear" type="button" title="設定" aria-label="設定">
+        <span class="gear-glow" aria-hidden="true"></span>
+        <img class="gear-icon" id="gearIc" alt="" aria-hidden="true">
+      </button>
     </div>
-    <button id="gear" type="button" title="設定" aria-label="設定">
-      <span class="gear-glow" aria-hidden="true"></span>
-      <img class="gear-icon" id="gearIc" alt="" aria-hidden="true">
-    </button>
   </div>
-
-  <button type="button" id="foodInvFab" onclick="toggleFoodInventory()" aria-label="食物背包" style="display:none"><img id="foodBagIc" alt="食物背包"></button>
+  <button type="button" id="foodInvFab" onclick="toggleFoodInventory()" aria-label="食物背包">
+    <img id="foodBagIc" alt="食物背包">
+  </button>
 
   <!-- 場景 -->
   <div id="scene" data-tod="day">
@@ -961,15 +1025,20 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       </div>
     </div>
     <!-- 覆蓋層：狀態欄、頁碼、邊緣提示（固定不動）-->
-    <div id="petStats" class="collapsed">
-      <button class="stats-dot" onclick="togglePetStats()" aria-label="展開/收合寵物狀態">🐾</button>
-      <div class="stats-body">
-        <div id="petName">寵物</div>
-        <div class="pstat hunger"><span>飽食</span><div class="bar"><i id="barHunger" style="background:#e8a030"></i></div></div>
-        <div class="pstat happy"><span>心情</span><div class="bar"><i id="barHappy" style="background:#e87898"></i></div></div>
-        <div class="pstat health"><span>健康</span><div class="bar"><i id="barHealth" style="background:#d85a5a"></i></div></div>
-        <div id="weatherTag">晴朗</div>
+    <div id="homeLeftChrome">
+      <div id="petStats" class="collapsed">
+        <button class="stats-dot glass-fab" onclick="togglePetStats()" aria-label="展開/收合寵物狀態">🐾</button>
+        <div class="stats-body">
+          <div id="petName">寵物</div>
+          <div class="pstat hunger"><span>飽食</span><div class="bar"><i id="barHunger" style="background:#e8a030"></i></div></div>
+          <div class="pstat happy"><span>心情</span><div class="bar"><i id="barHappy" style="background:#e87898"></i></div></div>
+          <div class="pstat health"><span>健康</span><div class="bar"><i id="barHealth" style="background:#d85a5a"></i></div></div>
+          <div id="weatherTag">晴朗</div>
+        </div>
       </div>
+      <button type="button" id="chatFab" class="glass-fab" onclick="openChat()" aria-label="陪玩與聊天" title="陪玩與聊天">
+        <img id="chatFabIc" alt="" aria-hidden="true">
+      </button>
     </div>
     <div id="pageDots"><i></i><i></i><i></i></div>
     <div class="edge-hint l"></div><div class="edge-hint r"></div>
@@ -998,7 +1067,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
     <button class="tab active" data-tab="home"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">首頁</span></button>
     <button class="tab" data-tab="ledger"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">記帳</span></button>
     <button class="tab" data-tab="war"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">聖戰</span></button>
-    <button class="tab" data-tab="shop"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">商店</span></button>
     <button class="tab" data-tab="stats"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">統計</span></button>
     <button class="tab tab-settings" data-tab="settings" aria-label="設定">
       <span class="tab-ic"><img class="em" alt=""></span>
@@ -1108,6 +1176,7 @@ const UNIT=id=>UNITS.find(u=>u.id===id);
 const warIconHtml=(id,sm)=>{const s=typeof WAR_ICON!=='undefined'&&WAR_ICON[id];return s?`<img class="war-ic${sm?' sm':''}" src="${s}" alt="">`:(UNIT(id)?.em||'');};
 const coinImgSrc=()=>(typeof MONEY_IMG!=='undefined'&&MONEY_IMG.coin)||(typeof COIN_IMG_SRC!=='undefined'?encodeURI(COIN_IMG_SRC):'');
 const settingsIconSrc=()=>(typeof SETTINGS_IMG_SRC!=='undefined'?encodeURI(SETTINGS_IMG_SRC):'');
+const playChatIconSrc=()=>(typeof CHAT_ICON!=='undefined'?CHAT_ICON:(typeof PLAY_CHAT_IMG_SRC!=='undefined'?encodeURI(PLAY_CHAT_IMG_SRC):(typeof PLAY_IMG!=='undefined'?PLAY_IMG:'')));
 const gemImgSrc=()=>(typeof MONEY_IMG!=='undefined'&&MONEY_IMG.gem)||'';
 const moneyIc=(k,sm)=>{
   const s=k==='coin'?coinImgSrc():gemImgSrc();
@@ -2966,11 +3035,11 @@ function hop(){
 /* ============ 渲染 ============ */
 function syncHudOffset(){syncChromeInsets();}
 function syncChromeInsets(){
-  const hud=$('#hud'),nav=$('#nav'),cap=$('#budgetCapsule');
+  const topChrome=$('#topChrome'),nav=$('#nav'),cap=$('#budgetCapsule');
   const gap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--float-gap'))||10;
-  if(hud){
-    const hudTop=hud.offsetTop||12;
-    document.documentElement.style.setProperty('--hud-h',(hudTop+hud.offsetHeight+8)+'px');
+  if(topChrome){
+    const top=topChrome.offsetTop||12;
+    document.documentElement.style.setProperty('--hud-h',(top+topChrome.offsetHeight+8)+'px');
   }
   if(nav){
     const navBottom=parseFloat(getComputedStyle(nav).bottom);
@@ -3086,10 +3155,15 @@ function updateTabChrome(t){
   }
   if(sheet)sheet.style.display=isHome?'none':'flex';
   if(cap)cap.style.display=isHome&&!financeDashOpen?'flex':'none';
+  const hudShop=$('#hudShop');
+  if(hudShop)hudShop.classList.toggle('on',t==='shop');
   applySkyChrome();
 }
 function onNavTabClick(t){
   switchTab(t);
+}
+function onHudShopClick(){
+  onNavTabClick('shop');
 }
 function switchTab(t){
   if(foodInvOpen)closeFoodInventory();
@@ -3105,6 +3179,7 @@ function switchTab(t){
   layoutSheet();
   // 回首頁時重新量測場景寬度並對齊，修正登入後量到 0 寬導致無法左右滑的問題
   if(t==='home'&&typeof SceneCarousel!=='undefined'&&SceneCarousel.track){SceneCarousel._measure();SceneCarousel.snap(false);}
+  updateChatFab();
 }
 function renderAll(){
   renderHUD();renderScene();
@@ -4775,70 +4850,140 @@ const ZODIAC_NAMES=['鼠','牛','虎','兔','龍','蛇','馬','羊','猴','雞',
 function zodiacIndexFromYear(y){return ((y-4)%12+12)%12;}
 let onboardZodiac=null;
 let bdayDraft={year:'2000',month:'1',day:'1'};
+const BDAY_MIN_YEAR=1990;
+const BDAY_ITEM_H=40;
+const BDAY_WHEEL_PAD=2;
 function bdayDaysInMonth(y,m){
   if(!y||!m)return 31;
   return new Date(y,m,0).getDate();
 }
-function sanitizeBdayDigits(raw,maxLen){
-  return String(raw??'').replace(/\D/g,'').slice(0,maxLen);
-}
-function onBdayInput(part,el){
-  let raw=sanitizeBdayDigits(el.value,part==='year'?4:2);
-  if(el.value!==raw)el.value=raw;
+function bdayWheelValues(part){
+  const nowY=new Date().getFullYear();
   if(part==='year'){
-    bdayDraft.year=raw;
-    el.value=raw;
-  }else if(part==='month'){
-    if(raw===''){bdayDraft.month='';el.value='';updateBdayHint();return;}
-    if(+raw>12)raw='12';
-    bdayDraft.month=raw;
-    el.value=raw;
-  }else if(part==='day'){
-    if(raw===''){bdayDraft.day='';el.value='';updateBdayHint();return;}
-    const y=+(bdayDraft.year||0),mo=+(bdayDraft.month||0);
-    const maxD=mo?bdayDaysInMonth(y||2000,mo):31;
-    if(+raw>maxD)raw=String(maxD);
-    bdayDraft.day=raw;
-    el.value=raw;
+    const ys=[];
+    for(let y=BDAY_MIN_YEAR;y<=nowY;y++)ys.push(String(y));
+    return ys;
   }
+  if(part==='month')return Array.from({length:12},(_,i)=>String(i+1));
+  const y=+(bdayDraft.year||2000),mo=+(bdayDraft.month||1);
+  const maxD=bdayDaysInMonth(y,mo);
+  return Array.from({length:maxD},(_,i)=>String(i+1));
+}
+function bdayWheelItemsHtml(values,selected){
+  const sp='<li class="bday-wheel-item bday-wheel-spacer" aria-hidden="true"></li>';
+  const pad=sp.repeat(BDAY_WHEEL_PAD);
+  const body=values.map(v=>{
+    const on=v===String(selected)?' on':'';
+    return `<li class="bday-wheel-item${on}" data-val="${v}">${v}</li>`;
+  }).join('');
+  return pad+body+pad;
+}
+function updateBdayWheelVisual(el){
+  if(!el)return;
+  const idx=Math.round(el.scrollTop/BDAY_ITEM_H);
+  el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)').forEach((li,i)=>{
+    const dist=Math.abs(i-idx);
+    li.classList.toggle('on',dist===0);
+    li.classList.toggle('near',dist===1);
+    if(dist>1)li.style.opacity='.32';
+    else li.style.opacity='';
+  });
+}
+function scrollBdayWheelTo(el,val){
+  if(!el)return;
+  const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
+  const idx=items.findIndex(li=>li.dataset.val===String(val));
+  if(idx>=0){
+    el.scrollTop=idx*BDAY_ITEM_H;
+    updateBdayWheelVisual(el);
+  }
+}
+function syncBdayWheelPart(el,part){
+  if(!el)return;
+  const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
+  if(!items.length)return;
+  const idx=Math.max(0,Math.min(Math.round(el.scrollTop/BDAY_ITEM_H),items.length-1));
+  const val=items[idx]?.dataset.val;
+  if(!val)return;
+  if(part==='year')bdayDraft.year=val;
+  else if(part==='month')bdayDraft.month=val;
+  else bdayDraft.day=val;
+}
+function finishBdayWheelScroll(el,part){
+  if(!el)return;
+  const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
+  if(!items.length)return;
+  const idx=Math.max(0,Math.min(Math.round(el.scrollTop/BDAY_ITEM_H),items.length-1));
+  el.scrollTo({top:idx*BDAY_ITEM_H,behavior:'smooth'});
+  syncBdayWheelPart(el,part);
+  updateBdayWheelVisual(el);
+  if(part==='year'||part==='month')refreshBdayDayWheel();
   updateBdayHint();
 }
-function onBdayBlur(part,el){
-  if(part==='year'){
-    let y=+el.value;
-    const nowY=new Date().getFullYear();
-    if(!el.value||!Number.isFinite(y)||y<1920)y=2000;
-    if(y>nowY)y=nowY;
-    bdayDraft.year=String(y);
-    el.value=bdayDraft.year;
-  }else if(part==='month'){
-    if(el.value===''){bdayDraft.month='1';el.value='1';}
-    else{
-      let mo=Math.max(1,Math.min(12,+el.value||1));
-      bdayDraft.month=String(mo);
-      el.value=bdayDraft.month;
-    }
-  }else if(part==='day'){
-    const y=+(bdayDraft.year||2000),mo=+(bdayDraft.month||1);
-    const maxD=bdayDaysInMonth(y,mo);
-    if(el.value===''){bdayDraft.day='1';el.value='1';}
-    else{
-      let da=Math.max(1,Math.min(maxD,+el.value||1));
-      bdayDraft.day=String(da);
-      el.value=bdayDraft.day;
-    }
-  }
-  updateBdayHint();
+function bindBdayWheel(el,part){
+  if(!el||el.dataset.bdayBound)return;
+  el.dataset.bdayBound='1';
+  let snapTimer;
+  el.addEventListener('scroll',()=>{
+    updateBdayWheelVisual(el);
+    clearTimeout(snapTimer);
+    snapTimer=setTimeout(()=>finishBdayWheelScroll(el,part),90);
+  },{passive:true});
+  el.addEventListener('click',e=>{
+    const li=e.target.closest('.bday-wheel-item:not(.bday-wheel-spacer)');
+    if(!li)return;
+    const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
+    const idx=items.indexOf(li);
+    if(idx>=0)el.scrollTo({top:idx*BDAY_ITEM_H,behavior:'smooth'});
+  });
+}
+function refreshBdayDayWheel(){
+  const dEl=$('#bdayWheelD');
+  if(!dEl)return;
+  const y=+(bdayDraft.year||2000),mo=+(bdayDraft.month||1);
+  const maxD=bdayDaysInMonth(y,mo);
+  let da=+(bdayDraft.day||1);
+  if(da>maxD){da=maxD;bdayDraft.day=String(da);}
+  dEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('day'),bdayDraft.day);
+  requestAnimationFrame(()=>scrollBdayWheelTo(dEl,bdayDraft.day));
+}
+function syncBdayFromWheels(){
+  syncBdayWheelPart($('#bdayWheelY'),'year');
+  syncBdayWheelPart($('#bdayWheelM'),'month');
+  syncBdayWheelPart($('#bdayWheelD'),'day');
+}
+function initBdayWheels(){
+  const nowY=new Date().getFullYear();
+  let y=+(bdayDraft.year||2000);
+  if(y<BDAY_MIN_YEAR)y=BDAY_MIN_YEAR;
+  if(y>nowY)y=nowY;
+  bdayDraft.year=String(y);
+  bdayDraft.month=String(Math.max(1,Math.min(12,+(bdayDraft.month||1))));
+  const maxD=bdayDaysInMonth(y,+(bdayDraft.month));
+  bdayDraft.day=String(Math.max(1,Math.min(maxD,+(bdayDraft.day||1))));
+  const yEl=$('#bdayWheelY'),mEl=$('#bdayWheelM'),dEl=$('#bdayWheelD');
+  if(!yEl||!mEl||!dEl)return;
+  yEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('year'),bdayDraft.year);
+  mEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('month'),bdayDraft.month);
+  dEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('day'),bdayDraft.day);
+  bindBdayWheel(yEl,'year');
+  bindBdayWheel(mEl,'month');
+  bindBdayWheel(dEl,'day');
+  requestAnimationFrame(()=>{
+    scrollBdayWheelTo(yEl,bdayDraft.year);
+    scrollBdayWheelTo(mEl,bdayDraft.month);
+    scrollBdayWheelTo(dEl,bdayDraft.day);
+    updateBdayHint();
+  });
 }
 function getBdayParts(){
-  const yEl=$('#bY'),mEl=$('#bM'),dEl=$('#bD');
-  const y=+(bdayDraft.year||yEl?.value||0);
-  const mo=+(bdayDraft.month||mEl?.value||0);
-  const da=+(bdayDraft.day||dEl?.value||0);
+  const y=+(bdayDraft.year||0);
+  const mo=+(bdayDraft.month||0);
+  const da=+(bdayDraft.day||0);
   if(!y||!mo||!da)return null;
   const d=new Date(y,mo-1,da);
   if(d.getFullYear()!==y||d.getMonth()!==mo-1||d.getDate()!==da)return null;
-  if(y<1920||d>new Date())return null;
+  if(y<BDAY_MIN_YEAR||d>new Date())return null;
   return d;
 }
 function updateBdayHint(){
@@ -4850,31 +4995,43 @@ function updateBdayHint(){
   hint.innerHTML=`你的生肖是 <b style="color:#c07a10">${ZODIAC_NAMES[zi]}</b>　命運寵物：${a.e} <b>${a.n}</b>`;
 }
 function showBirthday(){
-  const nowY=new Date().getFullYear();
   if(!bdayDraft.year)bdayDraft.year='2000';
   if(!bdayDraft.month)bdayDraft.month='1';
   if(!bdayDraft.day)bdayDraft.day='1';
   showOverlay(`<div class="qbox">
     <div class="qn">第一步 · 出生年月日</div>
     <div class="qt">先告訴我你的生日<br>我會依你的生肖決定命運寵物</div>
-    <div class="bday-row">
-      <input id="bY" type="text" inputmode="numeric" pattern="[0-9]*" class="bday-inp" maxlength="4"
-        value="${bdayDraft.year}" aria-label="出生年" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
-        oninput="onBdayInput('year',this)" onblur="onBdayBlur('year',this)"><span>年</span>
-      <input id="bM" type="text" inputmode="numeric" pattern="[0-9]*" class="bday-inp" maxlength="2"
-        value="${bdayDraft.month}" aria-label="出生月" placeholder="月" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
-        oninput="onBdayInput('month',this)" onblur="onBdayBlur('month',this)"><span>月</span>
-      <input id="bD" type="text" inputmode="numeric" pattern="[0-9]*" class="bday-inp" maxlength="2"
-        value="${bdayDraft.day}" aria-label="出生日" placeholder="日" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
-        oninput="onBdayInput('day',this)" onblur="onBdayBlur('day',this)"><span>日</span>
+    <div class="bday-picker">
+      <div class="bday-wheel-col bday-wheel-col-year">
+        <div class="bday-wheel-lbl">年</div>
+        <div class="bday-wheel-wrap">
+          <div class="bday-wheel-highlight" aria-hidden="true"></div>
+          <ul class="bday-wheel-list" id="bdayWheelY" aria-label="出生年"></ul>
+        </div>
+      </div>
+      <div class="bday-wheel-col">
+        <div class="bday-wheel-lbl">月</div>
+        <div class="bday-wheel-wrap">
+          <div class="bday-wheel-highlight" aria-hidden="true"></div>
+          <ul class="bday-wheel-list" id="bdayWheelM" aria-label="出生月"></ul>
+        </div>
+      </div>
+      <div class="bday-wheel-col">
+        <div class="bday-wheel-lbl">日</div>
+        <div class="bday-wheel-wrap">
+          <div class="bday-wheel-highlight" aria-hidden="true"></div>
+          <ul class="bday-wheel-list" id="bdayWheelD" aria-label="出生日"></ul>
+        </div>
+      </div>
     </div>
     <div id="bdayErr" class="mini" style="color:#e05a5a;min-height:15px;margin-top:8px"></div>
     <div id="bdayHint" class="mini" style="text-align:center;min-height:18px;margin-bottom:6px"></div>
     <button class="btn" style="width:100%" onclick="submitBirthday()">下一步 ▶</button>
   </div>`);
-  updateBdayHint();
+  initBdayWheels();
 }
 function submitBirthday(){
+  syncBdayFromWheels();
   const d=getBdayParts();
   if(!d){const e=$('#bdayErr'); if(e)e.textContent='請選擇有效的出生年月日';return;}
   const zi=zodiacIndexFromYear(d.getFullYear());
@@ -5138,8 +5295,16 @@ const SceneCarousel={
 function updateFoodFab(){
   const fab=$('#foodInvFab'); if(!fab)return;
   const onKitchen=(typeof SceneCarousel!=='undefined' && SCENES[SceneCarousel.i]==='kitchen');
-  fab.style.display=onKitchen?'':'none';
+  fab.classList.toggle('show',!!onKitchen);
   if(!onKitchen && typeof foodInvOpen!=='undefined' && foodInvOpen)closeFoodInventory();
+  updateChatFab();
+}
+/* 聊天 FAB 只在首頁（home 場景）顯示 */
+function updateChatFab(){
+  const fab=$('#chatFab'); if(!fab)return;
+  const onHome=(curTab==='home') &&
+    (typeof SceneCarousel==='undefined' || SCENES[SceneCarousel.i]==='home');
+  fab.classList.toggle('show', !!onHome && S.pet.stage>=2);
 }
 function initScenes(){
   SceneCarousel.init();
@@ -5168,6 +5333,8 @@ document.querySelectorAll('.tab').forEach(b=>{
   else if(NAV_ICON[b.dataset.tab])img.src=NAV_ICON[b.dataset.tab];
 });
 const _gearIc=$('#gearIc');if(_gearIc){const s=settingsIconSrc();if(s)_gearIc.src=s;}
+const _hudShopIc=$('#hudShopIc');if(_hudShopIc&&typeof NAV_ICON!=='undefined'&&NAV_ICON.shop)_hudShopIc.src=NAV_ICON.shop;
+const _chatFabIc=$('#chatFabIc');if(_chatFabIc){const s=playChatIconSrc();if(s)_chatFabIc.src=s;}
 setSheetTitle(curTab);
 document.querySelectorAll('#pet,.scene-pet').forEach(p=>{p.onclick=e=>{e.stopPropagation();playWithPet();};});
 scheduleHomeObject(2500); // 開場 2.5 秒後在浮島放第一個互動物件
