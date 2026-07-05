@@ -2,11 +2,17 @@
   "name": "floating-island-ledger",
   "version": "1.0.0",
   "private": true,
-  "description": "GameFi 浮島虛擬寵物記帳 App（Node 靜態伺服器 + Gemini 代理）",
+  "description": "GameFi 浮島虛擬寵物記帳 App（Node 靜態伺服器 + Gemini 代理 + Google OAuth）",
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
     "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "google-auth-library": "^9.15.1",
+    "jsonwebtoken": "^9.0.2"
   }
 }

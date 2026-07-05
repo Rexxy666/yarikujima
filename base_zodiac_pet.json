@@ -1,0 +1,129 @@
+{
+  "skeleton": {
+    "hash": "zodiacBaseV1",
+    "spine": "3.8.99",
+    "x": -60,
+    "y": 0,
+    "width": 120,
+    "height": 220,
+    "images": "./images/",
+    "audio": ""
+  },
+
+  "bones": [
+    { "name": "root" },
+    { "name": "pelvis_core", "parent": "root", "x": 0, "y": 70 },
+    { "name": "spine_torso", "parent": "pelvis_core", "length": 45, "rotation": 90, "x": 0, "y": 0 },
+    { "name": "head_hub", "parent": "spine_torso", "length": 28, "x": 45, "y": 0 },
+    { "name": "tail_limb", "parent": "pelvis_core", "length": 40, "rotation": 210, "x": -8, "y": 8 }
+  ],
+
+  "slots": [
+    { "name": "slot_interact_toy", "bone": "root",        "attachment": null },
+    { "name": "slot_zodiac_chassis", "bone": "pelvis_core", "attachment": "body" },
+    { "name": "slot_body_gear", "bone": "spine_torso",    "attachment": null },
+    { "name": "slot_head_wear", "bone": "head_hub",       "attachment": null }
+  ],
+
+  "skins": [
+    {
+      "name": "default",
+      "attachments": {
+        "slot_zodiac_chassis": {
+          "body": { "path": "zodiac/egg", "x": 0, "y": 55, "width": 96, "height": 128 }
+        }
+      }
+    },
+
+    { "name": "zodiac/rat",     "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/rat",     "x": 0, "y": 52, "width": 88,  "height": 118 } } } },
+    { "name": "zodiac/ox",      "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/ox",      "x": 0, "y": 58, "width": 104, "height": 132 } } } },
+    { "name": "zodiac/tiger",   "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/tiger",   "x": 0, "y": 56, "width": 98,  "height": 128 } } } },
+    { "name": "zodiac/rabbit",  "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/rabbit",  "x": 0, "y": 54, "width": 86,  "height": 124 } } } },
+    { "name": "zodiac/dragon",  "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/dragon",  "x": 0, "y": 60, "width": 110, "height": 150 } } } },
+    { "name": "zodiac/snake",   "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/snake",   "x": 0, "y": 64, "width": 74,  "height": 170 } } } },
+    { "name": "zodiac/horse",   "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/horse",   "x": 0, "y": 58, "width": 118, "height": 130 } } } },
+    { "name": "zodiac/goat",    "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/goat",    "x": 0, "y": 56, "width": 94,  "height": 126 } } } },
+    { "name": "zodiac/monkey",  "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/monkey",  "x": 0, "y": 55, "width": 90,  "height": 128 } } } },
+    { "name": "zodiac/rooster", "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/rooster", "x": 0, "y": 54, "width": 88,  "height": 130 } } } },
+    { "name": "zodiac/dog",     "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/dog",     "x": 0, "y": 56, "width": 100, "height": 124 } } } },
+    { "name": "zodiac/pig",     "attachments": { "slot_zodiac_chassis": { "body": { "path": "zodiac/pig",     "x": 0, "y": 52, "width": 102, "height": 118 } } } },
+
+    { "name": "wear_head/crown",   "attachments": { "slot_head_wear": { "headwear": { "path": "wear/crown",   "x": 0, "y": 18, "width": 60, "height": 48 } } } },
+    { "name": "wear_head/goggles", "attachments": { "slot_head_wear": { "headwear": { "path": "wear/goggles", "x": 0, "y": 6,  "width": 66, "height": 30 } } } },
+    { "name": "wear_body/armor",   "attachments": { "slot_body_gear": { "bodygear": { "path": "wear/armor",   "rotation": -90, "x": 0, "y": 22, "width": 92, "height": 78 } } } },
+    { "name": "wear_body/cape",    "attachments": { "slot_body_gear": { "bodygear": { "path": "wear/cape",    "rotation": -90, "x": -6, "y": 20, "width": 108, "height": 96 } } } },
+    { "name": "toy/ball",          "attachments": { "slot_interact_toy": { "toy": { "path": "toy/ball", "x": 48, "y": 16, "width": 40, "height": 40 } } } }
+  ],
+
+  "animations": {
+    "sleep_loop": {
+      "slots": {
+        "slot_head_wear": {},
+        "slot_body_gear": {}
+      },
+      "bones": {
+        "spine_torso": {
+          "translate": [
+            { "time": 0,   "x": 0, "y": 0,   "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1,   "x": 0, "y": 4,   "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2,   "x": 0, "y": 0 }
+          ]
+        },
+        "head_hub": {
+          "translate": [
+            { "time": 0,   "x": 0, "y": 0,   "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1,   "x": -1, "y": 2.5, "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2,   "x": 0, "y": 0 }
+          ],
+          "rotate": [
+            { "time": 0, "angle": 0,    "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1, "angle": -3,   "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2, "angle": 0 }
+          ]
+        },
+        "tail_limb": {
+          "rotate": [
+            { "time": 0, "angle": 0,   "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1, "angle": 2,   "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2, "angle": 0 }
+          ]
+        }
+      }
+    },
+
+    "idle_active": {
+      "bones": {
+        "spine_torso": {
+          "translate": [
+            { "time": 0,   "x": 0, "y": 0,   "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1,   "x": 0, "y": 2.5, "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2,   "x": 0, "y": 0 }
+          ]
+        },
+        "head_hub": {
+          "rotate": [
+            { "time": 0,   "angle": 0,  "curve": [0.25, 0, 0.75, 1] },
+            { "time": 0.8, "angle": 4,  "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1.6, "angle": -4, "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2,   "angle": 0 }
+          ]
+        },
+        "tail_limb": {
+          "rotate": [
+            { "time": 0,   "angle": -7, "curve": [0.25, 0, 0.75, 1] },
+            { "time": 0.7, "angle": 7,  "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1.4, "angle": -7, "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2,   "angle": -7 }
+          ]
+        },
+        "pelvis_core": {
+          "translate": [
+            { "time": 0, "x": 0, "y": 0,    "curve": [0.25, 0, 0.75, 1] },
+            { "time": 1, "x": 0, "y": -1.2, "curve": [0.25, 0, 0.75, 1] },
+            { "time": 2, "x": 0, "y": 0 }
+          ]
+        }
+      }
+    }
+  }
+}

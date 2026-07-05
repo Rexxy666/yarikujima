@@ -13,18 +13,37 @@
   --wood:#8a5a2b; --wood2:#6b4420; --sky1:#7ec8ff; --sky2:#bdeaff;
   --font:"Segoe UI",-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
   --hud-h:58px;
+  --sky-gap:40px;
+  --float-mx:16px;
+  --float-mt:12px;
+  --float-mb:16px;
+  --float-gap:10px;
 }
 html,body{height:100%}
 body{
   font-family:var(--font); color:var(--ink); background:#1b1524;
   display:flex; justify-content:center; overflow:hidden;
   image-rendering:pixelated;
+  transition:background-color .3s ease;
 }
 #app{
   position:relative; width:100%; max-width:460px; height:100vh; height:100dvh;
-  background:#241a30; display:flex; flex-direction:column; overflow:hidden;
+  background-color:#5db8ff;
+  display:flex; flex-direction:column; overflow:hidden;
   box-shadow:0 0 40px rgba(0,0,0,.6);
+  transition:background-color 1.2s ease;
 }
+/* 全域天空底色（與首頁浮島同步） */
+#pageBg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(#5db8ff 0%,#8fd0ff 55%,#bde9ff 100%);
+  transition:background 1.2s ease;
+}
+#pageBg[data-tod="day"]{background:linear-gradient(#5db8ff 0%,#8fd0ff 55%,#bde9ff 100%)}
+#pageBg[data-tod="dawn"]{background:linear-gradient(#7fa8d8 0%,#f0c9a0 60%,#ffe6c8 100%)}
+#pageBg[data-tod="dusk"]{background:linear-gradient(#ff9e6d 0%,#ffbe8f 45%,#ffd9a8 100%)}
+#pageBg[data-tod="night"]{background:linear-gradient(#141a3a 0%,#26305e 55%,#3a4270 100%)}
+#skyDecor{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 .pixel-border{border:3px solid var(--line); box-shadow:0 3px 0 var(--line), inset 0 0 0 2px #fff6}
 button{font-family:var(--font); cursor:pointer; border:none; color:inherit}
 .btn{
@@ -39,16 +58,22 @@ button{font-family:var(--font); cursor:pointer; border:none; color:inherit}
 .btn.sm{padding:7px 10px; font-size:12px; box-shadow:0 3px 0 var(--wood2)}
 .btn:disabled{filter:grayscale(.7); opacity:.6; box-shadow:0 4px 0 #777; cursor:not-allowed}
 
-/* ===== HUD ===== */
+/* ===== HUD：懸浮動態島膠囊 ===== */
 #hud{
-  position:absolute; top:0; left:0; right:0; z-index:8; display:flex; align-items:center; gap:8px;
-  padding:9px 10px;
-  background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.05));
-  -webkit-backdrop-filter:blur(14px) saturate(1.15); backdrop-filter:blur(14px) saturate(1.15);
-  border-bottom:1px solid rgba(255,255,255,.4);
+  position:absolute;
+  top:max(var(--float-mt),env(safe-area-inset-top,0px));
+  left:var(--float-mx);right:var(--float-mx);
+  z-index:20;display:flex;align-items:center;gap:8px;
+  padding:8px 12px;
+  background:rgba(255,255,255,.78);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  backdrop-filter:blur(16px) saturate(1.2);
+  border:1px solid rgba(255,255,255,.52);
+  border-radius:999px;
+  box-shadow:0 4px 20px rgba(0,0,0,.08),0 8px 28px rgba(18,12,36,.14),inset 0 1px 0 rgba(255,255,255,.72);
 }
-.stat-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.7);
-  border-radius:20px;padding:4px 11px 4px 6px;font-weight:800;color:#2B2233;font-size:13px;box-shadow:0 2px 8px rgba(30,20,55,.10)}
+.stat-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.65);
+  border-radius:20px;padding:4px 10px 4px 6px;font-weight:800;color:#2B2233;font-size:13px;box-shadow:0 1px 4px rgba(30,20,55,.08)}
 .stat-pill .ic{width:20px;height:20px;display:grid;place-items:center;border-radius:50%;font-size:13px}
 img.ic{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;background:none;border-radius:0}
 .money-ic{height:1.05em;width:auto;vertical-align:-.2em;display:inline-block;object-fit:contain;image-rendering:pixelated}
@@ -63,8 +88,7 @@ img.ic.gem{margin-right:5px}
 #lvlWrap .lv{font-size:11px;color:#8a5a10;font-weight:800;display:flex;justify-content:space-between;text-shadow:0 1px 0 rgba(255,255,255,.5)}
 .xpbar{height:9px;background:rgba(80,60,110,.16);border:1px solid rgba(255,255,255,.5);border-radius:6px;overflow:hidden;margin-top:2px}
 .xpbar>i{display:block;height:100%;background:linear-gradient(#ffe08a,#f5a623);width:0%}
-#gear{position:relative;background:transparent;border:none;border-radius:50%;width:36px;height:36px;
-  display:grid;place-items:center;padding:0;cursor:pointer;flex:none;-webkit-tap-highlight-color:transparent}
+#gear{display:none}
 #gear .gear-glow{position:absolute;inset:1px;border-radius:50%;opacity:0;pointer-events:none;
   background:radial-gradient(circle,rgba(255,255,255,.42) 0%,rgba(255,255,255,.12) 52%,transparent 72%);
   transition:opacity .16s ease}
@@ -75,14 +99,8 @@ img.ic.gem{margin-right:5px}
 #gear:active .gear-icon{transform:scale(.94)}
 
 /* ===== 場景 ===== */
-#scene{position:relative;flex:1;overflow:hidden;transition:background 1.2s ease;
-  background:linear-gradient(#5db8ff 0%,#8fd0ff 55%,#bde9ff 100%)}
-/* 動態時段天空 */
-#scene[data-tod="day"]{background:linear-gradient(#5db8ff 0%,#8fd0ff 55%,#bde9ff 100%)}
-#scene[data-tod="dawn"]{background:linear-gradient(#7fa8d8 0%,#f0c9a0 60%,#ffe6c8 100%)}
-#scene[data-tod="dusk"]{background:linear-gradient(#ff9e6d 0%,#ffbe8f 45%,#ffd9a8 100%)}
-#scene[data-tod="night"]{background:linear-gradient(#141a3a 0%,#26305e 55%,#3a4270 100%)}
-/* 場景 carousel */
+#scene{position:relative;flex:1;overflow:hidden;z-index:2;background:transparent}
+/* 島嶼場景（天空由 #pageBg 全域提供） */
 #sceneTrack{display:flex;height:100%;width:300%;transform:translate3d(0,0,0);
   transition:transform .42s cubic-bezier(.25,1,.5,1);will-change:transform}
 #sceneTrack.dragging{transition:none}
@@ -94,9 +112,15 @@ img.ic.gem{margin-right:5px}
 .scene-isle-float{position:relative;overflow:visible;width:100%;--pet-h:120px;--px:50%;--py:56%}
 .scene-click-layer{position:absolute;inset:0;z-index:1;cursor:crosshair;touch-action:manipulation}
 .scene-click-markers{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:visible}
-#pageDots{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:7;display:flex;gap:7px}
-#pageDots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.12);transition:.22s}
-#pageDots i.on{background:#fff;width:18px;border-radius:4px}
+#pageDots{position:absolute;left:50%;top:calc(var(--hud-h, 58px) + 12px);transform:translateX(-50%);z-index:6;
+  display:flex;gap:7px;align-items:center;padding:5px 11px;border-radius:999px;
+  background:rgba(20,16,36,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  box-shadow:0 2px 8px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.25)}
+#pageDots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.72);
+  border:1px solid rgba(0,0,0,.22);box-shadow:0 1px 2px rgba(0,0,0,.18);transition:.22s}
+#pageDots i.on{background:#fff;width:18px;border-radius:4px;border-color:rgba(0,0,0,.18);
+  box-shadow:0 1px 4px rgba(0,0,0,.22)}
+#scene[data-tod="dusk"] #pageDots,#scene[data-tod="dawn"] #pageDots{background:rgba(20,16,36,.22)}
 .edge-hint{position:absolute;top:0;bottom:0;width:24px;z-index:6;pointer-events:none;opacity:.45;transition:opacity .3s}
 .edge-hint.l{left:0;background:linear-gradient(90deg,rgba(0,0,0,.13),transparent)}
 .edge-hint.r{right:0;background:linear-gradient(270deg,rgba(0,0,0,.13),transparent)}
@@ -111,8 +135,8 @@ img.ic.gem{margin-right:5px}
   background:radial-gradient(circle at 40% 35%,#fff2b0,#ffd93b);box-shadow:0 0 0 6px #fff59d55,0 0 30px #ffe07a;transition:opacity .6s}
 .cloud{position:absolute;background:#fff;border-radius:20px;opacity:.9;
   box-shadow:18px 6px 0 -2px #fff,36px 0 0 -6px #fff, -14px 6px 0 -4px #fff}
-.cloud.c1{width:52px;height:20px;top:40px;left:24px;animation:drift 26s linear infinite}
-.cloud.c2{width:40px;height:16px;top:96px;left:60%;opacity:.75;animation:drift 34s linear infinite}
+.cloud.c1{width:52px;height:20px;top:calc(var(--hud-h, 58px) + var(--sky-gap, 40px));left:24px;animation:drift 26s linear infinite}
+.cloud.c2{width:40px;height:16px;top:calc(var(--hud-h, 58px) + var(--sky-gap, 40px) + 56px);left:60%;opacity:.75;animation:drift 34s linear infinite}
 @keyframes drift{0%{transform:translateX(-20px)}50%{transform:translateX(40px)}100%{transform:translateX(-20px)}}
 #rain{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;overflow:hidden}
 #rain.on{opacity:1}
@@ -210,10 +234,11 @@ img.ic.gem{margin-right:5px}
 .food-inv-name{font-size:9px;font-weight:800;color:#5a4a6a;line-height:1.15;text-align:center}
 .food-inv-hint{font-size:11px;color:#9a8a7a;text-align:center;margin-top:10px;font-weight:700}
 .food-inv-hint .money-ic{height:12px;vertical-align:-2px;margin:0 1px}
-#foodInvFab{position:absolute;right:12px;bottom:var(--inv-fab-bottom,42%);z-index:7;
+#foodInvFab{position:absolute;top:calc(var(--hud-h, 58px) + 12px);right:8px;z-index:21;
+  width:44px;height:44px;display:grid;place-items:center;
   background:none;border:none;padding:0;margin:0;line-height:0;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
-#foodBagIc{width:48px;height:48px;object-fit:contain;image-rendering:pixelated;display:block}
+  -webkit-tap-highlight-color:transparent;filter:drop-shadow(0 2px 4px rgba(0,0,0,.28))}
+#foodBagIc{width:44px;height:44px;object-fit:contain;image-rendering:pixelated;display:block}
 #foodInvFab:active{transform:scale(.94)}
 @keyframes bob{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 8px))}}
 @keyframes shiver{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-53%,-100%)}}
@@ -235,10 +260,11 @@ img.ic.gem{margin-right:5px}
   transform:translate(-50%,-100%);z-index:6;
   width:max-content;min-width:clamp(178px,43vw,210px);max-width:min(52vw,240px);
   background:rgba(255,255,255,.96);border:2px solid #000;border-radius:10px;padding:12px 14px;font-size:12px;font-weight:600;
-  color:#33254a;box-shadow:0 3px 0 #0002;opacity:0;visibility:hidden;transition:opacity .25s;text-align:center;
+  color:#33254a;box-shadow:0 3px 0 #0002;opacity:0;visibility:hidden;
+  transition:opacity .35s ease,visibility 0s linear .35s;text-align:center;
   line-height:1.5;word-break:normal;overflow-wrap:break-word;white-space:normal;
   animation:speechFloat 3.3s ease-in-out infinite;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:auto;box-sizing:border-box}
-#speech.show{opacity:1;visibility:visible}
+#speech.show{opacity:1;visibility:visible;transition:opacity .35s ease,visibility 0s}
 @keyframes speechFloat{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 2px))}}
 #speech::after{content:"";position:absolute;left:50%;bottom:calc(-1 * var(--speech-arrow));transform:translateX(-50%);
   border:6px solid transparent;border-top-color:#000;border-bottom:none}
@@ -273,64 +299,257 @@ img.ic.gem{margin-right:5px}
 @keyframes ledPulse{0%,100%{box-shadow:0 0 4px var(--c),inset 1.5px 1.5px 0 rgba(255,255,255,.65)}
   50%{box-shadow:0 0 10px var(--c),inset 1.5px 1.5px 0 rgba(255,255,255,.65)}}
 
-/* ===== 分頁內容：毛玻璃 BottomSheet ===== */
+/* ===== 分頁內容：首頁隱藏；其餘 Tab 為全螢幕功能頁 ===== */
 #sheet{
   position:absolute; left:0; right:0; z-index:6;
-  background:rgba(255,255,255,0.85);
+  display:none; flex-direction:column; overflow:hidden;
+  overscroll-behavior:contain; touch-action:pan-y;
+}
+#app.tab-home #sheet{display:none}
+/* 功能 Tab：滿版頁面（遮住浮島場景） */
+#app.tab-app #scene{display:none}
+#app.tab-app #speech{display:none}
+#app.tab-app #sheet{
+  display:flex;
+  top:0;bottom:0;left:0;right:0;
+  max-height:none;
+  height:auto;
+  border-radius:0;
+  box-shadow:none;
+  background:transparent;
+  z-index:5;
+  pointer-events:none;
+}
+#app.tab-app #sheetHead,
+#app.tab-app #sheetBody{pointer-events:auto}
+#app.tab-app #sheetHead{
+  padding:calc(var(--hud-h,58px) + 6px) 16px 10px;
+  background:transparent;
+  border-bottom:1px solid rgba(30,20,55,.06);
+}
+#app[data-sky="dark"].tab-app #sheetHead{border-bottom-color:rgba(255,255,255,.12)}
+#app.tab-app #sheetBody{
+  padding:14px 16px calc(var(--nav-stack-h,var(--nav-h,70px)) + 16px);
+}
+#sheetHead b{color:#2B2233}
+#app[data-sky="dark"] #sheetHead b{color:rgba(255,255,255,.95)}
+.page-panel{display:flex;flex-direction:column;gap:0;max-width:100%}
+.ledger-page .seg{margin-bottom:8px}
+.ledger-page .fld{margin-top:16px;margin-bottom:6px}
+.ledger-page #amt{font-size:24px;padding:14px 12px}
+.ledger-page .chips{gap:8px;margin-top:6px}
+.ledger-page .chip{padding:9px 12px;font-size:13px}
+.ledger-page .card.mt{margin-top:18px!important}
+.ledger-page .btn.mt{margin-top:20px;height:50px;font-size:15px}
+.ledger-debug-btn{
+  display:block;width:100%;margin-top:14px;margin-bottom:4px;box-sizing:border-box;
+  padding:11px 14px;font-family:var(--font);font-size:12px;font-weight:800;text-align:center;
+  color:#b45309;background:#f3f4f6;border:2px dashed #f97316;border-radius:10px;cursor:pointer;
+  box-shadow:none;transition:transform .05s,background .12s}
+.ledger-debug-btn:active{transform:translateY(1px);background:#e5e7eb}
+#app[data-sky="dark"] .ledger-debug-btn{color:#fdba74;background:rgba(255,255,255,.08);border-color:#fb923c}
+.war-page .market-bar{margin-bottom:10px}
+.war-page .fld{margin-top:14px}
+.shop-page .hint{line-height:1.55;margin-bottom:12px}
+.stats-panel.page-panel{padding-top:2px}
+/* 設定分頁：標題 + 字卡同一 flex 流，於 HUD 與 Tab Bar 之間垂直置中 */
+#app.tab-settings #sheet{background:transparent;pointer-events:none;display:flex;flex-direction:column;min-height:0}
+#app.tab-settings #sheetHead{display:none}
+#app.tab-settings #sheetBody{
+  pointer-events:auto;flex:1;min-height:0;
+  display:flex;flex-direction:column;align-items:stretch;
+  padding:calc(var(--hud-h,58px) + 8px) 16px calc(var(--nav-stack-h,var(--nav-h,70px)) + 8px);
+  box-sizing:border-box;overflow-y:auto}
+.settings-page{
+  width:100%;max-width:28rem;margin:auto;
+  display:flex;flex-direction:column;flex:none}
+.settings-page-title{
+  margin:0 0 16px;padding-left:4px;text-align:left;flex:none;
+  font-size:20px;font-weight:900;letter-spacing:.06em;line-height:1.2;
+  color:#FFD256;text-shadow:1px 1px 0 rgba(0,0,0,.35)}
+#app[data-sky="light"].tab-settings .settings-page-title{color:#C07A10;text-shadow:none}
+.settings-glass{
+  position:relative;z-index:1;flex:none;
+  display:flex;flex-direction:column;gap:16px;
+  width:100%;box-sizing:border-box;
+  background:rgba(29,35,67,.6);
+  -webkit-backdrop-filter:blur(12px) saturate(1.2);
+  backdrop-filter:blur(12px) saturate(1.2);
+  border:4px solid #0f172a;border-radius:16px;
+  padding:16px;
+  box-shadow:4px 4px 0 #000}
+#app[data-sky="light"] .settings-glass{background:rgba(29,35,67,.6)}
+.settings-glass label.fld{display:block;margin:4px 0 8px;color:rgba(255,236,180,.92)}
+.settings-account-gold{
+  margin:0;padding:12px 14px;
+  background:rgba(255,204,51,.22);border:3px solid #0f172a;border-radius:14px;
+  box-shadow:3px 3px 0 rgba(15,23,42,.9);
+  color:#ffe9a8;font-size:12px;font-weight:800;line-height:1.45}
+.settings-account-gold span{display:block;font-size:11px;font-weight:800;opacity:.88;margin-bottom:2px}
+.settings-account-gold b{display:block;margin-top:4px;font-size:14px;font-weight:900;color:#fff;letter-spacing:.02em;word-break:break-all}
+.settings-account-gold.guest b{color:#fef3c7}
+.settings-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0}
+.settings-key{
+  display:block;width:100%;box-sizing:border-box;text-align:left;padding:14px 16px;
+  background:#FDFBF7;border:3px solid #0f172a;border-radius:10px;
+  font-family:var(--font);font-weight:800;font-size:14px;color:#0f172a;cursor:pointer;
+  box-shadow:3px 3px 0 #0f172a;transition:transform .05s ease,box-shadow .05s ease}
+.settings-key:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0f172a}
+.settings-key.on{background:var(--gold);color:#4a3410}
+.settings-key-sub{display:block;margin-top:3px;font-size:11px;font-weight:700;color:#64748b;line-height:1.35}
+.settings-key.on .settings-key-sub{color:#6b4a10}
+.settings-key.danger{color:#dc2626;background:#fff5f5}
+.settings-section-gap{display:none}
+.settings-logout{
+  display:block;width:100%;box-sizing:border-box;margin:0;min-height:50px;padding:14px 16px;
+  background:rgba(254,202,202,.55);border:3px solid #dc2626;border-radius:10px;
+  font-family:var(--font);font-weight:900;font-size:15px;color:#dc2626;cursor:pointer;
+  box-shadow:4px 4px 0 #0f172a;transition:transform .05s,box-shadow .05s}
+.settings-logout:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0f172a}
+.settings-foot{margin:0;font-size:12px;font-weight:700;color:#94a3b8;text-align:center;line-height:1.5}
+/* 首頁輕量預算膠囊（堆疊於懸浮 Tab Bar 上方） */
+#budgetCapsule{
+  position:absolute;left:var(--float-mx);right:var(--float-mx);z-index:8;display:none;
+  align-items:center;gap:8px;padding:8px 14px;
+  background:rgba(28,20,42,.5);-webkit-backdrop-filter:blur(14px) saturate(1.1);
+  backdrop-filter:blur(14px) saturate(1.1);border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;color:#fff;cursor:pointer;
+  box-shadow:0 6px 22px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.12);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#app.tab-home #budgetCapsule{display:flex}
+.bc-label{font-size:10px;font-weight:700;opacity:.78;white-space:nowrap}
+.bc-amt{font-size:13px;font-weight:800;white-space:nowrap;flex:none;letter-spacing:.2px}
+.bc-bar{flex:1;min-width:40px;height:5px;background:rgba(255,255,255,.22);border-radius:99px;overflow:hidden}
+.bc-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffd463,#f5a623)}
+.bc-chevron{font-size:17px;line-height:1;opacity:.5;flex:none;margin-left:2px}
+/* 全螢幕帳務主頁：透明疊層，中央透出浮島，資訊卡片靠底 */
+.finance-dash{
+  position:absolute;top:0;left:0;right:0;
+  bottom:calc(var(--nav-stack-h,var(--nav-h,70px)) + 8px);
+  z-index:12;display:none;flex-direction:column;
+  background:transparent;overflow:hidden;pointer-events:none}
+#app.tab-home .finance-dash:not(.is-dismissed){display:flex}
+.finance-dash.is-open{pointer-events:auto}
+.finance-dash-body{
+  flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;
+  overflow:hidden;padding:0 16px 14px;
+  background:transparent;pointer-events:none}
+.finance-panel{
+  display:flex;flex-direction:column;gap:16px;width:100%;max-width:420px;margin:0 auto;
+  pointer-events:none;
+  transform:translateY(100%);opacity:0;visibility:hidden;
+  transition:transform 300ms ease-out,opacity 300ms ease-out,visibility 0s linear 300ms;
+  will-change:transform,opacity}
+.finance-dash.is-open .finance-panel{
+  transform:translateY(0);opacity:1;visibility:visible;pointer-events:auto;
+  transition:transform 300ms ease-out,opacity 300ms ease-out,visibility 0s}
+.finance-main-card{position:relative;margin-bottom:0;padding-top:4px}
+.finance-main-card .hero-value{margin:2px 0 10px}
+#app[data-sky="dark"] .finance-panel .hero-value{color:#fff}
+#app[data-sky="dark"] .finance-panel .hero-value.is-over{color:#FF5A5A;text-shadow:0 0 14px rgba(255,90,90,.4)}
+#app[data-sky="light"] .finance-panel .hero-value{color:#2B2233;text-shadow:none}
+#app[data-sky="light"] .finance-panel .hero-value.is-over{color:#FF4D4D}
+.finance-main-card .hbar{margin-bottom:16px}
+.finance-main-card .hero-cap{margin-top:0}
+.finance-panel .hero-card{margin-bottom:0}
+.finance-panel .chips-row{margin-bottom:0;margin-top:0}
+.finance-panel .hero-card{
+  background:rgba(22,28,52,.82);
+  border:1px solid rgba(255,255,255,.28);
   -webkit-backdrop-filter:blur(16px) saturate(1.2);
   backdrop-filter:blur(16px) saturate(1.2);
-  border-radius:24px 24px 0 0;
-  box-shadow:0 -10px 34px rgba(24,14,44,.22), inset 0 1px 0 rgba(255,255,255,.6);
-  display:flex; flex-direction:column; overflow:hidden;
-  transition:transform .3s cubic-bezier(0.25, 1, 0.5, 1);
-  will-change:transform;
-}
-#sheet.dragging{transition:none}
-#sheet.atTop{border-radius:0}
-#sheetGrab{flex:none;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
-#sheetGrab:active{cursor:grabbing}
-#dragHandle{display:flex;justify-content:center;padding:10px 0 6px}
-#dragHandle::before{content:"";width:44px;height:5px;border-radius:99px;background:rgba(70,50,95,.22)}
-#sheetHead{display:flex;align-items:center;justify-content:space-between;padding:2px 18px 12px;background:transparent;border:none}
-#sheet.sheet-home #sheetHead{padding:0 18px 6px}
+  box-shadow:0 12px 32px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.1)}
+#app[data-sky="light"] .finance-panel .hero-card{
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(255,255,255,.72);
+  box-shadow:0 10px 28px rgba(30,20,55,.12),inset 0 1px 0 rgba(255,255,255,.85)}
+.finance-panel .chip-stat{
+  background:rgba(22,28,52,.78);
+  border:1px solid rgba(255,255,255,.22);
+  -webkit-backdrop-filter:blur(14px) saturate(1.15);
+  backdrop-filter:blur(14px) saturate(1.15);
+  box-shadow:0 6px 16px rgba(0,0,0,.16)}
+#app[data-sky="light"] .finance-panel .chip-stat{
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:0 4px 14px rgba(30,20,55,.08)}
+.finance-panel .period-seg{
+  background:rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px)}
+#app[data-sky="light"] .finance-panel .period-seg{background:rgba(120,100,150,.14)}
+#app[data-sky="dark"] .finance-panel .period-seg{background:rgba(255,255,255,.12)}
+.finance-card-close{
+  position:absolute;top:-9px;right:-7px;z-index:3;
+  width:26px;height:26px;border-radius:50%;padding:0;cursor:pointer;
+  display:grid;place-items:center;
+  background:#FFF4D6;border:2px solid #000;
+  box-shadow:2px 2px 0 #000;color:#000;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform 120ms ease,box-shadow 120ms ease}
+.finance-card-close:active{transform:scale(.92) translate(1px,1px);box-shadow:1px 1px 0 #000}
+.finance-card-close svg{width:11px;height:11px;display:block}
+.finance-card-close svg path{stroke:#000;stroke-width:2.5;stroke-linecap:round}
+.finance-panel .btn.big{margin-bottom:0}
+#sheetHead{display:flex;align-items:center;justify-content:space-between;flex:none;position:relative;
+  padding:14px 18px 10px;background:transparent;border:none}
+.sheet-head-actions{display:flex;align-items:center;gap:8px;flex:none}
 .sheet-title{display:flex;align-items:center;gap:7px;min-width:0}
 .sheet-title-ic{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;flex:none}
 #sheetHead b{font-size:16px;font-weight:900;letter-spacing:.3px;line-height:1}
-.sheet-peek{padding:0 18px 10px;display:none}
-.sheet-peek.show{display:block}
-.peek-label{font-size:10.5px;color:#9A90A6;font-weight:700;margin-bottom:4px}
-.peek-row{display:flex;align-items:center;gap:10px}
-.peek-amt{font-size:18px;font-weight:800;white-space:nowrap;min-width:72px}
-.peek-bar{flex:1;height:8px;background:rgba(120,100,150,.14);border-radius:99px;overflow:hidden}
-.peek-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffd463,#f5a623);transition:width .3s}
-#app.parallax-drag #island{transition:none}
-#sheetBody{overflow-y:auto;padding:4px 14px 16px;flex:1;touch-action:pan-y;-webkit-overflow-scrolling:touch}
-#sheet.sheet-home #sheetBody{padding:2px 14px 14px}
+#sheetBody{overflow-y:auto;padding:6px 14px 16px;flex:1;min-height:0;
+  touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 #sheetBody::-webkit-scrollbar{width:8px}
 #sheetBody::-webkit-scrollbar-thumb{background:#c9b8a0;border-radius:4px}
 
-/* ===== 底部導覽 ===== */
-#nav{z-index:7;display:flex;background:rgba(255,253,249,.85);
-  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
-  border-top:1px solid rgba(30,20,55,.06);box-shadow:0 -6px 20px rgba(30,20,55,.06)}
-.tab{position:relative;flex:1;background:none;color:#9A90A6;padding:9px 2px 8px;font-size:11px;font-weight:800;
-  display:flex;flex-direction:column;align-items:center;gap:3px;border-top:3px solid transparent}
-.tab .em{width:26px;height:26px;object-fit:contain;image-rendering:pixelated;filter:grayscale(.4) brightness(.92);opacity:.72}
+/* ===== 底部導覽：懸浮圓角膠囊 ===== */
+#nav{
+  position:absolute;
+  bottom:max(var(--float-mb),env(safe-area-inset-bottom,0px));
+  left:var(--float-mx);right:var(--float-mx);
+  z-index:20;display:flex;align-items:stretch;
+  background:rgba(255,253,249,.82);
+  -webkit-backdrop-filter:blur(18px) saturate(1.15);
+  backdrop-filter:blur(18px) saturate(1.15);
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:22px;
+  box-shadow:0 4px 20px rgba(0,0,0,.08),0 10px 32px rgba(18,12,36,.16),inset 0 1px 0 rgba(255,255,255,.7);
+  padding:6px 4px;
+}
+.tab{position:relative;flex:1;background:none;color:#9A90A6;padding:4px 2px;font-size:10px;font-weight:800;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;
+  min-height:52px;-webkit-tap-highlight-color:transparent}
+.tab-ic{width:30px;height:26px;display:flex;align-items:center;justify-content:center;flex:none}
+.tab .em{width:auto;height:26px;max-width:30px;object-fit:contain;object-position:center;
+  display:block;flex:none;image-rendering:pixelated;filter:grayscale(.4) brightness(.92);opacity:.72}
+.tab-lbl{display:block;line-height:1;text-align:center;white-space:nowrap}
 .tab.active{color:#C07A10;background:none;border-top-color:transparent}
-.tab.active::before{content:"";position:absolute;left:12px;right:12px;top:4px;height:28px;background:rgba(245,166,35,.16);border-radius:12px;z-index:-1}
-.tab.active .em{filter:none;opacity:1;transform:translateY(-1px)}
+.tab.active::before{content:"";position:absolute;left:4px;right:4px;top:50%;transform:translateY(calc(-50% - 7px));height:30px;background:rgba(245,166,35,.16);border-radius:12px;z-index:-1}
+.tab.active .em{filter:none;opacity:1}
+.tab-settings .em{height:24px}
 
-/* ===== 卡片/列表 ===== */
-.card{background:rgba(255,255,255,.78);border:none;border-radius:18px;padding:13px;margin-bottom:11px;box-shadow:0 8px 20px rgba(30,20,55,.09)}
+/* ===== 卡片/列表（玻璃質感，透出天空底色） ===== */
+.card{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:13px;margin-bottom:11px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+#app[data-sky="light"] .card{background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.45);box-shadow:0 8px 20px rgba(30,20,55,.09)}
 .row{display:flex;align-items:center;gap:9px}
 .spread{display:flex;align-items:center;justify-content:space-between;gap:8px}
 label.fld{display:block;font-size:12px;font-weight:800;margin:9px 0 4px;color:#5a4a6a}
-input,select,textarea{width:100%;font-family:var(--font);font-size:15px;padding:9px;border:3px solid var(--line);
-  border-radius:6px;background:#fffdf7;color:var(--ink);font-weight:600}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);background:#fff}
+#app[data-sky="dark"] label.fld{color:rgba(255,255,255,.88)}
+input,select,textarea{width:100%;font-family:var(--font);font-size:15px;padding:9px;border:2px solid rgba(255,255,255,.28);
+  border-radius:10px;background:rgba(255,255,255,.14);color:var(--ink);font-weight:600;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#app[data-sky="light"] input,#app[data-sky="light"] select,#app[data-sky="light"] textarea{
+  border:3px solid var(--line);border-radius:6px;background:#fffdf7}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);background:rgba(255,255,255,.22)}
+#app[data-sky="light"] input:focus,#app[data-sky="light"] select:focus,#app[data-sky="light"] textarea:focus{background:#fff}
+#app[data-sky="dark"] input,#app[data-sky="dark"] select,#app[data-sky="dark"] textarea{color:rgba(255,255,255,.95)}
+#app[data-sky="dark"] input::placeholder,#app[data-sky="dark"] textarea::placeholder{color:rgba(255,255,255,.45)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:7px 10px;border:2px solid var(--line);border-radius:16px;background:#fff;font-size:12px;font-weight:800}
-.chip.on{background:var(--gold);color:#4a3410}
+.chip{padding:7px 10px;border:2px solid rgba(255,255,255,.28);border-radius:16px;background:rgba(255,255,255,.12);font-size:12px;font-weight:800}
+#app[data-sky="light"] .chip{border:2px solid var(--line);background:#fff}
+#app[data-sky="dark"] .chip{color:rgba(255,255,255,.9)}
+.chip.on{background:var(--gold);color:#4a3410;border-color:var(--line)}
 .chip.exp{--c:#e05a5a} .chip.inc{--c:#3f9e4d}
 .tx-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px dashed #e6dcc8}
 .tx-item:last-child{border-bottom:none}
@@ -338,45 +557,73 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .tx-main{flex:1;min-width:0}
 .tx-main .t{font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tx-main .s{font-size:11px;color:#8a7a6a;margin-top:1px}
+#app[data-sky="dark"] .tx-main .t{color:rgba(255,255,255,.92)}
+#app[data-sky="dark"] .tx-main .s{color:rgba(255,255,255,.58)}
 .tx-amt{font-weight:900;font-size:14px;white-space:nowrap}
 .amt-exp{color:var(--bad)} .amt-inc{color:var(--good)}
 .tag{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;background:#ffe08a;color:#7a5a10;border:1px solid #c99}
 .badge{background:#e05a5a;color:#fff;border-radius:10px;font-size:10px;font-weight:800;padding:1px 6px}
 .hint{font-size:11.5px;color:#8a7a6a;line-height:1.5}
+#app[data-sky="dark"] .hint{color:rgba(255,255,255,.62)}
 .mini{font-size:11px;color:#9a8a7a}
+#app[data-sky="dark"] .mini{color:rgba(255,255,255,.55)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.kpi{background:rgba(255,255,255,.72);border:none;border-radius:18px;padding:13px 10px;text-align:center;
-  box-shadow:0 8px 20px rgba(30,20,55,.08)}
+.kpi{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:13px 10px;text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#app[data-sky="light"] .kpi{background:rgba(255,255,255,.72);border:none;box-shadow:0 8px 20px rgba(30,20,55,.08)}
 .kpi b{display:block;font-size:23px;font-weight:900;letter-spacing:.3px;line-height:1.1}
 .kpi span{font-size:10.5px;color:#9a90a6;font-weight:700;margin-top:4px;display:block}
+#app[data-sky="dark"] .kpi b{color:rgba(255,255,255,.95)}
+#app[data-sky="dark"] .kpi span{color:rgba(255,255,255,.58)}
 .barrow{margin:9px 0}
 .barrow .lab{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;margin-bottom:5px;color:#8a7f97}
+#app[data-sky="dark"] .barrow .lab{color:rgba(255,255,255,.65)}
 .barrow .track{height:12px;background:rgba(120,100,150,.16);border:none;border-radius:99px;overflow:hidden}
 .barrow .track>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffd463,#f5a623)}
-/* 首頁層級：英雄數字 + 次要 chip + 主/次按鈕 */
-.hero-card{background:rgba(255,255,255,.82);border-radius:20px;padding:16px 16px 14px;box-shadow:0 10px 24px rgba(30,20,55,.09);margin-bottom:12px}
+.hero-card{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:16px 16px 14px;
+  box-shadow:0 10px 24px rgba(0,0,0,.1);margin-bottom:12px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+#app[data-sky="light"] .hero-card{background:rgba(255,255,255,.82);border:none;box-shadow:0 10px 24px rgba(30,20,55,.09)}
 .hero-label{font-size:12px;color:#9A90A6;font-weight:700}
+#app[data-sky="dark"] .hero-label{color:rgba(255,255,255,.62)}
 .hero-value{font-size:32px;font-weight:800;letter-spacing:.3px;line-height:1.05;margin:2px 0 11px}
+#app[data-sky="dark"] .hero-value{color:rgba(255,255,255,.95)}
 .hbar{height:10px;background:rgba(120,100,150,.16);border-radius:99px;overflow:hidden}
 .hbar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffd463,#f5a623)}
 .hero-cap{font-size:11.5px;color:#8a7f97;font-weight:600;margin-top:9px;display:flex;align-items:center;gap:6px}
+#app[data-sky="dark"] .hero-cap{color:rgba(255,255,255,.58)}
 .chips-row{display:flex;gap:8px;margin-bottom:12px}
-.chip-stat{flex:1;background:rgba(255,255,255,.64);border-radius:14px;padding:10px 8px;text-align:center;box-shadow:0 4px 12px rgba(30,20,55,.06)}
+.chip-stat{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:10px 8px;text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#app[data-sky="light"] .chip-stat{background:rgba(255,255,255,.64);border:none;box-shadow:0 4px 12px rgba(30,20,55,.06)}
 .chip-stat b{display:block;font-size:15px;font-weight:800;line-height:1.1}
 .chip-stat span{font-size:10px;color:#9A90A6;font-weight:700;margin-top:2px;display:block}
+#app[data-sky="dark"] .chip-stat b{color:rgba(255,255,255,.92)}
+#app[data-sky="dark"] .chip-stat span{color:rgba(255,255,255,.55)}
 .btn.big{width:100%;height:48px;font-size:15px;border-radius:14px}
-.btn.soft{background:transparent;border:2px solid rgba(43,34,51,.16);color:#5A4A6A;box-shadow:none;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn.soft{background:transparent;border:2px solid rgba(255,255,255,.28);color:rgba(255,255,255,.82);box-shadow:none;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px}
+#app[data-sky="light"] .btn.soft{border:2px solid rgba(43,34,51,.16);color:#5A4A6A}
 .soft-ic{width:20px;height:20px;object-fit:contain;image-rendering:pixelated}
 .btn.soft:active{transform:translateY(1px);box-shadow:none}
 .row.two{display:flex;gap:8px;margin-top:10px}
 .row.two .btn{flex:1}
 
 /* 首頁 Bottom Sheet */
-.home-panel{display:flex;flex-direction:column;gap:0}
-.home-panel .hero-card{margin-bottom:8px;padding:11px 14px 9px;border-radius:18px}
-.home-panel .hero-value{margin:1px 0 7px;font-size:30px}
-.home-panel .hero-cap{margin-top:6px}
-.home-panel .chips-row{margin-bottom:8px;gap:6px}
+.home-panel-compact{display:flex;flex-direction:column;gap:0}
+.home-panel-compact .hero-card{margin-bottom:8px;padding:10px 12px 8px;border-radius:16px}
+.home-panel-compact .hero-label{font-size:11px;margin-bottom:0}
+.home-panel-compact .hero-value{margin:0 0 6px;font-size:26px;line-height:1.05}
+.home-panel-compact .hbar{height:8px}
+.home-panel-compact .hero-cap{margin-top:5px;font-size:10.5px;line-height:1.35}
+.home-panel-compact .btn.big{margin-bottom:0;height:40px;font-size:14px}
+.stats-panel{display:flex;flex-direction:column;gap:0}
+.stats-panel .hero-card{margin-bottom:10px;padding:12px 14px 10px;border-radius:18px}
+.stats-panel .hero-value{margin:2px 0 8px;font-size:28px}
+.stats-panel .chips-row{margin-bottom:12px;gap:6px}
+.home-panel{display:flex;flex-direction:column;gap:0;padding-top:2px}
+.home-panel .hero-card{margin-bottom:10px;padding:13px 14px 11px;border-radius:18px}
+.home-panel .hero-value{margin:2px 0 8px;font-size:30px}
+.home-panel .hero-cap{margin-top:7px}
+.home-panel .chips-row{margin-bottom:10px;gap:6px}
 .home-panel .chip-stat{padding:7px 6px;border-radius:12px}
 .home-panel .chip-stat b{font-size:14px}
 .home-panel .chip-stat span{font-size:9.5px;margin-top:1px}
@@ -394,9 +641,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .home-recent-list .tx-main .s{font-size:10.5px}
 .home-panel .disclaimer{margin-top:10px;margin-bottom:2px}
 .home-panel .disclaimer.home-foot{margin-top:14px}
-.period-seg{display:flex;background:rgba(120,100,150,.10);border-radius:12px;padding:3px;margin-bottom:9px;gap:2px}
+.period-seg{display:flex;background:rgba(120,100,150,.10);border-radius:12px;padding:3px;margin-bottom:10px;gap:2px}
 .period-seg button{flex:1;border:none;background:transparent;color:#9A90A6;font-size:12px;font-weight:800;padding:7px 4px;border-radius:10px;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
 .period-seg button.on{background:#fff;color:#2B2233;box-shadow:0 2px 8px rgba(30,20,55,.10)}
+#app[data-sky="dark"] .period-seg{background:rgba(255,255,255,.08)}
+#app[data-sky="dark"] .period-seg button{color:rgba(255,255,255,.55)}
+#app[data-sky="dark"] .period-seg button.on{background:rgba(255,255,255,.18);color:rgba(255,255,255,.95);box-shadow:none}
+#app[data-sky="dark"] .spread>b{color:rgba(255,255,255,.9)}
 .home-group{padding:8px 0;border-bottom:1px dashed rgba(120,100,150,.14)}
 .home-group:last-child{border-bottom:none}
 .home-group-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 2px 6px;font-size:12.5px;font-weight:900;color:#2B2233}
@@ -417,9 +668,88 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .unit-card .u-ds{font-size:10.5px;color:#7a6a5a;line-height:1.4;margin-top:3px}
 .war-ic{width:42px;height:48px;object-fit:contain;image-rendering:pixelated}
 .war-ic.sm{width:22px;height:24px;vertical-align:-4px;display:inline-block}
-.army-item{display:flex;align-items:center;gap:9px;padding:9px;border:3px solid var(--line);border-radius:8px;margin-bottom:8px;background:#fff}
+.army-item{display:flex;align-items:center;gap:9px;padding:9px;border:3px solid var(--line);border-radius:8px;margin-bottom:8px;background:#fff;position:relative}
+.army-item.army-live{overflow:hidden}
+.army-live-bg{position:absolute;inset:0;pointer-events:none;z-index:0}
+.army-live-bg svg{display:block;width:100%;height:100%}
+.army-live>.a-em,.army-live>.tx-main,.army-live>.btn{position:relative;z-index:1}
+.army-pnl{display:inline-block;padding:1px 5px;border-radius:6px;font-weight:800;
+  transition:color .2s ease,background-color .2s ease}
+.army-pnl.army-flash-up{color:#c43c3c;background:rgba(224,90,90,.14)}
+.army-pnl.army-flash-dn{color:#2d8a45;background:rgba(63,158,77,.14)}
 .army-item .a-em{font-size:24px;min-width:36px;display:flex;align-items:center;justify-content:center}
 .army-item .war-ic{width:32px;height:36px}
+
+/* 聖戰：派遣兵力列 + 像素 Numpad + K 線彈窗 */
+.war-deploy-row{display:flex;align-items:stretch;gap:8px;margin:6px 0 4px}
+.war-count-wrap{flex:1;min-width:0;display:flex;align-items:center;gap:6px;background:#fff;
+  border:3px solid var(--line);border-radius:10px;padding:0 10px;box-shadow:0 3px 0 #d8c9b0;
+  transition:outline-color .15s ease}
+.war-count-wrap.open{outline:2px solid var(--coin);outline-offset:1px}
+.war-count-display{flex:1;min-width:0;border:none;background:transparent;padding:11px 0;
+  font-size:22px;font-weight:900;color:#2c2c2c;text-align:left;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;font-family:var(--font)}
+#app[data-sky="dark"] .war-count-display{color:#2c2c2c}
+.war-count-display .war-count-empty{color:#9a8a7a;font-size:18px}
+.war-count-unit{font-size:12px;font-weight:800;color:#5a4a6a;flex:none}
+.war-cost-ic{height:1em;width:auto;vertical-align:-.15em;margin-left:3px}
+.pixel-numpad{display:none;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 4px;padding:10px;
+  background:rgba(255,248,236,.95);border:3px solid var(--line);border-radius:12px;box-shadow:0 4px 0 var(--line)}
+.px-np-key{padding:13px 6px;font-size:17px;font-weight:900;background:var(--gold);color:#4a3410;
+  border:3px solid var(--line);border-radius:8px;box-shadow:0 3px 0 var(--wood2);cursor:pointer;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.px-np-key:active{transform:translateY(2px);box-shadow:0 1px 0 var(--wood2)}
+.px-np-del{background:#c9b8e0;color:#33254a;box-shadow:0 3px 0 #6b5a8a}
+.px-np-ok{background:#4caf50;color:#fff;box-shadow:0 3px 0 #2d6b30}
+.war-kline-btn{flex:none;white-space:nowrap;padding:10px 11px;font-size:12px;font-weight:900;line-height:1.2;
+  min-width:88px;display:flex;align-items:center;justify-content:center;gap:4px}
+.war-deploy-cap{margin:-2px 2px 8px;color:#b07a20;font-weight:700;transition:color .2s ease}
+.war-deploy-cap.war-cap-warn,#warDeployCost.war-cap-warn{color:#e05a5a!important;animation:warCapShake .38s ease}
+@keyframes warCapShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.war-kline-overlay{position:absolute;inset:0;z-index:28;background:rgba(36,26,48,.88);display:none;align-items:center;
+  justify-content:center;padding:14px 12px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.war-kline-panel{width:100%;max-width:380px;height:min(68vh,520px);min-height:320px;background:var(--panel);color:var(--ink);
+  border:4px solid #000;border-radius:18px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 0 #000}
+.war-kline-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;
+  background:linear-gradient(#3a2e4a,#2b2233);border-bottom:3px solid #000;color:#fff}
+.war-kline-head h2{margin:0;font-size:14px;font-weight:900;line-height:1.25}
+.war-kline-head .sub{font-size:10px;color:#cbb9e6;margin-top:2px}
+.war-kline-x{background:#1e1729;border:2px solid #000;border-radius:8px;color:#fff;width:30px;height:30px;font-size:15px;flex:none}
+.war-kline-tabs{display:flex;border-bottom:3px solid #000;background:#fff8ec}
+.war-kline-tabs button{flex:1;padding:9px 4px;font-size:11.5px;font-weight:800;background:#fff;border:none;border-right:2px solid var(--line)}
+.war-kline-tabs button:last-child{border-right:none}
+.war-kline-tabs button.on{background:var(--gold);color:#4a3410}
+.war-kline-body{flex:1;min-height:0;display:flex;flex-direction:row;align-items:stretch;
+  background:linear-gradient(#eef4ff,#fff8ec);overflow:hidden}
+.war-kline-main-col{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;padding:10px 0 6px 10px}
+.war-kline-scroll{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;overscroll-behavior-x:contain}
+.war-kline-scroll::-webkit-scrollbar{display:none}
+.war-kline-scroll-inner{position:relative;height:100%;min-height:120px}
+.war-kline-scroll-inner canvas{display:block;touch-action:pan-x pan-y}
+.war-kline-xaxis{position:relative;height:24px;margin-top:2px;overflow:hidden;flex:none}
+.war-kline-xaxis .x-tick{position:absolute;bottom:2px;transform:translateX(-50%);
+  font-size:9px;font-weight:700;color:#8a7a6a;white-space:nowrap;line-height:1;pointer-events:none}
+.war-kline-yaxis{flex:none;width:66px;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;
+  padding:10px 8px 6px 2px;border-left:1px solid rgba(90,74,106,.14);overflow:hidden}
+.war-kline-yplot{flex:1;min-height:0;position:relative;overflow:hidden}
+.war-kline-yspacer{flex:none;height:26px}
+.war-kline-yaxis .y-tick{position:absolute;right:4px;transform:translateY(-50%);
+  font-size:9px;font-weight:700;color:#8a7a6a;white-space:nowrap;line-height:1;pointer-events:none}
+.war-kline-yaxis .y-last{position:absolute;right:0;transform:translateY(-50%);
+  font-size:9px;font-weight:900;padding:2px 5px;border-radius:4px;line-height:1.25;
+  white-space:nowrap;pointer-events:none;max-width:60px;box-sizing:border-box;text-align:right;
+  transition:background-color .2s ease,color .2s ease,box-shadow .2s ease}
+.war-kline-yaxis .y-last.up{background:#e05a5a;color:#fff}
+.war-kline-yaxis .y-last.dn{background:#3f9e4d;color:#fff}
+.war-kline-yaxis .y-last.y-flash-up{box-shadow:0 0 0 2px rgba(224,90,90,.45);filter:brightness(1.08)}
+.war-kline-yaxis .y-last.y-flash-dn{box-shadow:0 0 0 2px rgba(63,158,77,.45);filter:brightness(1.08)}
+.war-kline-foot{flex:none;min-height:38px;box-sizing:border-box;padding:10px 14px;
+  border-top:4px solid #000;background:#f2efe9;font-size:10.5px;color:#7a6a5a;font-weight:700;text-align:center;line-height:1.35}
+@media (max-width:360px){
+  .war-kline-btn .war-kline-lb{display:none}
+  .war-kline-btn{min-width:44px;padding:10px 8px}
+}
 
 /* ===== 覆蓋層/測驗 ===== */
 .overlay{position:absolute;inset:0;z-index:20;background:#241a30f2;display:flex;flex-direction:column;
@@ -436,10 +766,26 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .dots{display:flex;gap:6px;justify-content:center;margin-top:6px}
 .dots i{width:8px;height:8px;border-radius:50%;background:#5a4a6a}
 .dots i.on{background:var(--gold)}
+.quiz-foot{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;min-height:32px}
+.quiz-back-spacer{width:72px;flex:none}
+.quiz-back{
+  flex:none;padding:7px 12px;font-size:12px;font-weight:800;color:#c07a10;
+  background:#fff8e8;border:2px solid #2b2233;border-radius:8px;cursor:pointer;
+  box-shadow:0 2px 0 #2b2233;transition:transform .05s,box-shadow .05s}
+.quiz-back:active{transform:translateY(1px);box-shadow:0 1px 0 #2b2233}
+.quiz-foot .dots{margin-top:0;flex:1}
+.opt.on{background:var(--gold);color:#4a3410;border-color:#c07a10;box-shadow:0 3px 0 #a07820}
 .bday-row{display:flex;align-items:center;justify-content:center;gap:3px;margin-top:6px;flex-wrap:nowrap}
-.bday-sel{flex:1;min-width:0;font-size:15px;padding:9px 2px;text-align:center;text-align-last:center;
-  border:3px solid var(--line);border-radius:8px;background:#fffdf7;color:var(--ink);font-weight:700}
+.bday-sel,.bday-inp{flex:1;min-width:0;font-size:15px;padding:9px 2px;text-align:center;
+  border:3px solid var(--line);border-radius:8px;background:#fffdf7;color:#2b2233;font-weight:700;
+  -webkit-text-fill-color:#2b2233}
+.bday-inp{-webkit-appearance:none;appearance:none}
+/* 生日 Modal：強制深色字（不受全域夜空白字影響） */
+.qbox input,.qbox select,.qbox .bday-inp,.overlay .bday-inp{
+  color:#2b2233!important;background:#fffdf7!important;-webkit-text-fill-color:#2b2233!important}
+.qbox input::placeholder,.overlay .bday-inp::placeholder{color:#9a8a7a!important;-webkit-text-fill-color:#9a8a7a!important}
 .bday-row #bY{flex:1.9}
+.bday-row #bM,.bday-row #bD{flex:0.85;max-width:52px}
 .bday-row span{font-weight:800;color:#5a4a6a;font-size:12px;flex:none;margin:0 1px}
 .egg{font-size:80px;animation:eggBob 2s ease-in-out infinite}
 @keyframes eggBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -454,8 +800,33 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .disclaimer{font-size:10px;color:#9a8a7a;line-height:1.5;margin-top:8px;padding:8px;background:#f4ecdb;border-radius:6px;border:2px dashed #c9b8a0}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .seg{display:flex;border:3px solid var(--line);border-radius:8px;overflow:hidden}
-.seg button{flex:1;padding:9px;background:#fff;font-weight:800;font-size:13px}
+.seg button{flex:1;padding:9px;background:rgba(255,255,255,.12);font-weight:800;font-size:13px;color:rgba(255,255,255,.88)}
+#app[data-sky="light"] .seg button{background:#fff;color:var(--ink)}
 .seg button.on{background:var(--gold);color:#4a3410}
+.theme-seg{display:flex;flex-direction:column;gap:8px;margin:10px 0 14px}
+.theme-opt{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;background:#fff;border:3px solid var(--line);
+  border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;text-align:left;line-height:1.35}
+.theme-opt.on{background:var(--gold);color:#4a3410}
+.theme-opt input{display:none;flex:none}
+.theme-opt .mini{display:block;margin-top:2px;font-weight:600}
+.stock-list{max-height:236px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin:4px 0 2px;-webkit-overflow-scrolling:touch}
+.stock-card{display:block;width:100%;text-align:left;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);
+  border-radius:10px;padding:7px 10px;box-shadow:0 2px 8px rgba(0,0,0,.08);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#app[data-sky="light"] .stock-card{background:#fff;border:2px solid var(--line);box-shadow:0 2px 0 #d8c9b0}
+#app[data-sky="dark"] .stock-card{color:rgba(255,255,255,.9)}
+.stock-card.on{border-color:var(--coin);outline:2px solid var(--coin);background:rgba(255,246,223,.22)}
+#app[data-sky="light"] .stock-card.on{background:#fff6df}
+.stock-card .sc-top{display:flex;align-items:baseline;gap:6px}
+.stock-card .sc-top b{font-size:13.5px}
+.stock-card .sc-mid{display:flex;align-items:center;gap:7px;margin-top:3px;font-size:11.5px;flex-wrap:wrap}
+.stock-card .sc-px{font-weight:900;font-size:13px}
+.stock-card .sc-ch.up{color:#3f9e4d;font-weight:800}
+.stock-card .sc-ch.dn{color:#e05a5a;font-weight:800}
+.stock-card .sc-tr{letter-spacing:1px;font-size:10px}
+.market-bar{display:flex;justify-content:space-between;align-items:center;background:#2a2140;color:#ffe9a8;
+  border-radius:10px;padding:7px 12px;font-weight:800;font-size:12.5px;margin-bottom:8px}
+.market-bar .mv-up{color:#7be08a}.market-bar .mv-dn{color:#ff8a8a}
 
 /* ===== 聊天室 ===== */
 .chatWrap{width:100%;max-width:380px;height:82vh;max-height:640px;background:var(--panel);color:var(--ink);
@@ -480,10 +851,53 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .chatIn{display:flex;gap:8px;padding:10px;border-top:3px solid #000;background:var(--panel2)}
 .chatIn input{flex:1;border-radius:20px;border:3px solid var(--line)}
 .chatSend{background:var(--gold);border:3px solid var(--line);border-radius:50%;width:44px;height:44px;flex:none;font-size:18px;font-weight:900;box-shadow:0 3px 0 var(--wood2)}
+
+/* ===== 登入閘門（像素街機風） ===== */
+.auth-gate{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+  padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(20,16,36,.72) 0%,rgba(36,26,48,.88) 100%)}
+.auth-gate.show{display:flex}
+.auth-panel{max-width:380px;width:100%;text-align:center;padding:24px 20px 22px;
+  background:#FDFBF7;border:4px solid #0f172a;border-radius:4px;
+  box-shadow:8px 8px 0 #0f172a, inset 0 0 0 2px rgba(255,255,255,.65);
+  image-rendering:pixelated;display:flex;flex-direction:column;align-items:stretch}
+.auth-panel-badge{display:inline-block;align-self:center;margin-bottom:10px;padding:4px 10px;font-size:10px;font-weight:900;
+  letter-spacing:.12em;text-transform:uppercase;color:#4a3410;background:#ffe08a;
+  border:3px solid #0f172a;box-shadow:3px 3px 0 #0f172a}
+.auth-panel h1{margin:0 0 12px;font-size:26px;font-weight:900;letter-spacing:.06em;line-height:1.2;
+  color:#0f172a;text-shadow:2px 2px 0 rgba(255,210,86,.45)}
+.auth-sub{
+  width:100%;max-width:100%;box-sizing:border-box;margin:0 0 6px;padding:0;
+  text-align:center;font-size:12.5px;font-weight:700;line-height:1.75;letter-spacing:.01em;
+  color:#475569;text-wrap:pretty}
+.auth-actions{display:flex;flex-direction:column;gap:12px;margin-top:16px;width:100%}
+.pixel-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;
+  padding:12px 16px;border:4px solid #0f172a;border-radius:4px;font-family:var(--font);
+  font-weight:900;font-size:14px;letter-spacing:.03em;color:#0f172a;cursor:pointer;
+  box-shadow:4px 4px 0 #0f172a;transition:transform .05s ease,box-shadow .05s ease}
+.pixel-btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:2px 2px 0 #0f172a}
+.pixel-btn:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.25)}
+.pixel-btn-google{background:#FFD256}
+.pixel-btn-guest{background:#fff;font-size:13px}
+.pixel-btn-google .g-ic{width:22px;height:22px;flex:none;display:block}
+.auth-user-err{margin:14px 0 0;min-height:1.2em;font-size:12px;font-weight:800;color:var(--bad)}
+.auth-dev-hint{margin:10px 0 0;font-size:9px;font-weight:700;color:#94a3b8;letter-spacing:.04em}
+#gsiHidden{position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none}
+.pet-spine-canvas{width:120px;height:220px;display:block;image-rendering:pixelated;pointer-events:none}
+.pet-spine-active .pet-spine-canvas{filter:drop-shadow(0 6px 8px rgba(0,0,0,.22))}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div id="app">
+  <div id="pageBg" aria-hidden="true"></div>
+  <div id="skyDecor" aria-hidden="true">
+    <div class="sun" id="sun"></div>
+    <div class="sky-moon" id="moon"></div>
+    <div class="sky-stars" id="stars"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div>
+    <div id="rain"></div>
+  </div>
 
   <!-- HUD -->
   <div id="hud">
@@ -495,48 +909,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
     </div>
     <button id="gear" type="button" title="設定" aria-label="設定">
       <span class="gear-glow" aria-hidden="true"></span>
-      <svg class="gear-icon" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-        <!-- iOS 風多齒輪：深色像素勾邊 -->
-        <g fill="#2B2233">
-          <rect x="10" y="0" width="4" height="2"/><rect x="9" y="2" width="6" height="1"/>
-          <rect x="10" y="22" width="4" height="2"/><rect x="9" y="21" width="6" height="1"/>
-          <rect x="0" y="10" width="2" height="4"/><rect x="2" y="9" width="1" height="6"/>
-          <rect x="22" y="10" width="2" height="4"/><rect x="21" y="9" width="1" height="6"/>
-          <rect x="3" y="3" width="3" height="2"/><rect x="5" y="5" width="2" height="2"/><rect x="2" y="5" width="2" height="2"/>
-          <rect x="18" y="3" width="3" height="2"/><rect x="17" y="5" width="2" height="2"/><rect x="20" y="5" width="2" height="2"/>
-          <rect x="3" y="19" width="3" height="2"/><rect x="5" y="17" width="2" height="2"/><rect x="2" y="17" width="2" height="2"/>
-          <rect x="18" y="19" width="3" height="2"/><rect x="17" y="17" width="2" height="2"/><rect x="20" y="17" width="2" height="2"/>
-          <rect x="5" y="5" width="14" height="14"/>
-        </g>
-        <!-- 齒輪主體：淡金黃 -->
-        <g fill="#FFD166">
-          <rect x="10" y="1" width="4" height="1"/><rect x="9" y="2" width="6" height="1"/>
-          <rect x="10" y="22" width="4" height="1"/><rect x="9" y="21" width="6" height="1"/>
-          <rect x="1" y="10" width="1" height="4"/><rect x="2" y="9" width="1" height="6"/>
-          <rect x="22" y="10" width="1" height="4"/><rect x="21" y="9" width="1" height="6"/>
-          <rect x="4" y="4" width="2" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/>
-          <rect x="18" y="4" width="2" height="1"/><rect x="17" y="6" width="1" height="1"/><rect x="20" y="6" width="1" height="1"/>
-          <rect x="4" y="19" width="2" height="1"/><rect x="6" y="17" width="1" height="1"/><rect x="3" y="17" width="1" height="1"/>
-          <rect x="18" y="19" width="2" height="1"/><rect x="17" y="17" width="1" height="1"/><rect x="20" y="17" width="1" height="1"/>
-          <rect x="6" y="6" width="12" height="12"/>
-        </g>
-        <!-- 圓形內圈（像素白環 + 中心孔） -->
-        <rect x="8" y="8" width="8" height="8" fill="#FFF8EC"/>
-        <rect x="9" y="9" width="6" height="6" fill="#FFD166"/>
-        <rect x="10" y="10" width="4" height="4" fill="#FFF8EC"/>
-        <rect x="11" y="11" width="2" height="2" fill="#2B2233"/>
-      </svg>
+      <img class="gear-icon" id="gearIc" alt="" aria-hidden="true">
     </button>
   </div>
 
+  <button type="button" id="foodInvFab" onclick="toggleFoodInventory()" aria-label="食物背包" style="display:none"><img id="foodBagIc" alt="食物背包"></button>
+
   <!-- 場景 -->
   <div id="scene" data-tod="day">
-    <!-- 天空層（固定，不隨滑動移動）-->
-    <div class="sun" id="sun"></div>
-    <div class="sky-moon" id="moon"></div>
-    <div class="sky-stars" id="stars"></div>
-    <div class="cloud c1"></div><div class="cloud c2"></div>
-    <div id="rain"></div>
     <!-- 場景 carousel（只有島嶼隨滑動切換）-->
     <div id="sceneTrack">
       <div class="scene-page" data-scene="kitchen">
@@ -593,35 +973,59 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
     </div>
     <div id="pageDots"><i></i><i></i><i></i></div>
     <div class="edge-hint l"></div><div class="edge-hint r"></div>
-    <button type="button" id="foodInvFab" onclick="toggleFoodInventory()" aria-label="食物背包" style="display:none"><img id="foodBagIc" alt="食物背包"></button>
   </div>
 
-  <!-- 分頁面板：可上下拖曳的毛玻璃抽屜 -->
+  <!-- 分頁面板：固定高度毛玻璃底部面板 -->
   <div id="sheet">
-    <div id="sheetGrab">
-      <div id="dragHandle"></div>
-      <div id="sheetHead">
-        <div class="sheet-title" id="sheetTitleWrap">
-          <img id="sheetTitleIc" class="sheet-title-ic" alt="" aria-hidden="true">
-          <b id="sheetTitle">首頁</b>
-        </div>
-        <span id="sheetRight" class="mini"></span>
+    <div id="sheetHead">
+      <div class="sheet-title" id="sheetTitleWrap">
+        <img id="sheetTitleIc" class="sheet-title-ic" alt="" aria-hidden="true">
+        <b id="sheetTitle">首頁</b>
       </div>
-      <div id="sheetPeek" class="sheet-peek"></div>
+      <span id="sheetRight" class="mini"></span>
     </div>
     <div id="sheetBody"></div>
   </div>
 
+  <button type="button" id="budgetCapsule" class="budget-capsule" onclick="openFinanceDash()" aria-label="開啟帳務主頁"></button>
+
+  <div id="financeDash" class="finance-dash is-dismissed" aria-hidden="true">
+    <div class="finance-dash-body" id="financeDashBody"></div>
+  </div>
+
   <!-- 底部導覽 -->
   <div id="nav">
-    <button class="tab active" data-tab="home"><img class="em" alt="">首頁</button>
-    <button class="tab" data-tab="ledger"><img class="em" alt="">記帳</button>
-    <button class="tab" data-tab="war"><img class="em" alt="">聖戰</button>
-    <button class="tab" data-tab="shop"><img class="em" alt="">商店</button>
-    <button class="tab" data-tab="stats"><img class="em" alt="">統計</button>
+    <button class="tab active" data-tab="home"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">首頁</span></button>
+    <button class="tab" data-tab="ledger"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">記帳</span></button>
+    <button class="tab" data-tab="war"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">聖戰</span></button>
+    <button class="tab" data-tab="shop"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">商店</span></button>
+    <button class="tab" data-tab="stats"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">統計</span></button>
+    <button class="tab tab-settings" data-tab="settings" aria-label="設定">
+      <span class="tab-ic"><img class="em" alt=""></span>
+      <span class="tab-lbl">設定</span>
+    </button>
   </div>
 
   <div class="toast" id="toast"></div>
+  <div id="authGate" class="auth-gate" aria-hidden="true">
+    <div class="auth-panel" role="dialog" aria-labelledby="authTitle">
+      <span class="auth-panel-badge">GameFi 浮島</span>
+      <h1 id="authTitle">⚔️ 股市小兵聖戰</h1>
+      <p class="auth-sub">登入 Google 雲端同步代幣、K 線戰績與生肖守護靈，<br>或選擇以訪客身份直接登入試玩。</p>
+      <div class="auth-actions">
+        <button type="button" class="pixel-btn pixel-btn-google" id="authGoogleBtn" onclick="onPixelGoogleClick()">
+          <svg class="g-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22 12c0-.68-.06-1.37-.17-2H12v3.74h5.52c-.24 1.26-.96 2.33-2.04 3.05v2.52h3.3C21.04 17.48 22 14.96 22 12z"/><path fill="#34A853" d="M12 23c2.76 0 5.08-.91 6.77-2.47l-3.3-2.52c-.91.61-2.07.97-3.47.97-2.67 0-4.93-1.78-5.74-4.18H1.13v2.6C2.79 20.53 7.09 23 12 23z"/><path fill="#FBBC05" d="M6.26 14.8c-.22-.61-.35-1.26-.35-1.94 0-.68.13-1.33.35-1.94V8.32H1.13C.41 9.77 0 11.35 0 13c0 1.65.41 3.23 1.13 4.68l5.13-3.88z"/><path fill="#EA4335" d="M12 4.77c1.5 0 2.84.52 3.9 1.53l2.92-2.92C17.07 1.66 14.76 0 12 0 7.09 0 2.79 2.47 1.13 6.32l5.13 3.88C7.07 7.55 9.33 5.77 12 4.77z"/></svg>
+          <span>Google 帳戶登入</span>
+        </button>
+        <button type="button" class="pixel-btn pixel-btn-guest" id="authGuestBtn" onclick="onGuestLogin()">
+          🎮 先進島上逛逛（訪客試玩）
+        </button>
+      </div>
+      <p id="authGateErr" class="auth-user-err" aria-live="polite"></p>
+      <p id="authGateDev" class="auth-dev-hint" hidden></p>
+      <div id="gsiHidden" aria-hidden="true"></div>
+    </div>
+  </div>
   <div class="overlay" id="onboard" style="display:none"></div>
   <div id="foodInv" class="food-inv-overlay" style="display:none" aria-hidden="true">
     <div class="food-inv-panel" role="dialog" aria-labelledby="foodInvTitle">
@@ -631,6 +1035,33 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       </div>
       <div class="food-inv-grid" id="foodInvGrid"></div>
       <p class="food-inv-hint" id="foodInvHint"></p>
+    </div>
+  </div>
+  <div id="warKline" class="war-kline-overlay" style="display:none" aria-hidden="true">
+    <div class="war-kline-panel" role="dialog" aria-labelledby="warKlineTitle">
+      <div class="war-kline-head">
+        <div>
+          <h2 id="warKlineTitle">K 線圖</h2>
+          <div class="sub" id="warKlineSub"></div>
+        </div>
+        <button type="button" class="war-kline-x" onclick="closeWarKlineModal()" aria-label="關閉">✕</button>
+      </div>
+      <div class="war-kline-tabs" id="warKlineTabs"></div>
+      <div class="war-kline-body">
+        <div class="war-kline-main-col">
+          <div class="war-kline-scroll" id="warKlineScroll">
+            <div class="war-kline-scroll-inner" id="warKlineScrollInner">
+              <canvas id="warKlineCanvas"></canvas>
+              <div class="war-kline-xaxis" id="warKlineXaxis" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="war-kline-yaxis">
+          <div class="war-kline-yplot" id="warKlineYaxis" aria-hidden="true"></div>
+          <div class="war-kline-yspacer" aria-hidden="true"></div>
+        </div>
+      </div>
+      <div class="war-kline-foot" id="warKlineFoot">虛擬標的模擬走勢 · 非真實報價</div>
     </div>
   </div>
 </div>
@@ -654,7 +1085,11 @@ const ANIMALS=[
 const PET_TIGER_IDX=ANIMALS.findIndex(a=>a.k==='tiger');
 const $=s=>document.querySelector(s);
 const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
-const todayStr=()=>new Date().toISOString().slice(0,10);
+/** 本地日曆 YYYY-MM-DD（裝置時區，以凌晨 00:00 為日界） */
+const todayStr=()=>{
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
 const fmt=n=>n.toLocaleString('en-US');
 
 /* ---- 分類 ---- */
@@ -672,6 +1107,7 @@ const UNITS=[
 const UNIT=id=>UNITS.find(u=>u.id===id);
 const warIconHtml=(id,sm)=>{const s=typeof WAR_ICON!=='undefined'&&WAR_ICON[id];return s?`<img class="war-ic${sm?' sm':''}" src="${s}" alt="">`:(UNIT(id)?.em||'');};
 const coinImgSrc=()=>(typeof MONEY_IMG!=='undefined'&&MONEY_IMG.coin)||(typeof COIN_IMG_SRC!=='undefined'?encodeURI(COIN_IMG_SRC):'');
+const settingsIconSrc=()=>(typeof SETTINGS_IMG_SRC!=='undefined'?encodeURI(SETTINGS_IMG_SRC):'');
 const gemImgSrc=()=>(typeof MONEY_IMG!=='undefined'&&MONEY_IMG.gem)||'';
 const moneyIc=(k,sm)=>{
   const s=k==='coin'?coinImgSrc():gemImgSrc();
@@ -706,6 +1142,400 @@ const LINES={
 };
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function petAnimalKey(){return (ANIMALS[S.pet.animal]||ANIMALS[0]).k;}
+
+/* ===== PetRig：跨物種寵物抽象層 =========================================
+   對外 API 與未來的 Spine 版一致：setZodiac / setSkin / equip / setMood。
+   目前 backend='sprite'（沿用現有 tiger.png/pets.png 精靈系統）；
+   之後拿到 Spine 綁骨美術（base_zodiac_pet.json + atlas）時，只需把下方
+   方法內部改成操作 Spine skeleton/skin，對外介面不變即可 drop-in 換底層。 */
+const ZODIAC_ALIAS={goat:'sheep',ram:'sheep',hare:'rabbit',cock:'rooster',chicken:'rooster',mouse:'rat',cow:'ox',boar:'pig'};
+function zodiacKeyToIndex(z){
+  if(typeof z==='number')return ((z%12)+12)%12;
+  const key=ZODIAC_ALIAS[z]||z;
+  const i=ANIMALS.findIndex(a=>a.k===key);
+  return i<0?PET_TIGER_IDX:i;
+}
+const PetRig={
+  backend:'sprite',
+  _cos(){return (S.cosmetics=S.cosmetics||{owned:[],decos:[],skin:null});},
+  _refresh(){ if(typeof setupPetDisplay==='function')setupPetDisplay(); // 由 setupPetDisplay 決定：老虎走 sprite、其餘走 ZodiacSpine
+    if(typeof renderAll==='function')renderAll(); if(typeof save==='function')save(); },
+  // ① 一秒換生肖（zodiac_type：'tiger'|'goat'… 或 0~11）
+  setZodiac(zodiac_type){ const idx=zodiacKeyToIndex(zodiac_type);
+    if(S.pet.animal!==idx){ S.pet.animal=idx; this._refresh(); } return this; },
+  getZodiac(){return petAnimalKey();},
+  // ② 造型換裝（skin_id）；sprite 後端先記錄狀態，Spine 後端會據此合併 skin
+  setSkin(skin_id){ this._cos().skin=skin_id||null; this._refresh(); return this; },
+  equip(skin_id){ const c=this._cos(); if(skin_id&&!c.decos.includes(skin_id))c.decos.push(skin_id); this._refresh(); return this; },
+  unequip(skin_id){ const c=this._cos(); c.decos=c.decos.filter(s=>s!==skin_id); this._refresh(); return this; },
+  getSkins(){ const c=this._cos(); return {skin:c.skin||null, wear:c.decos.slice()}; },
+  // ③ 記帳狀態 → 情緒動畫（sleep / idle）
+  setMood(mood){
+    if(mood==='sleep'){
+      if(typeof isSleeping==='function'&&!isSleeping()){
+        petAnim.state='idle'; petAnim.idleUntil=0;
+        if(typeof startSleep==='function')startSleep();
+        if(petAnim.state!=='sleep'){petAnim.state='sleep';petAnim.sleepIdx=0;petAnim.sleepAccum=0;}
+      }
+    }else if(typeof wakeFromSleep==='function'){ wakeFromSleep(); }
+    return this;
+  },
+  getMood(){ return (typeof isSleeping==='function'&&isSleeping())?'sleep'
+    :((typeof isPanicking==='function'&&isPanicking())?'panic':(petAnim&&petAnim.state)||'idle'); },
+  describe(){ return {backend:this.backend, zodiac:this.getZodiac(), animalIndex:S.pet.animal,
+    mood:this.getMood(), skins:this.getSkins()}; }
+};
+if(typeof window!=='undefined')window.PetRig=PetRig;
+
+/* ===== ZodiacSpine：依 base_zodiac_pet.json 骨架驅動浮島中央生肖寵物 ===== */
+const ZodiacSpine={
+  ready:false,skeleton:null,animKey:'sleep_loop',raf:0,imgCache:{},
+  async load(){
+    if(this.skeleton)return;
+    const r=await fetch('base_zodiac_pet.json');
+    this.skeleton=await r.json();
+    this.ready=true;
+  },
+  animBob(ts){
+    const bones=this.skeleton?.animations?.[this.animKey]?.bones?.spine_torso?.translate;
+    if(!bones?.length)return 0;
+    const dur=bones[bones.length-1].time||2;
+    const tt=(ts/1000)%dur;
+    let a=bones[0],b=bones[bones.length-1];
+    for(let i=0;i<bones.length-1;i++){
+      if(tt>=bones[i].time&&tt<=bones[i+1].time){a=bones[i];b=bones[i+1];break;}
+    }
+    const span=b.time-a.time||1;
+    const u=span?Math.min(1,Math.max(0,(tt-a.time)/span)):0;
+    return a.y+(b.y-a.y)*u;
+  },
+  petImgSrc(){
+    const z=PetRig.getZodiac();
+    const k=ZODIAC_ALIAS[z]||z;
+    const ak=k==='goat'?'sheep':k;
+    return (typeof PET_IMG!=='undefined'&&PET_IMG[ak])||'';
+  },
+  remount(){
+    const hosts=typeof petHostEls==='function'?petHostEls().filter(h=>h.pet&&h.anchor):[];
+    if(hosts.length)this.mount(hosts);
+  },
+  mount(hosts){
+    this.load().then(()=>{
+      hosts.forEach(({pet,anchor,main})=>{
+        if(!pet||!anchor)return;
+        if(main){
+          anchor.classList.add('pet-spine-active');
+          let c=pet.querySelector('#petSpineCanvas');
+          if(!c){
+            c=document.createElement('canvas');
+            c.className='pet-spine-canvas';c.id='petSpineCanvas';
+            c.width=120;c.height=220;
+            pet.innerHTML='';pet.appendChild(c);
+          }
+          this.start(c);
+        }else{
+          anchor.classList.remove('pet-spine-active');
+          pet.innerHTML=petInner();
+        }
+      });
+    });
+  },
+  start(canvas){
+    if(this.raf)cancelAnimationFrame(this.raf);
+    const loop=(ts)=>{this.raf=requestAnimationFrame(loop);this.draw(canvas,ts);};
+    this.raf=requestAnimationFrame(loop);
+  },
+  stop(){if(this.raf){cancelAnimationFrame(this.raf);this.raf=0;}},
+  draw(canvas,ts){
+    if(!this.ready)return;
+    const ctx=canvas.getContext('2d');
+    const w=canvas.width,h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    const bob=this.animBob(ts)*0.5;
+    const src=this.petImgSrc();
+    if(src){
+      let img=this.imgCache[src];
+      if(!img){img=new Image();img.onload=()=>this.draw(canvas,ts);this.imgCache[src]=img;img.src=src;return;}
+      if(!img.complete)return;
+      const iw=img.naturalWidth||88,ih=img.naturalHeight||118;
+      const scale=Math.min(96/iw,128/ih);
+      const dw=iw*scale,dh=ih*scale;
+      ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(img,(w-dw)/2,h-dh-10+bob,dw,dh);
+    }else{
+      const a=ANIMALS[zodiacKeyToIndex(PetRig.getZodiac())]||ANIMALS[0];
+      ctx.font='72px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+      ctx.fillText(a.e,w/2,h-8+bob);
+    }
+  }
+};
+if(typeof window!=='undefined')window.ZodiacSpine=ZodiacSpine;
+
+/* ===== Google OAuth + JWT 登入 ===== */
+const AUTH_LS='gamefi_auth_jwt';
+const GUEST_LS='gamefi_guest_mode';
+let _authSyncT=0,_googleClientId='',_bootGameCore=null;
+
+function isAuthDev(){
+  return location.hostname==='localhost'||location.hostname==='127.0.0.1';
+}
+function isDevMode(){return isAuthDev();}
+function authDevHint(msg){
+  if(!isAuthDev())return;
+  console.warn('[auth]',msg);
+  const el=$('#authGateDev');
+  if(el){el.hidden=false;el.textContent=msg;}
+}
+
+function showAuthGate(){
+  const g=$('#authGate');if(g){g.classList.add('show');g.setAttribute('aria-hidden','false');}
+  const e=$('#authGateErr');if(e)e.textContent='';
+}
+function hideAuthGate(){
+  const g=$('#authGate');if(g){g.classList.remove('show');g.setAttribute('aria-hidden','true');}
+}
+
+function pickGuestZodiacKey(){
+  const keys=ANIMALS.map(a=>a.k);
+  return keys[Math.floor(Math.random()*keys.length)];
+}
+
+function initGuestGameState(forceNew){
+  let useExisting=!forceNew;
+  try{
+    const d=JSON.parse(localStorage.getItem(LS)||'null');
+    if(!d?.pet||!d.onboarded)useExisting=false;
+  }catch(e){useExisting=false;}
+  if(!useExisting){
+    const zk=pickGuestZodiacKey();
+    const zi=zodiacKeyToIndex(zk);
+    const a=ANIMALS[zi]||ANIMALS[0];
+    S=fresh();
+    S.guestMode=true;
+    S.wallet={coins:50000,gems:50};
+    S.pet.stage=2;S.pet.animal=zi;S.pet.name=a.n;S.pet.named=false;
+    S.onboarded=false;
+    PetRig.backend='spine';
+    PetRig.setZodiac(zi);
+    save();
+  }else{
+    S.guestMode=true;
+    if(S.pet?.stage>=2)PetRig.backend='spine';
+  }
+  S.auth=null;
+}
+
+function onGuestLogin(){
+  localStorage.setItem(GUEST_LS,'1');
+  localStorage.removeItem(AUTH_LS);
+  initGuestGameState(false);
+  hideAuthGate();
+  closeOverlay();
+  if(typeof _bootGameCore==='function')_bootGameCore();
+  if(needsPetNaming())return;
+  switchTab('home');
+  toast(`歡迎訪客！資料保存在本機`);
+  setTimeout(()=>say(`嗨 ${S.pet.name}！先在浮島上逛逛吧～`),500);
+}
+
+function applyAuthUser(u,isNewUser){
+  localStorage.removeItem(GUEST_LS);
+  S.guestMode=false;
+  S.auth={email:u.email,name:u.name,picture:u.picture,googleId:u.googleId};
+  if(u.wallet)S.wallet=u.wallet;
+  if(u.klineHistory)S.market=u.klineHistory;
+  const zi=zodiacKeyToIndex(u.zodiacType);
+  const a=ANIMALS[zi]||ANIMALS[0];
+  S.pet.stage=2;S.pet.animal=zi;
+  if(isNewUser){S.pet.name=a.n;S.pet.named=false;S.onboarded=false;}
+  else{
+    if(S.pet.named!==false)S.pet.named=true;
+    if(S.onboarded!==false)S.onboarded=true;
+    if(!S.pet.name)S.pet.name=a.n;
+  }
+  S.cosmetics=S.cosmetics||{owned:[],decos:[],skin:null};
+  if(u.spineSkinId!=null)S.cosmetics.skin=u.spineSkinId;
+  if(u.spineDecos?.length)S.cosmetics.decos=u.spineDecos.slice();
+  PetRig.backend='spine';
+  PetRig.setZodiac(zi);
+}
+
+function initMarketIfNeeded(){
+  if(typeof initMarket!=='function')return;
+  if(!S.market||!S.market.stocks)initMarket();
+  else if(!S.market.klineVer||S.market.klineVer<2){
+    VSTOCKS.forEach(v=>{const st=S.market.stocks[v.c];if(st){initMktState(st);initStockKlines(v.c);}});
+    S.market.klineVer=2;
+  }
+}
+
+function finishGoogleLogin(data){
+  localStorage.setItem(AUTH_LS,data.token);
+  localStorage.removeItem(GUEST_LS);
+  applyAuthUser(data.user,data.user.isNewUser);
+  hideAuthGate();
+  closeOverlay();
+  initMarketIfNeeded();
+  save();
+  if(typeof _bootGameCore==='function')_bootGameCore();
+  if(needsPetNaming())return;
+  decay();
+  S._lastDecay=Date.now();
+  renderAll();
+  switchTab('war');
+  const welcome=data.user.isNewUser
+    ?`歡迎！新指揮官獲得 ${fmt(data.user.wallet.coins)}${coinIc(true)}`
+    :`歡迎回來！`;
+  toast(welcome);
+  setTimeout(()=>say(`嗨 ${S.pet.name}！一起征戰股市吧！`),500);
+}
+
+async function postGoogleToken(idToken){
+  const res=await fetch('/api/auth/google',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({id_token:idToken})
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(data.error||'登入失敗');
+  return data;
+}
+
+async function handleGoogleCredential(response){
+  const btn=$('#authGoogleBtn');
+  try{
+    if(btn)btn.disabled=true;
+    $('#authGateErr').textContent='驗證中…';
+    const data=await postGoogleToken(response.credential);
+    finishGoogleLogin(data);
+  }catch(err){
+    $('#authGateErr').textContent=err.message||'登入失敗，請再試一次';
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
+
+function onPixelGoogleClick(){
+  $('#authGateErr').textContent='';
+  if(!_googleClientId){
+    authDevHint('GOOGLE_CLIENT_ID 未設定');
+    toast('Google 登入暫時不可用');
+    return;
+  }
+  const hidden=$('#gsiHidden');
+  const gsiBtn=hidden?.querySelector('div[role="button"]');
+  if(gsiBtn){gsiBtn.click();return;}
+  if(window.google?.accounts?.id){
+    google.accounts.id.prompt((n)=>{
+      if(n.isNotDisplayed()||n.isSkippedMoment()){
+        authDevHint('Google 一鍵登入未顯示，請重試或改用訪客試玩');
+        toast('無法開啟 Google 登入視窗');
+      }
+    });
+    return;
+  }
+  authDevHint('Google SDK 尚未載入');
+  toast('Google 登入載入中，請稍後再試');
+}
+
+function initGoogleAuth(clientId){
+  _googleClientId=clientId||'';
+  const btn=$('#authGoogleBtn');
+  if(!clientId){
+    authDevHint('GOOGLE_CLIENT_ID 未設定');
+    if(btn)btn.disabled=true;
+    return;
+  }
+  if(btn)btn.disabled=false;
+  if(!window.google?.accounts?.id){
+    authDevHint('Google SDK 尚未載入');
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id:clientId,
+    callback:handleGoogleCredential,
+    auto_select:false,
+    ux_mode:'popup',
+    context:'signin'
+  });
+  const hidden=$('#gsiHidden');
+  if(hidden){
+    hidden.innerHTML='';
+    google.accounts.id.renderButton(hidden,{theme:'outline',size:'large',type:'standard',width:280});
+  }
+}
+
+async function restoreAuthSession(token){
+  const res=await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+token}});
+  if(!res.ok)return null;
+  const data=await res.json();
+  return data.user;
+}
+
+function waitForGsi(){
+  return new Promise((resolve,reject)=>{
+    if(window.google?.accounts?.id)return resolve();
+    let n=0;
+    const t=setInterval(()=>{
+      if(window.google?.accounts?.id){clearInterval(t);resolve();}
+      else if(++n>60){clearInterval(t);reject(new Error('Google 登入 SDK 載入逾時'));}
+    },100);
+  });
+}
+
+async function initAuth(){
+  let cfg={};
+  try{cfg=await fetch('/api/config').then(r=>r.json());}catch(e){}
+  _googleClientId=cfg.googleClientId||'';
+
+  if(localStorage.getItem(GUEST_LS)==='1'){
+    initGuestGameState(false);
+    hideAuthGate();
+    return true;
+  }
+
+  if(!cfg.authEnabled)return true;
+
+  const token=localStorage.getItem(AUTH_LS);
+  if(token){
+    const user=await restoreAuthSession(token);
+    if(user){applyAuthUser(user,false);hideAuthGate();return true;}
+    localStorage.removeItem(AUTH_LS);
+  }
+
+  showAuthGate();
+  try{
+    await waitForGsi();
+    initGoogleAuth(_googleClientId);
+  }catch(err){
+    authDevHint(err.message);
+    $('#authGateErr').textContent='Google 登入載入失敗，可先使用訪客試玩';
+  }
+  return false;
+}
+
+function scheduleAuthSync(){
+  if(!localStorage.getItem(AUTH_LS)||localStorage.getItem(GUEST_LS)==='1')return;
+  clearTimeout(_authSyncT);
+  _authSyncT=setTimeout(syncAuthState,2500);
+}
+async function syncAuthState(){
+  const token=localStorage.getItem(AUTH_LS);
+  if(!token)return;
+  try{
+    await fetch('/api/auth/sync',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+      body:JSON.stringify({
+        wallet:S.wallet,
+        zodiacType:PetRig.getZodiac(),
+        spineSkinId:S.cosmetics?.skin??null,
+        spineDecos:S.cosmetics?.decos||[],
+        market:S.market||null
+      })
+    });
+  }catch(e){/* 離線略過 */}
+}
+
 /** 依當前（或指定）心情值，從 pet-dialogues.js 取動物專屬台詞；無資料時回傳 null */
 function petMoodDialogue(mood){
   if(typeof PetDialogueManager==='undefined')return null;
@@ -726,6 +1556,25 @@ function maybeSayPlatformLine(chance){
   if(line)say(line);
 }
 function sayPetLine(mood,fallback){say(petMoodDialogue(mood)||pick(fallback||LINES.idle));}
+const EAT_MOOD_LINES={
+  low:[
+    '嗯...心情好像有稍微好一點點了...',
+    '謝謝你，雖然還是有點悶，但有比較開心了。'
+  ],
+  mid:[
+    '心情又好一些了！',
+    '好好吃！感覺動力漸漸恢復了！'
+  ],
+  high:[
+    '太棒了！我現在心情超級好！',
+    '感覺充滿了正能量，謝謝主人！'
+  ]
+};
+function sayEatMoodLine(){
+  const h=moodValue();
+  const pool=h<40?EAT_MOOD_LINES.low:(h<=80?EAT_MOOD_LINES.mid:EAT_MOOD_LINES.high);
+  say(pick(pool));
+}
 
 /* ---- 性向測驗 ---- */
 const QUIZ=[
@@ -743,32 +1592,68 @@ const PERSONA={
 
 /* ============ 狀態 ============ */
 let S=load();
+if(S.pet&&S.pet.named==null)S.pet.named=!!S.onboarded;
+if(S.dailyBookkeepingCount==null)S.dailyBookkeepingCount=0;
+if(S.lastBookkeepingDate==null)S.lastBookkeepingDate=null;
+{const _ledgerToday=todayStr();
+ if(S.lastBookkeepingDate!==_ledgerToday){S.dailyBookkeepingCount=0;S.lastBookkeepingDate=_ledgerToday;}}
 S.gemini=S.gemini||{key:'',model:'gemini-flash-latest'};
 if(!S.gemini.model)S.gemini.model='gemini-flash-latest';
 S.chat=S.chat||[];
+S.theme=S.theme||{mode:'auto'};
+if(!['auto','day','night'].includes(S.theme.mode))S.theme.mode='auto';
+// 聖戰 2.0 市場改為延遲初始化（VSTOCKS 在後面才宣告，這裡不能提前呼叫 initMarket）
 if(S.cosmetics)S.cosmetics.skin=null; // 皮膚不再取代寵物，一律顯示原本動物
 function fresh(){
   return {
     onboarded:false, quizScore:{save:0,plan:0,spend:0,invest:0},
     pet:{name:'小虎',persona:'save',el:'💧水',baseEmoji:'🐯',animal:PET_TIGER_IDX,stage:2,level:1,exp:0,
-         hunger:70,happiness:70,health:80},
+         hunger:70,happiness:70,health:80,named:false},
     wallet:{coins:300,gems:50},
     budget:20000, tx:[], army:[],
     daily:{date:todayStr(),recruits:0,deploys:0},
     cosmetics:{owned:[],skin:null,decos:[]}, photoCap:10,
-    lastPhotoCrit:0, streak:0, lastRecordDate:null, battleLog:[],
-    gemini:{key:'',model:'gemini-flash-latest'}, chat:[]
+    lastPhotoCrit:0, streak:0, lastRecordDate:null,
+    dailyBookkeepingCount:0, lastBookkeepingDate:null,
+    battleLog:[],
+    gemini:{key:'',model:'gemini-flash-latest'}, chat:[],
+    theme:{mode:'auto'}
   };
 }
 function load(){try{const d=JSON.parse(localStorage.getItem(LS));return d&&d.pet?d:fresh();}catch(e){return fresh();}}
-function save(){localStorage.setItem(LS,JSON.stringify(S));}
+function save(){localStorage.setItem(LS,JSON.stringify(S));if(typeof scheduleAuthSync==='function')scheduleAuthSync();}
 function rollDay(){if(S.daily.date!==todayStr())S.daily={date:todayStr(),recruits:0,deploys:0};}
 
 /* ============ 通用 UI ============ */
 let curTab='home';
 function toast(msg){const t=$('#toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1700);}
-function say(txt){$('#speechTxt').textContent=txt;$('#speech').classList.add('show');if(typeof scheduleChatter==='function')scheduleChatter();}
-function hideSpeech(){$('#speech').classList.remove('show');}
+const SPEECH_AUTO_HIDE_MS=10000;
+const CHATTER_COOLDOWN_MIN=50000;
+const CHATTER_COOLDOWN_MAX=60000;
+let speechHideTimer=null;
+function clearSpeechHideTimer(){
+  if(speechHideTimer){clearTimeout(speechHideTimer);speechHideTimer=null;}
+}
+function scheduleChatterAfterDismiss(){
+  clearTimeout(window._chatterT);
+  const ms=CHATTER_COOLDOWN_MIN+Math.random()*(CHATTER_COOLDOWN_MAX-CHATTER_COOLDOWN_MIN);
+  window._chatterT=setTimeout(()=>proactiveChatter(),ms);
+}
+function say(txt){
+  const sp=$('#speech');
+  if(!sp)return;
+  $('#speechTxt').textContent=txt;
+  sp.classList.add('show');
+  clearSpeechHideTimer();
+  speechHideTimer=setTimeout(()=>hideSpeech(),SPEECH_AUTO_HIDE_MS);
+}
+function hideSpeech(){
+  const sp=$('#speech');
+  if(!sp||!sp.classList.contains('show'))return;
+  sp.classList.remove('show');
+  clearSpeechHideTimer();
+  scheduleChatterAfterDismiss();
+}
 function petEmoji(){ // 文字情境用的表情
   const p=S.pet;
   if(p.stage===0)return '🥚'; if(p.stage===1)return '🐣';
@@ -779,11 +1664,10 @@ function petInner(){ // 浮島大圖：靜態精靈（非老虎動畫時）
   if(p.stage===0)return '<span class="petGlyph">🥚</span>';
   if(p.stage===1)return '<span class="petGlyph">🐣</span>';
   const a=ANIMALS[p.animal]||ANIMALS[0];
-  const crown=p.stage>=4?'<span class="petCrown">👑</span>':'';
   const sick=p.health<25?'<span class="petSick">💦</span>':'';
   const src=PET_IMG[a.k];
   const body=src?'<img class="petImg" src="'+src+'" alt="'+a.n+'">':'<span class="petGlyph">'+a.e+'</span>';
-  return crown+sick+body;
+  return sick+body;
 }
 function isTigerSprite(){
   const p=S.pet;
@@ -1366,10 +2250,11 @@ function onIsleClick(e,scene){
   if(e.preventDefault)e.preventDefault();
   spawnClickMarker(cx,cy,scene);
   if(scene==='kitchen'||scene==='bedroom'){
-    if(!isTigerSprite())return;
-    if(scene==='kitchen'&&tiger4Anim.kitchen.state==='eating')return;
-    if(scene==='bedroom')Tiger4Scene.setBedroomState('awake');
-    if(scene==='bedroom'&&tiger4Anim.bedroom.state==='sleep')return;
+    if(isTigerSprite()){ // 老虎專屬：吃食/睡覺狀態下不移動；其他生肖直接可走
+      if(scene==='kitchen'&&tiger4Anim.kitchen.state==='eating')return;
+      if(scene==='bedroom')Tiger4Scene.setBedroomState('awake');
+      if(scene==='bedroom'&&tiger4Anim.bedroom.state==='sleep')return;
+    }
     if(!isSceneInside(scene,pos.px,pos.py))return;
     commandScenePetMoveTo(scene,pos.px,pos.py);
     return;
@@ -1572,6 +2457,7 @@ function resetKitchenIdle(){
 }
 function finishKitchenEating(){
   resetKitchenIdle();
+  sayEatMoodLine();
 }
 function foodFrameSize(){
   const s=foodAnim.sheet,cols=FOOD_SPR.COLS;
@@ -1661,8 +2547,8 @@ function pickFoodFromInventory(id){
   S.wallet.coins-=FOOD_SPR.FEED_COST;
   S.pet.hunger=clamp(S.pet.hunger+FOOD_SPR.HUNGER_GAIN);
   if(isTigerSprite())startKitchenEating(item);
+  else sayEatMoodLine();
   toast(`飽食 +${FOOD_SPR.HUNGER_GAIN} ${item.nameZh}`);
-  sayPetLine(null,LINES.happy);
   renderAll();
 }
 function startKitchenEating(foodItem){
@@ -1857,15 +2743,24 @@ function beginPetWalk(){
 function tryJumpUp(){/* 暫停高台跳躍 */}
 function updatePetOverlays(pet){
   if(!pet)return;
-  pet.querySelectorAll('.petCrown,.petSick,.petTear').forEach(e=>e.remove());
+  pet.querySelectorAll('.petSick,.petTear,.petCrown').forEach(e=>e.remove());
   const p=S.pet;
-  if(p.stage>=4){const c=document.createElement('span');c.className='petCrown';c.textContent='👑';pet.appendChild(c);}
   if(p.health<25){const s=document.createElement('span');s.className='petSick';s.textContent='💦';pet.appendChild(s);}
-  if(isMoodSevere()){const t=document.createElement('span');t.className='petTear';t.textContent='😢';pet.appendChild(t);}
 }
 function setupPetDisplay(){
   const p=S.pet,hosts=petHostEls().filter(h=>h.pet&&h.anchor);
   if(!hosts.length)return;
+  // 只有「非老虎」生肖才用 ZodiacSpine（平面圖浮動）；老虎一律走下方真正的 sprite 動畫
+  if(PetRig.backend==='spine'&&p.stage>=2&&!isTigerSprite()){
+    ZodiacSpine.stop();
+    stopPetAnimator();
+    ZodiacSpine.mount(hosts);
+    setPetPos(50,groundSurfaceY(50));
+    startPetLoop();
+    initScenePets();
+    return;
+  }
+  if(typeof ZodiacSpine!=='undefined')ZodiacSpine.stop(); // 走 sprite 前先停掉殘留的 spine loop
   if(p.stage<2||!isTigerSprite()){
     stopPetAnimator();
     hosts.forEach(({pet,anchor})=>{
@@ -1873,7 +2768,7 @@ function setupPetDisplay(){
       pet.innerHTML=petInner();
     });
     setPetPos(50,groundSurfaceY(50));
-    if(p.stage>=2)startPetLoop();
+    if(p.stage>=2){startPetLoop();initScenePets();} // 非老虎也初始化場景寵物位置，才能在餐廳/寢室走動
     return;
   }
   hosts.forEach(({pet,anchor,main})=>{
@@ -1888,10 +2783,10 @@ function setupPetDisplay(){
       updatePetOverlays(pet);
     }else if(pet.id==='petKitchen'){
       mountTiger4Kitchen();
-      pet.querySelectorAll('.petCrown,.petSick,.petTear').forEach(e=>e.remove());
+      pet.querySelectorAll('.petSick,.petTear,.petCrown').forEach(e=>e.remove());
     }else if(pet.id==='petBedroom'){
       mountTiger4Bedroom();
-      pet.querySelectorAll('.petCrown,.petSick,.petTear').forEach(e=>e.remove());
+      pet.querySelectorAll('.petSick,.petTear,.petCrown').forEach(e=>e.remove());
     }
   });
   setPetPos(petAnim.px,petAnim.py);
@@ -2059,6 +2954,7 @@ function petLoop(ts){
     if(hc)drawPetFrame(hc,petAnim.frame,petAnim.flip,sheetKey);
   }
   if(isTigerSprite()&&tiger4Anim.ready)updateTiger4SceneSprites(dt);
+  else if(!isTigerSprite()){updateScenePetWalk(dt,'kitchen');updateScenePetWalk(dt,'bedroom');} // 非老虎：只搬動靜態圖位置
   petAnim.raf=requestAnimationFrame(petLoop);
 }
 function hop(){
@@ -2068,9 +2964,22 @@ function hop(){
 }
 
 /* ============ 渲染 ============ */
-function syncHudOffset(){
-  const hud=$('#hud');
-  if(hud)document.documentElement.style.setProperty('--hud-h',hud.offsetHeight+'px');
+function syncHudOffset(){syncChromeInsets();}
+function syncChromeInsets(){
+  const hud=$('#hud'),nav=$('#nav'),cap=$('#budgetCapsule');
+  const gap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--float-gap'))||10;
+  if(hud){
+    const hudTop=hud.offsetTop||12;
+    document.documentElement.style.setProperty('--hud-h',(hudTop+hud.offsetHeight+8)+'px');
+  }
+  if(nav){
+    const navBottom=parseFloat(getComputedStyle(nav).bottom);
+    const nb=Number.isFinite(navBottom)?navBottom:16;
+    const stack=nb+nav.offsetHeight;
+    document.documentElement.style.setProperty('--nav-h',stack+'px');
+    document.documentElement.style.setProperty('--nav-stack-h',stack+'px');
+    if(cap&&curTab==='home'&&!financeDashOpen)cap.style.bottom=(stack+gap)+'px';
+  }
 }
 function renderHUD(){
   $('#coinTxt').textContent=fmt(S.wallet.coins);
@@ -2152,31 +3061,140 @@ function monthWeather(){
 }
 
 /* ---- 分頁 ---- */
-const TABS={home:renderHome,ledger:renderLedger,war:renderWar,shop:renderShop,stats:renderStats};
-const TITLES={home:'浮島首頁',ledger:'誠實記帳',war:'股市小兵聖戰',shop:'像素商店',stats:'財務統計'};
+const TABS={home:renderHome,ledger:renderLedger,war:renderWar,shop:renderShop,stats:renderStats,settings:renderSettings};
+const TITLES={home:'浮島首頁',ledger:'誠實記帳',war:'股市小兵聖戰',shop:'像素商店',stats:'財務統計',settings:'設定'};
 function setSheetTitle(t){
   const ic=$('#sheetTitleIc'),title=$('#sheetTitle');
+  if(t==='settings'){
+    if(title)title.textContent='';
+    if(ic)ic.hidden=true;
+    return;
+  }
   if(title)title.textContent=TITLES[t]||'';
   if(ic){
     if(NAV_ICON&&NAV_ICON[t]){ic.src=NAV_ICON[t];ic.hidden=false;}
     else ic.hidden=true;
   }
 }
+function updateTabChrome(t){
+  const app=$('#app'),sheet=$('#sheet'),cap=$('#budgetCapsule');
+  const isHome=t==='home';
+  if(app){
+    app.classList.toggle('tab-home',isHome);
+    app.classList.toggle('tab-app',!isHome);
+    ['ledger','war','shop','stats','settings'].forEach(id=>app.classList.toggle('tab-'+id,t===id));
+  }
+  if(sheet)sheet.style.display=isHome?'none':'flex';
+  if(cap)cap.style.display=isHome&&!financeDashOpen?'flex':'none';
+  applySkyChrome();
+}
+function onNavTabClick(t){
+  switchTab(t);
+}
 function switchTab(t){
   if(foodInvOpen)closeFoodInventory();
+  if(warKlineOpen)closeWarKlineModal();
+  if(financeDashOpen)closeFinanceDash(true);
+  if(t!=='war'){warNumpadOpen=false;warDraft.countInput=null;}
   curTab=t;
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  $('#sheet').classList.toggle('sheet-home',t==='home');
+  updateTabChrome(t);
   setSheetTitle(t);
   $('#sheetRight').textContent='';
   TABS[t]();
-  if(sheetSnap==='collapsed')snapTo('std');
+  layoutSheet();
+  // 回首頁時重新量測場景寬度並對齊，修正登入後量到 0 寬導致無法左右滑的問題
+  if(t==='home'&&typeof SceneCarousel!=='undefined'&&SceneCarousel.track){SceneCarousel._measure();SceneCarousel.snap(false);}
 }
-function renderAll(){renderHUD();renderScene();$('#sheet')?.classList.toggle('sheet-home',curTab==='home');TABS[curTab]();renderSheetPeek();layoutIsland();updateSceneParallax(liveTY);save();}
+function renderAll(){
+  renderHUD();renderScene();
+  updateTabChrome(curTab);
+  setSheetTitle(curTab);
+  TABS[curTab]();layoutSheet();
+  if(financeDashOpen)renderFinanceDash();
+  save();
+}
 
-/* ===== 首頁 ===== */
-let homePeriod='month'; // 'day' | 'week' | 'month'
-function setHomePeriod(p){homePeriod=p;if(curTab==='home'){renderHome();renderSheetPeek();layoutSheet();}}
+/* ===== 首頁（純寵物世界 + 預算膠囊）===== */
+let financeDashOpen=false;
+const FINANCE_DASH_MS=300;
+let financeDashCloseTimer=null;
+let financePeriod='month';
+function setFinancePeriod(p){financePeriod=p;if(financeDashOpen)renderFinanceDash();else renderBudgetCapsule();}
+function renderBudgetCapsule(){
+  const v=homeBudgetView('month');
+  const cap=$('#budgetCapsule');
+  if(!cap)return;
+  const pct=clamp(v.exp/v.budget*100);
+  const barStyle=v.over?'background:linear-gradient(90deg,#e0605a,#b33)':'';
+  cap.innerHTML=`<span class="bc-label">本月剩餘</span>
+    <span class="bc-amt" style="color:${v.left<0?'#ffb0aa':'#fff'}">$${fmt(v.left)}</span>
+    <span class="bc-bar" aria-hidden="true"><i style="width:${pct}%;${barStyle}"></i></span>
+    <span class="bc-chevron" aria-hidden="true">›</span>`;
+}
+function financeDashHtml(){
+  const v=homeBudgetView(financePeriod);
+  const led=`<span class="led" style="--c:${ledColor(v.pace)}"></span>`;
+  const periodSeg=['day','week','month'].map(p=>{
+    const lb={day:'每日',week:'每週',month:'每月'}[p];
+    return `<button type="button" class="${financePeriod===p?'on':''}" onclick="setFinancePeriod('${p}')">${lb}</button>`;
+  }).join('');
+  return `<div class="finance-panel">
+    <div class="hero-card finance-main-card">
+      <button type="button" class="finance-card-close" onclick="closeFinanceDash()" aria-label="關閉">
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3L3 9"/></svg>
+      </button>
+      <div class="period-seg">${periodSeg}</div>
+      <div class="hero-label">${v.title}</div>
+      <div class="hero-value${v.left<0?' is-over':''}">$${fmt(v.left)}</div>
+      <div class="hbar"><i style="width:${clamp(v.exp/v.budget*100)}%;${v.over?'background:linear-gradient(90deg,#e0605a,#b33)':''}"></i></div>
+      <div class="hero-cap">${led}已用 ${v.pct}%・${v.label}（${v.txt}）</div>
+    </div>
+    <div class="chips-row">
+      <div class="chip-stat"><b style="color:#3F9E4D">$${fmt(v.inc)}</b><span>${v.chipLabels[0]}</span></div>
+      <div class="chip-stat"><b style="color:#E0605A">$${fmt(v.exp)}</b><span>${v.chipLabels[1]}</span></div>
+      <div class="chip-stat"><b>${S.streak}</b><span>${v.chipLabels[2]}</span></div>
+    </div>
+    <button class="btn big" onclick="closeFinanceDash();switchTab('ledger')">＋ 記一筆</button>
+  </div>`;
+}
+function renderFinanceDash(){
+  const body=$('#financeDashBody');
+  if(body)body.innerHTML=financeDashHtml();
+}
+function openFinanceDash(){
+  if(financeDashCloseTimer){clearTimeout(financeDashCloseTimer);financeDashCloseTimer=null;}
+  financeDashOpen=true;
+  const el=$('#financeDash'),cap=$('#budgetCapsule');
+  renderFinanceDash();
+  if(el){
+    el.classList.remove('is-dismissed');
+    el.setAttribute('aria-hidden','false');
+    el.classList.remove('is-open');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('is-open')));
+  }
+  if(cap)cap.style.display='none';
+  layoutSheet();
+}
+function closeFinanceDash(instant){
+  if(financeDashCloseTimer){clearTimeout(financeDashCloseTimer);financeDashCloseTimer=null;}
+  if(!financeDashOpen)return;
+  const el=$('#financeDash');
+  const finish=()=>{
+    financeDashOpen=false;
+    if(el){
+      el.classList.remove('is-open');
+      el.classList.add('is-dismissed');
+      el.setAttribute('aria-hidden','true');
+    }
+    if(curTab==='home')renderBudgetCapsule();
+    updateTabChrome(curTab);
+    layoutSheet();
+  };
+  if(instant||!el||!el.classList.contains('is-open')){finish();return;}
+  el.classList.remove('is-open');
+  financeDashCloseTimer=setTimeout(()=>{financeDashCloseTimer=null;finish();},FINANCE_DASH_MS);
+}
 function weekStartStr(){
   const d=new Date();const day=d.getDay();const diff=(day+6)%7;
   const mon=new Date(d);mon.setDate(d.getDate()-diff);
@@ -2300,92 +3318,53 @@ function renderHomeGroupedList(period){
   }).join('');
 }
 function renderHome(){
-  const v=homeBudgetView(homePeriod);
-  const led=`<span class="led" style="--c:${ledColor(v.pace)}"></span>`;
-  const periodSeg=['day','week','month'].map(p=>{
-    const lb={day:'每日',week:'每週',month:'每月'}[p];
-    return `<button type="button" class="${homePeriod===p?'on':''}" onclick="setHomePeriod('${p}')">${lb}</button>`;
-  }).join('');
-  $('#sheetBody').innerHTML=`
-    <div class="home-panel">
-      <div class="hero-card">
-        <div class="period-seg">${periodSeg}</div>
-        <div class="hero-label">${v.title}</div>
-        <div class="hero-value" style="color:${v.left<0?'#E0605A':'#2B2233'}">$${fmt(v.left)}</div>
-        <div class="hbar"><i style="width:${clamp(v.exp/v.budget*100)}%;${v.over?'background:linear-gradient(90deg,#e0605a,#b33)':''}"></i></div>
-        <div class="hero-cap">${led}已用 ${v.pct}%・${v.label}（${v.txt}）</div>
-      </div>
-      <div class="chips-row">
-        <div class="chip-stat"><b style="color:#3F9E4D">$${fmt(v.inc)}</b><span>${v.chipLabels[0]}</span></div>
-        <div class="chip-stat"><b style="color:#E0605A">$${fmt(v.exp)}</b><span>${v.chipLabels[1]}</span></div>
-        <div class="chip-stat"><b>🔥${S.streak}</b><span>${v.chipLabels[2]}</span></div>
-      </div>
-      <button class="btn big" onclick="switchTab('ledger')">＋ 記一筆</button>
-      <button class="btn soft" style="width:100%;margin-top:10px" onclick="openChat()"><img class="soft-ic" src="${HOMEBTN_IMG.chat||''}" alt="">聊天</button>
-      <p class="hint" style="text-align:center;margin-top:8px">💡 點浮島上出現的光球，讓寵物走過去吃掉就是陪玩（多吃幾個心情才會變好）</p>
-      <section class="home-recent">
-        <div class="home-recent-head">
-          <b>收支明細</b>
-          <button class="link" type="button" onclick="switchTab('ledger')">查看全部 →</button>
-        </div>
-        <div class="home-recent-list">${renderHomeGroupedList(homePeriod)}</div>
-      </section>
-      <div class="disclaimer home-foot">⚠️ 本遊戲為虛擬模擬養成，代幣不可提領、不涉及真實金流；兵種綁定標的僅為策略模擬，<b>不構成任何投資建議</b>。</div>
-    </div>`;
-  renderSheetPeek();
-  layoutIsland();
+  renderBudgetCapsule();
+  layoutSheet();
 }
-function renderSheetPeek(){
-  const peek=$('#sheetPeek');
-  if(!peek)return;
-  if(curTab!=='home'){
-    peek.classList.remove('show');
-    peek.innerHTML='';
-    return;
+function sheetTopInScene(){
+  const scene=$('#scene');
+  if(!scene)return 0;
+  if(curTab==='home'){
+    const navStack=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-stack-h'))||70;
+    const gap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--float-gap'))||10;
+    const capH=$('#budgetCapsule')?.offsetHeight||36;
+    return scene.clientHeight-navStack-capH-gap-6;
   }
-  const v=homeBudgetView(homePeriod);
-  peek.classList.add('show');
-  peek.innerHTML=`
-    <div class="peek-label">${v.title}</div>
-    <div class="peek-row">
-      <span class="peek-amt" style="color:${v.left<0?'#E0605A':'#2B2233'}">$${fmt(v.left)}</span>
-      <div class="peek-bar"><i style="width:${clamp(v.exp/v.budget*100)}%;${v.over?'background:linear-gradient(90deg,#e0605a,#b33)':''}"></i></div>
-    </div>`;
-  const H=sheetEl?.clientHeight;
-  if(H){
-    const grabH=grabEl.offsetHeight||118;
-    SNAP.collapsed=Math.max(Math.round(H*0.62),H-grabH);
-  }
+  const sheet=$('#sheet');
+  if(!sheet||sheet.style.display==='none')return scene.clientHeight;
+  return sheet.getBoundingClientRect().top-scene.getBoundingClientRect().top;
 }
 function layoutIsland(){
+  if(curTab!=='home')return;
   const island=$('#island'),scene=$('#scene');
   if(!island||!scene)return;
   const sceneH=scene.clientHeight||500;
-  const ty=liveTY;
+  const ty=sheetTopInScene();
   const gap=35;
   const ih=island.offsetHeight||Math.round(sceneH*0.45);
-  // 浮島岩石底緣貼齊 Sheet 頂部上方 gap（中心點 = 底緣 - 半高）
   const rockBottom=ty-gap;
   const centerPx=Math.max(ih*0.22,rockBottom-ih*0.5);
-  const pct=clamp((centerPx/sceneH)*100,24,54);
+  const pct=clamp((centerPx/sceneH)*100,curTab==='home'?30:24,curTab==='home'?58:54);
   island.style.top=pct+'%';
 }
-function updateSceneParallax(ty){
-  const island=$('#island');
-  if(!island)return;
-  const max=Math.max(1,SNAP.collapsed||1);
-  const progress=clamp(1-ty/max,0,1);
-  island.style.setProperty('--parallax-y',(progress*32)+'px');
-  island.style.setProperty('--parallax-op',String(1-progress*0.38));
+function updateSceneParallax(){
+  if(curTab!=='home')return;
+  const island=$('#island'),scene=$('#scene');
+  if(!island||!scene)return;
+  const sceneH=scene.clientHeight||1;
+  const ty=sheetTopInScene();
+  const progress=clamp(1-ty/sceneH,0,1);
+  island.style.setProperty('--parallax-y',(progress*20)+'px');
+  island.style.setProperty('--parallax-op',String(0.82+progress*0.18));
 }
 // 點寵物只做可愛小反應（陪玩改成走動吃物件，見下方）
 function playWithPet(){
   wakeFromSleep();cancelPanic();touchPetActivity();
   if(typeof triggerPetAction==='function')triggerPetAction('cheer');
 }
-/* ===== 首頁陪玩：浮島隨機出現小物件，走過去吃掉才算陪玩 ===== */
-const OBJ_CFG={spawnDelay:3000,chanceCoin:0.10,chanceExp:0.08,playTarget:4,moodGain:18,coinGain:30,expGain:15,eatDist:2.6};
-let homeObj=null, playEaten=0, homeObjTimer=null;
+/* ===== 首頁浮島物件：走過去吃掉可獲得獎勵 ===== */
+const OBJ_CFG={spawnDelay:3000,chanceCoin:0.10,chanceExp:0.08,moodGain:5,coinGain:30,expGain:15,eatDist:2.6};
+let homeObj=null, homeObjTimer=null;
 function objSrc(type){
   if(type==='coin')return typeof MONEY_IMG!=='undefined'?MONEY_IMG.coin:'';
   if(type==='exp')return typeof EXP_IMG!=='undefined'?EXP_IMG:'';
@@ -2417,11 +3396,7 @@ function tryEatHomeObject(){
   if(typeof triggerPetAction==='function')triggerPetAction('cheer');
   if(type==='coin'){S.wallet.coins+=OBJ_CFG.coinGain;toast('撿到金幣 +'+OBJ_CFG.coinGain+coinIc(true));}
   else if(type==='exp'){gainExp(OBJ_CFG.expGain);toast('經驗 +'+OBJ_CFG.expGain+' ⭐');}
-  else{
-    playEaten++;
-    if(playEaten>=OBJ_CFG.playTarget){playEaten=0;boostMood(OBJ_CFG.moodGain);toast('心情 +'+OBJ_CFG.moodGain+' 😊');sayPetLine(null,LINES.happy);}
-    else toast('陪玩 '+playEaten+'/'+OBJ_CFG.playTarget+' 🔵');
-  }
+  else{sayEatMoodLine();boostMood(OBJ_CFG.moodGain);}
   renderAll();
   scheduleHomeObject(OBJ_CFG.spawnDelay);
 }
@@ -2452,6 +3427,7 @@ function renderLedger(){
   const onCD=Date.now()-S.lastPhotoCrit<600000;
   const cdLeft=Math.ceil((600000-(Date.now()-S.lastPhotoCrit))/60000);
   $('#sheetBody').innerHTML=`
+    <div class="page-panel ledger-page">
     <div class="seg">
       <button class="${draft.type==='expense'?'on':''}" onclick="setType('expense')">− 支出</button>
       <button class="${draft.type==='income'?'on':''}" onclick="setType('income')">＋ 收入</button>
@@ -2474,7 +3450,17 @@ function renderLedger(){
     </div>
     <button class="btn mt" style="width:100%" onclick="addTx()">記上一筆，餵養浮島</button>
     <div class="spread mt"><b style="font-size:13px">最近紀錄</b><span class="mini">共 ${S.tx.length} 筆</span></div>
-    <div class="card" style="box-shadow:none">${renderTxList(8)}</div>`;
+    <div class="card" style="box-shadow:none">${renderTxList(8)}</div>
+    ${isDevMode()?`<button type="button" class="ledger-debug-btn" onclick="debugFreeCoins()">🛠️ 開發測試：免費領 100 硬幣</button>`:''}
+    </div>`;
+}
+function debugFreeCoins(){
+  if(!isDevMode())return;
+  S.wallet.coins+=100;
+  save();
+  toast(`Debug +100${coinIc(true)}`);
+  renderHUD();
+  if(curTab==='ledger')renderLedger();
 }
 function setType(t){draft.type=t;draft.cat=CATS[t][0][1];renderLedger();}
 function setCat(c){draft.cat=c;renderLedger();}
@@ -2492,6 +3478,30 @@ function onPhoto(e){
   r.readAsDataURL(f);
 }
 // 記帳核心：可由表單或聊天呼叫
+const LEDGER_COIN_REWARD=100;
+const LEDGER_COIN_DAILY_CAP=8;
+function resetLedgerCoinDailyIfNeeded(){
+  const today=todayStr();
+  if(S.lastBookkeepingDate!==today){
+    S.dailyBookkeepingCount=0;
+    S.lastBookkeepingDate=today;
+    return true;
+  }
+  return false;
+}
+function grantLedgerCoinReward(){
+  resetLedgerCoinDailyIfNeeded();
+  if(S.dailyBookkeepingCount>=LEDGER_COIN_DAILY_CAP){
+    return {coinGain:0,coinCapped:true,rewardGranted:false};
+  }
+  S.dailyBookkeepingCount++;
+  S.wallet.coins+=LEDGER_COIN_REWARD;
+  return {coinGain:LEDGER_COIN_REWARD,coinCapped:false,rewardGranted:true};
+}
+function formatLedgerRewardToast(r){
+  if(r.coinCapped)return `已記帳（今日獎勵已滿 ${LEDGER_COIN_DAILY_CAP} 筆）`;
+  return `+${r.coinGain}${coinIc(true)}  +${r.expGain}EXP${r.crit?'  ⚡暴擊':''}`;
+}
 function recordTx({type,amount,category,note='',hasPhoto=false,photo=null}){
   type=(type==='income')?'income':'expense';
   const amt=Math.abs(parseInt(amount||0));
@@ -2499,13 +3509,11 @@ function recordTx({type,amount,category,note='',hasPhoto=false,photo=null}){
   const cat=(CATS[type].find(c=>c[1]===category))?category:'其他';
   const onCD=Date.now()-S.lastPhotoCrit<600000;
   const crit=hasPhoto&&!onCD;
-  const base=Math.max(5,Math.round(amt/50));
-  const coinGain=crit?base*2:base;
-  const expGain=(crit?10:5)+(type==='income'?3:0);
+  const {coinGain,coinCapped,rewardGranted}=grantLedgerCoinReward();
+  const expGain=rewardGranted?((crit?10:5)+(type==='income'?3:0)):0;
   S.tx.unshift({id:Date.now(),ts:new Date().toISOString(),type,category:cat,amount:amt,note:note||'',hasPhoto,photo});
   trimPhotos();
-  S.wallet.coins+=coinGain;
-  gainExp(expGain);
+  if(expGain>0)gainExp(expGain);
   if(crit)S.lastPhotoCrit=Date.now();
   S.pet.hunger=clamp(S.pet.hunger+8);
   S.pet.happiness=clamp(S.pet.happiness+(type==='income'?6:4)+(crit?25:0));
@@ -2514,15 +3522,15 @@ function recordTx({type,amount,category,note='',hasPhoto=false,photo=null}){
   updateStreak();
   if(typeof touchPetActivity==='function')touchPetActivity();
   if(isSleeping())wakeFromSleep();
-  return {coinGain,expGain,crit,amt,type,cat};
+  return {coinGain,coinCapped,expGain,crit,amt,type,cat};
 }
 function addTx(){
   const amt=Math.abs(parseInt($('#amt').value||'0'));
   if(!amt){toast('請輸入金額');return;}
   const r=recordTx({type:draft.type,amount:amt,category:draft.cat,note:$('#note').value.trim(),hasPhoto:!!draft.photo,photo:draft.photo});
   draft.photo=null;
-  say(r.crit?'📸 相片暴擊！雙倍獎勵到手～':recordLine(r));
-  toast(`+${r.coinGain}${coinIc(true)}  +${r.expGain}EXP${r.crit?'  ⚡暴擊':''}`);
+  say(r.crit&&r.expGain>0?'📸 相片暴擊！額外經驗與心情加成～':recordLine(r));
+  toast(formatLedgerRewardToast(r));
   renderAll();hop();switchTab('ledger');
 }
 // 有動作（記帳/收入/超支）時的即時對應台詞
@@ -2577,72 +3585,896 @@ function loseExp(x){ // 時空悖論降級
 }
 
 /* ===== 聖戰 ===== */
-let warDraft={unit:'long',ticker:TICKERS[0],count:3};
+/* ===== 聖戰 2.0：2 兵種 + 10 虛擬股 + 後台走勢模型 ===== */
+const WUNITS=[
+  {id:'long', nm:'多頭步兵', ds:'標的上漲→分裂增殖帶回收益；下跌則陣亡', cost:50, k:5},
+  {id:'short',nm:'空頭刺客', ds:'標的下跌→俘虜敵軍帶回收益；上漲則自爆', cost:50, k:5}
+];
+const WUNIT=id=>WUNITS.find(u=>u.id===id);
+const VSTOCKS=[
+  {c:'MOON', n:'太空狗狗幣', cat:'🚀火箭', a:0.008, s:0.09, b:1.6, boom:0.10},
+  {c:'QBIT', n:'量子迷因',   cat:'🚀火箭', a:0.006, s:0.08, b:1.4, boom:0.09},
+  {c:'AIGX', n:'終極AI晶片', cat:'🚀火箭', a:0.010, s:0.07, b:1.5, boom:0.10},
+  {c:'ROCK', n:'巨石晶圓',   cat:'🏦藍籌', a:0.0010,s:0.025,b:1.1, boom:0.02},
+  {c:'KLND', n:'九龍地產',   cat:'🏦藍籌', a:0.0006,s:0.020,b:0.9, boom:0.015},
+  {c:'EMPR', n:'帝國能源',   cat:'🏦藍籌', a:0.0008,s:0.022,b:0.7, boom:0.02},
+  {c:'STEL', n:'恆星電信',   cat:'🏦藍籌', a:0.0005,s:0.018,b:0.6, boom:0.015},
+  {c:'LEEK', n:'韭菜公社',   cat:'🌱特殊', a:0,     s:0.06, b:0.8, boom:0.04, special:'anti'},
+  {c:'SWAN', n:'黑天鵝對沖', cat:'🦢特殊', a:-0.002,s:0.07, b:-1.3,boom:0.05, special:'swan'},
+  {c:'PONZI',n:'永動機龐氏', cat:'💀特殊', a:0.015, s:0.10, b:1.2, boom:0.08, special:'ponzi'}
+];
+const VSTOCK=c=>VSTOCKS.find(v=>v.c===c);
+const BULL_NEWS=['傳言新一代產品流片成功，法人喊進…','社群發起百萬人挑戰，買氣爆棚…','外資連續買超，目標價上修…','神秘大戶疑似進場掃貨…'];
+const BEAR_NEWS=['傳出財報不如預期，主力調節…','監管出手調查，市場觀望…','大戶疑似出貨，賣壓湧現…','分析師示警泡沫，籲避險…'];
+function initMarket(){
+  const stocks={};
+  const now=Date.now();
+  VSTOCKS.forEach(v=>{
+    stocks[v.c]={price:100,regime:'normal',dleft:0,mu:v.a,ret:[],news:null,lastRet:0,sessionOpen:100};
+  });
+  S.market={M:100,rM:0,lastSecTick:now,stocks,battles:0,lossStreak:0,klineVer:2};
+  VSTOCKS.forEach(v=>{initMktState(stocks[v.c]);initStockKlines(v.c);});
+  computeNews();
+}
+const SEC_PER_YEAR=365.25*24*3600;
+const MKT_STATE={CONSOL:'consol',BULL:'bull',BEAR:'bear'};
+function stockIsRocket(v){return v&&v.cat.includes('火箭');}
+function stockIsBlue(v){return v&&v.cat.includes('藍籌');}
+function barVolRange(v,period){
+  const mul=period==='d1'?2.2:period==='h1'?1.5:1;
+  if(stockIsRocket(v))return{min:0.03*mul,max:0.08*mul};
+  if(stockIsBlue(v))return{min:0.005*mul,max:0.015*mul};
+  return{min:0.012*mul,max:0.028*mul};
+}
+function rollMktState(sm){
+  const r=Math.random();
+  if(r<0.5){sm.state=MKT_STATE.CONSOL;sm.barsLeft=8+((Math.random()*5)|0);}
+  else if(r<0.75){sm.state=MKT_STATE.BULL;sm.barsLeft=4+((Math.random()*5)|0);}
+  else{sm.state=MKT_STATE.BEAR;sm.barsLeft=4+((Math.random()*5)|0);}
+  sm.barCount=0;
+}
+function initMktState(st){
+  st.mktState={state:MKT_STATE.CONSOL,barsLeft:0,barCount:0};
+  rollMktState(st.mktState);
+}
+function advanceMktState(sm){
+  if(!sm)return;
+  sm.barCount=(sm.barCount||0)+1;
+  if(sm.barsLeft<=0||(sm.barCount>=8&&Math.random()<0.4)){
+    rollMktState(sm);
+  }else sm.barsLeft--;
+}
+function genBarReturn(state,vol){
+  const mag=vol.min+Math.random()*(vol.max-vol.min);
+  if(state===MKT_STATE.CONSOL)return(Math.random()-0.5)*vol.max*0.55;
+  if(state===MKT_STATE.BULL){
+    const up=Math.random()<0.7;
+    return up?mag:-mag*(0.25+Math.random()*0.35);
+  }
+  const dn=Math.random()<0.7;
+  return dn?-mag:mag*(0.25+Math.random()*0.35);
+}
+function genBarOHLC(open,v,period,state){
+  const vol=barVolRange(v,period);
+  const r=genBarReturn(state,vol);
+  const c=Math.max(0.5,open*(1+r));
+  const top=Math.max(open,c),bot=Math.min(open,c);
+  const wick=vol.max*(0.25+Math.random()*0.45);
+  return{
+    o:open,c,
+    h:Math.max(top*(1+wick*0.35),top),
+    l:Math.min(bot*(1-wick*0.35),bot)
+  };
+}
+function rtM15Bucket(ts){return Math.floor(ts/(15*60*1000));}
+function rtH1Bucket(ts){return Math.floor(ts/(60*60*1000));}
+function rtD1Bucket(ts){const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();}
+function rtBarTime(period,bucket){
+  if(period==='m15')return bucket*15*60*1000;
+  if(period==='h1')return bucket*3600*1000;
+  return bucket;
+}
+function sortKlineBars(bars){
+  return bars.slice().sort((a,b)=>(a.bucket??a.t)-(b.bucket??a.t));
+}
+function backfillRtBars(code,period,count,bucketFn){
+  const v=VSTOCK(code),st=S.market.stocks[code];
+  const cur=bucketFn(Date.now());
+  const startBucket=cur-count+1;
+  const sm={state:MKT_STATE.CONSOL,barsLeft:0,barCount:0};
+  rollMktState(sm);
+  const vol=barVolRange(v,period);
+  let px=st.price*(1-(vol.max*count*0.35*(Math.random()-0.4)));
+  px=Math.max(0.5,px);
+  const bars=[];
+  for(let i=0;i<count;i++){
+    advanceMktState(sm);
+    const bucket=startBucket+i;
+    const bar=genBarOHLC(px,v,period,sm.state);
+    bar.t=rtBarTime(period,bucket);
+    bar.bucket=bucket;
+    bars.push(bar);
+    px=bar.c;
+  }
+  const target=st.price,last=bars[bars.length-1];
+  if(last&&last.c>0){
+    const ratio=target/last.c;
+    bars.forEach(b=>{b.o*=ratio;b.h*=ratio;b.l*=ratio;b.c*=ratio;});
+  }
+  if(!st.mktState)initMktState(st);
+  st.mktState=sm;
+  return sortKlineBars(bars);
+}
+function initStockKlines(code){
+  const st=S.market.stocks[code];
+  if(!st)return;
+  const now=Date.now();
+  if(!st.mktState)initMktState(st);
+  st.kline={
+    m15:{bars:backfillRtBars(code,'m15',WAR_KLINE_COUNTS.m15,rtM15Bucket),lastBucket:rtM15Bucket(now)},
+    h1:{bars:backfillRtBars(code,'h1',WAR_KLINE_COUNTS.h1,rtH1Bucket),lastBucket:rtH1Bucket(now)},
+    d1:{bars:backfillRtBars(code,'d1',WAR_KLINE_COUNTS.d1,rtD1Bucket),lastBucket:rtD1Bucket(now)}
+  };
+}
+function maybeUpdateRegime(st,v){
+  if(st.regime!=='normal'){if(--st.dleft<=0)st.regime='normal';}
+  else{
+    const r=Math.random();
+    if(r<v.boom*0.008){st.regime='boom';st.dleft=2+((Math.random()*2)|0);}
+    else if(r<v.boom*0.012){st.regime='crash';st.dleft=2+((Math.random()*2)|0);}
+  }
+}
+function syncStockKlinePeriod(st,code,period,maxBars,bucketFn){
+  if(!st.kline)initStockKlines(code);
+  const kl=st.kline[period];
+  const price=st.price,now=Date.now(),bucket=bucketFn(now);
+  if(!kl.bars.length){
+    kl.bars.push({o:price,h:price,l:price,c:price,t:rtBarTime(period,bucket),bucket});
+    kl.lastBucket=bucket;return;
+  }
+  kl.bars=sortKlineBars(kl.bars);
+  const last=kl.bars[kl.bars.length-1];
+  if(bucket>kl.lastBucket){
+    last.c=price;last.h=Math.max(last.h,price);last.l=Math.min(last.l,price);
+    advanceMktState(st.mktState);
+    kl.bars.push({o:price,h:price,l:price,c:price,t:rtBarTime(period,bucket),bucket});
+    kl.lastBucket=bucket;
+    while(kl.bars.length>maxBars)kl.bars.shift();
+    kl.bars=sortKlineBars(kl.bars);
+    if(period==='h1')maybeUpdateRegime(st,VSTOCK(code));
+    if(period==='d1')st.sessionOpen=price;
+  }else{
+    last.c=price;last.h=Math.max(last.h,price);last.l=Math.min(last.l,price);
+  }
+}
+function syncAllStockKlines(){
+  if(!S.market)return;
+  VSTOCKS.forEach(v=>{
+    const st=S.market.stocks[v.c];
+    syncStockKlinePeriod(st,v.c,'m15',WAR_KLINE_COUNTS.m15,rtM15Bucket);
+    syncStockKlinePeriod(st,v.c,'h1',WAR_KLINE_COUNTS.h1,rtH1Bucket);
+    syncStockKlinePeriod(st,v.c,'d1',WAR_KLINE_COUNTS.d1,rtD1Bucket);
+  });
+}
+function genSecondReturn(st,v){
+  if(!st.mktState)initMktState(st);
+  const sm=st.mktState,vol=barVolRange(v,'m15');
+  const secMag=(vol.min+vol.max)*0.5/45;
+  if(sm.state===MKT_STATE.CONSOL)return(Math.random()-0.5)*secMag*0.6;
+  if(sm.state===MKT_STATE.BULL)return(Math.random()<0.58?1:-0.35)*secMag*(0.6+Math.random()*0.8);
+  return(Math.random()<0.58?-1:0.35)*secMag*(0.6+Math.random()*0.8);
+}
+function tickMarketSecond(){
+  const m=S.market;
+  const mSig=0.12/Math.sqrt(SEC_PER_YEAR);
+  const rM=mSig*gauss();
+  m.M=Math.max(1,m.M*(1+rM));m.rM=rM;
+  VSTOCKS.forEach(v=>{
+    const st=m.stocks[v.c];
+    if(!st.mktState)initMktState(st);
+    let r=genSecondReturn(st,v);
+    if(v.special==='anti')r-=0.00002;
+    if(st.regime==='boom')r+=barVolRange(v,'m15').max/120;
+    else if(st.regime==='crash')r-=barVolRange(v,'m15').max/120;
+    if(v.special==='ponzi'&&st.regime==='boom'&&Math.random()<0.00005){r=-0.004;st.regime='crash';st.dleft=2;}
+    r=Math.max(-0.012,Math.min(0.012,r));
+    st.price=Math.max(0.5,st.price*(1+r));
+    st.lastRet=r;
+    st.mu=r;
+    const d1b=rtD1Bucket(Date.now());
+    if(!st._d1b){st._d1b=d1b;st.sessionOpen=st.price;}
+    if(d1b>st._d1b){st._d1b=d1b;st.sessionOpen=st.price;}
+    st.ret.push(r);if(st.ret.length>120)st.ret.shift();
+  });
+  syncAllStockKlines();
+  computeNews();
+}
+function ensureMarketTick(){
+  if(!S.market||!S.market.stocks)initMarket();
+  if(!S.market.klineVer||S.market.klineVer<2){
+    VSTOCKS.forEach(v=>{const st=S.market.stocks[v.c];initMktState(st);initStockKlines(v.c);});
+    S.market.klineVer=2;
+  }
+  const now=Date.now();
+  let elapsed=Math.floor((now-(S.market.lastSecTick||now))/1000);
+  if(elapsed<1)return;
+  if(elapsed>30)elapsed=30;
+  for(let i=0;i<elapsed;i++)tickMarketSecond();
+  S.market.lastSecTick=now;
+}
+function fmtMarketClock(){
+  const d=new Date();
+  return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+' '+
+    String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function computeNews(){
+  if(!S.market||!S.market.stocks)return;
+  VSTOCKS.forEach(v=>{
+    const st=S.market.stocks[v.c];
+    const up=st.regime==='boom'||st.mu>0.012, dn=st.regime==='crash'||st.mu<-0.012;
+    let news=null;
+    if(up){ if(Math.random()<0.70)news={dir:'bull',txt:pick(BULL_NEWS)}; }        // 機制A：校準發訊
+    else if(dn){ if(Math.random()<0.70)news={dir:'bear',txt:pick(BEAR_NEWS)}; }
+    else { const r=Math.random(); if(r<0.19)news={dir:'bull',txt:pick(BULL_NEWS)}; else if(r<0.38)news={dir:'bear',txt:pick(BEAR_NEWS)}; }
+    st.news=news;
+  });
+}
+function maybeAdvanceMarket(){ensureMarketTick();}
+
+const WAR_TICK_MS=1000;
+let marketTickTimer=null;
+
+function fmtArmyPct(v){return (v>=0?'+':'')+Number(v).toFixed(1)+'%';}
+function warNoiseDelta(){
+  const sign=Math.random()<0.5?-1:1;
+  return sign*(0.2+Math.random()*0.6);
+}
+function updateArmyFromPrice(a){
+  const st=S.market?.stocks?.[a.code];
+  if(!st||!a.deployPrice)return;
+  const u=WUNIT(a.unit),dir=u?.id==='long'?1:-1;
+  const ret=(st.price/a.deployPrice-1)*dir;
+  a.settledPct=+(ret*100).toFixed(2);
+  a.result=a.settledPct;
+  a.status=a.settledPct>=0?'win':'lose';
+  const r=a.settledPct/100;
+  let count=a.count;
+  if(u.id==='long')count=Math.max(0,Math.round(count*(1+u.k*r)));
+  else count=Math.max(0,Math.round(count*(1-u.k*r)));
+  a.value=Math.round(count*46);
+  a.pnl=a.value-a.cost;
+}
+function armySparklineSvg(a){
+  const pts=a.sparkline||[];
+  if(pts.length<2)return '';
+  const w=100,h=36,min=Math.min(...pts),max=Math.max(...pts),range=Math.max(max-min,0.08);
+  const coords=pts.map((v,i)=>{
+    const x=(i/(pts.length-1))*w;
+    const y=h-2-((v-min)/range)*(h-6);
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  const up=pts[pts.length-1]>=pts[pts.length-2];
+  const stroke=up?'#e05a5a':'#3f9e4d';
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="${stroke}" stroke-width="2" opacity="0.15" points="${coords}"/></svg>`;
+}
+function ensureArmyLiveFields(a){
+  if(a.live==null)a.live=false;
+  if(a.live){
+    a.settledPct=a.settledPct??0;
+    a.displayPct=a.displayPct??0;
+    a.prevDisplayPct=a.prevDisplayPct??0;
+    a.tickNoise=a.tickNoise??0;
+    a.sparkline=a.sparkline||[];
+    a.cost=a.cost??Math.round((a.value||0)*0.7);
+    if(a.deployPrice==null&&S.market?.stocks?.[a.code])a.deployPrice=S.market.stocks[a.code].price;
+  }
+}
+function tickLiveArmies(){
+  S.army.forEach(a=>{
+    if(!a.live)return;
+    ensureArmyLiveFields(a);
+    updateArmyFromPrice(a);
+    const prev=a.displayPct;
+    a.tickNoise=warNoiseDelta();
+    a.displayPct=+(a.settledPct+a.tickNoise).toFixed(2);
+    a.prevDisplayPct=prev;
+    a.flash=a.displayPct>prev?'up':a.displayPct<prev?'dn':null;
+    a.sparkline.push(a.displayPct);
+    if(a.sparkline.length>12)a.sparkline.shift();
+  });
+}
+function updateArmyLiveDom(){
+  S.army.forEach(a=>{
+    if(!a.live)return;
+    const el=document.querySelector(`.army-live[data-army-id="${a.id}"]`);
+    if(!el)return;
+    const pnl=el.querySelector('.army-pnl');
+    if(pnl){
+      pnl.textContent='損益 '+fmtArmyPct(a.displayPct);
+      pnl.className='army-pnl'+(a.flash==='up'?' army-flash-up':a.flash==='dn'?' army-flash-dn':'');
+    }
+    const bg=el.querySelector('.army-live-bg');
+    if(bg)bg.innerHTML=armySparklineSvg(a);
+  });
+}
+function marketTick(){
+  if(warKlineOpen){
+    if(!warKlineLiveTimer)startWarKlineLiveTicker();
+  }else ensureMarketTick();
+  if(S.army.some(a=>a.live)){
+    tickLiveArmies();
+    if(curTab==='war')updateArmyLiveDom();
+  }
+  if(curTab==='war'){
+    const el=$('#sheetRight');
+    if(el)el.textContent=fmtMarketClock();
+  }
+}
+function startMarketTicker(){
+  if(marketTickTimer)return;
+  if(!S.market||!S.market.stocks)initMarket();
+  marketTickTimer=setInterval(marketTick,WAR_TICK_MS);
+}
+function startWarTicker(){startMarketTicker();}
+function stopWarTicker(){}
+function hasLiveArmy(){return S.army.some(a=>a.live);}
+
+const WAR_COUNT_HARD_MAX=99;
+const WAR_KLINE_BAR_W=7;
+const WAR_KLINE_BAR_GAP=3;
+const WAR_KLINE_BAR_PITCH=WAR_KLINE_BAR_W+WAR_KLINE_BAR_GAP;
+const WAR_KLINE_COUNTS={m15:72,h1:48,d1:30};
+const WAR_KLINE_PAD={l:10,r:14,t:10,b:20};
+let warKlineOpen=false;
+let warKlinePeriod='m15';
+let warKlineCandles=null;
+let warKlineUserScrolled=false;
+let warSheetScrollLock=false;
+let warKlineLiveTimer=null;
+let warKlinePrevClose=null;
+let warKlineFlash='';
+
+function warKlineIsDynamic(period){return period==='m15'||period==='h1'||period==='d1';}
+function getLatestKlineBar(st,period){
+  const kl=st?.kline?.[period];
+  if(!kl?.bars?.length)return null;
+  if(kl.lastBucket!=null){
+    const hit=kl.bars.find(b=>(b.bucket??b.t)===kl.lastBucket);
+    if(hit)return hit;
+  }
+  const sorted=sortKlineBars(kl.bars);
+  return sorted[sorted.length-1];
+}
+function stepWarKlineLivePrice(){
+  const code=warDraft.code;
+  const st=S.market?.stocks?.[code];
+  const v=VSTOCK(code);
+  if(!st||!v)return null;
+  if(!st.kline)initStockKlines(code);
+  const m15=st.kline.m15?.bars;
+  if(!m15?.length)return st.price;
+  const last=m15[m15.length-1];
+  const sm=st.mktState;
+  const vol=barVolRange(v,'m15');
+  let bias=0;
+  if(sm?.state===MKT_STATE.BULL)bias=0.14;
+  else if(sm?.state===MKT_STATE.BEAR)bias=-0.14;
+  const rTick=(Math.random()-0.5+bias)*(vol.min+vol.max)*0.16;
+  const newPrice=Math.max(0.5,last.c*(1+rTick));
+  last.c=newPrice;
+  last.h=Math.max(last.h,newPrice,last.o);
+  last.l=Math.min(last.l,newPrice,last.o);
+  st.price=newPrice;
+  st.lastRet=rTick;
+  return newPrice;
+}
+function patchLatestKlineBar(st,period,newPrice){
+  const last=getLatestKlineBar(st,period);
+  if(!last)return;
+  last.c=newPrice;
+  last.h=Math.max(last.h,newPrice);
+  last.l=Math.min(last.l,newPrice);
+}
+function tickWarKlineLive(){
+  const period=warKlinePeriod;
+  const code=warDraft.code;
+  const st=S.market?.stocks?.[code];
+  if(!st)return;
+  if(!st.kline)initStockKlines(code);
+  const prevC=getLatestKlineBar(st,period)?.c??st.price;
+  const newPrice=stepWarKlineLivePrice();
+  if(newPrice==null)return;
+  // 跨整點／跨日才封裝舊柱、push 新柱；其餘時間只更新未完結柱體
+  syncStockKlinePeriod(st,code,'m15',WAR_KLINE_COUNTS.m15,rtM15Bucket);
+  syncStockKlinePeriod(st,code,'h1',WAR_KLINE_COUNTS.h1,rtH1Bucket);
+  syncStockKlinePeriod(st,code,'d1',WAR_KLINE_COUNTS.d1,rtD1Bucket);
+  const live=st.price;
+  patchLatestKlineBar(st,'m15',live);
+  patchLatestKlineBar(st,'h1',live);
+  patchLatestKlineBar(st,'d1',live);
+  warKlineFlash=live>prevC?'up':live<prevC?'dn':'';
+  warKlinePrevClose=prevC;
+}
+function refreshWarKlineLiveFrame(){
+  if(!warKlineOpen||!warKlineIsDynamic(warKlinePeriod))return;
+  warKlineCandles=getWarKlineCandles(warDraft.code,warKlinePeriod);
+  drawWarKline();
+}
+function startWarKlineLiveTicker(){
+  stopWarKlineLiveTicker();
+  if(!warKlineOpen||!warKlineIsDynamic(warKlinePeriod))return;
+  tickWarKlineLive();
+  refreshWarKlineLiveFrame();
+  warKlineLiveTimer=setInterval(()=>{
+    if(!warKlineOpen){stopWarKlineLiveTicker();return;}
+    tickWarKlineLive();
+    refreshWarKlineLiveFrame();
+  },1000);
+}
+function stopWarKlineLiveTicker(){
+  if(!warKlineLiveTimer)return;
+  clearInterval(warKlineLiveTimer);
+  warKlineLiveTimer=null;
+  warKlineFlash='';
+  warKlinePrevClose=null;
+}
+function getRealTimeLabel(index,period,candles){
+  const c=candles?.[index];
+  if(!c)return '';
+  const d=new Date(c.t||Date.now());
+  if(period==='m15')return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  if(period==='h1')return String(d.getHours()).padStart(2,'0')+':00';
+  return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
+}
+function warKlineXLabelStep(period,n){
+  if(period==='m15')return Math.max(1,Math.ceil(n/8));
+  if(period==='h1')return Math.max(1,Math.ceil(n/6));
+  return Math.max(1,Math.ceil(n/5));
+}
+function getWarKlineCandles(code,period){
+  const st=S.market?.stocks?.[code];
+  if(!st)return[];
+  if(!st.kline)initStockKlines(code);
+  const bars=st.kline[period]?.bars||[];
+  return sortKlineBars(bars);
+}
+function validateKlineTimestamps(candles,period){
+  if(!candles?.length)return candles;
+  for(let i=1;i<candles.length;i++){
+    const prev=candles[i-1].bucket??candles[i-1].t;
+    const cur=candles[i].bucket??candles[i].t;
+    if(cur<=prev){
+      candles[i].bucket=prev+1;
+      candles[i].t=rtBarTime(period,candles[i].bucket);
+    }
+  }
+  return candles;
+}
+function warMaxAffordCount(){
+  const u=WUNIT(warDraft.unit);
+  if(!u||!u.cost)return 1;
+  return Math.max(1,Math.floor(S.wallet.coins/u.cost));
+}
+function warCountMax(){
+  return Math.min(WAR_COUNT_HARD_MAX,warMaxAffordCount());
+}
+function parseWarCountRaw(raw,fallback=1){
+  if(raw===''||raw==null)return fallback;
+  const n=Math.floor(Number(raw));
+  return Number.isFinite(n)?n:fallback;
+}
+function resolveWarCount(raw,clamp=true){
+  let n=parseWarCountRaw(raw,1);
+  if(n<1)n=1;
+  if(clamp){const max=warCountMax();if(n>max)n=max;}
+  return n;
+}
+function warUiCount(){
+  const raw=warDraft.countInput;
+  if(raw===''||raw==='0')return 1;
+  if(raw==null)return warDraft.count;
+  return resolveWarCount(raw,true);
+}
+function warCountDisplayText(){
+  if(warDraft.countInput!=null)return warDraft.countInput;
+  return String(warDraft.count);
+}
+function warCostCoinHtml(){
+  const src=coinImgSrc();
+  return src?`<img class="money-ic war-cost-ic" src="${src}" alt="代幣">`:'';
+}
+let warNumpadOpen=false;
+function pixelNumpadHtml(){
+  const keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+  return keys.map(k=>{
+    const cls=k==='⌫'?'px-np-key px-np-del':k==='✓'?'px-np-key px-np-ok':'px-np-key';
+    const act=k==='⌫'?'onWarNumpadBack()':k==='✓'?'onWarNumpadConfirm()':`onWarNumpadDigit('${k}')`;
+    return `<button type="button" class="${cls}" onclick="${act}">${k}</button>`;
+  }).join('');
+}
+function syncWarNumpadVis(){
+  const np=$('#warNumpad'),wrap=$('#warCountWrap');
+  if(np)np.style.display=warNumpadOpen?'grid':'none';
+  if(wrap)wrap.classList.toggle('open',warNumpadOpen);
+}
+function toggleWarNumpad(){
+  warNumpadOpen=!warNumpadOpen;
+  if(warNumpadOpen&&warDraft.countInput==null)warDraft.countInput=String(warDraft.count);
+  syncWarNumpadVis();
+}
+function warNumpadCapWarn(){
+  ['#warDeployCap','#warDeployCost'].forEach(sel=>{
+    const el=$(sel);if(!el)return;
+    el.classList.add('war-cap-warn');
+    clearTimeout(el._warnT);
+    el._warnT=setTimeout(()=>el.classList.remove('war-cap-warn'),450);
+  });
+  if(navigator.vibrate)try{navigator.vibrate(40);}catch(e){}
+}
+function onWarNumpadDigit(d){
+  let raw=warDraft.countInput!=null?warDraft.countInput:'';
+  if(raw===''||raw==='0')raw=d;
+  else raw+=d;
+  if(raw.length>1)raw=String(parseInt(raw,10));
+  warDraft.countInput=raw;
+  const typed=+raw,max=warCountMax();
+  if(Number.isFinite(typed)&&typed>max){
+    warDraft.countInput=String(max);
+    toast(`代幣不足，已設為最多 ${max} 兵`);
+    warNumpadCapWarn();
+  }
+  updateWarDeployUi();
+}
+function onWarNumpadBack(){
+  let raw=warDraft.countInput!=null?warDraft.countInput:String(warDraft.count);
+  raw=raw.slice(0,-1);
+  warDraft.countInput=raw;
+  updateWarDeployUi();
+}
+function onWarNumpadConfirm(){
+  const raw=warDraft.countInput;
+  const resolved=resolveWarCount(raw??warDraft.count,true);
+  if(raw===''||+raw<1)toast('兵力至少 1 兵');
+  else if(raw&&+raw>warMaxAffordCount())toast(`代幣不足，已設為最多 ${resolved} 兵`);
+  warDraft.count=resolved;
+  warDraft.countInput=null;
+  warNumpadOpen=false;
+  syncWarNumpadVis();
+  updateWarDeployUi();
+}
+function clampWarDraftCount(v){
+  return resolveWarCount(v,true);
+}
+function updateWarDeployUi(){
+  if(curTab!=='war')return;
+  const u=WUNIT(warDraft.unit),selV=VSTOCK(warDraft.code);
+  const uiCount=warUiCount();
+  const cost=u.cost*uiCount;
+  const costEl=$('#warDeployCost'),btn=$('#warDeployBtn'),cap=$('#warDeployCap'),disp=$('#warCountTxt');
+  if(costEl)costEl.innerHTML=fmt(cost)+warCostCoinHtml();
+  const cnt=$('#warDeployCount');
+  if(cnt)cnt.textContent=uiCount;
+  if(btn)btn.innerHTML=`招募 ${warIconHtml(u.id,true)} ${u.nm} × ${uiCount} 出征 · ${selV?.n||''}！`;
+  if(disp){
+    const t=warCountDisplayText();
+    if(t===''){disp.innerHTML='<span class="war-count-empty">輸入兵力</span>';}
+    else disp.textContent=t;
+  }
+  syncWarNumpadVis();
+  if(cap){
+    const coinMax=warMaxAffordCount();
+    if(coinMax<WAR_COUNT_HARD_MAX){
+      cap.textContent=`代幣上限：最多可招募 ${coinMax} 兵`;
+      cap.style.display='block';
+    }else{cap.textContent='';cap.style.display='none';}
+  }
+}
+function commitWarCountFromInput(){
+  const raw=warDraft.countInput!=null?warDraft.countInput:String(warDraft.count);
+  const resolved=resolveWarCount(raw===''?1:raw,true);
+  warDraft.count=resolved;
+  warDraft.countInput=null;
+  warNumpadOpen=false;
+  syncWarNumpadVis();
+  const disp=$('#warCountTxt');
+  if(disp)disp.textContent=String(resolved);
+  return resolved;
+}
+function lockWarSheetScroll(){
+  if(warSheetScrollLock)return;
+  warSheetScrollLock=true;
+  const sb=$('#sheetBody');
+  if(sb){sb.dataset.warPrevOverflow=sb.style.overflow||'';sb.style.overflow='hidden';}
+}
+function unlockWarSheetScroll(){
+  if(!warSheetScrollLock)return;
+  warSheetScrollLock=false;
+  const sb=$('#sheetBody');
+  if(sb)sb.style.overflow=sb.dataset.warPrevOverflow||'';
+}
+function warKlineChartWidth(n,viewportW){
+  return Math.max(viewportW||280,n*WAR_KLINE_BAR_PITCH+WAR_KLINE_PAD.l+WAR_KLINE_PAD.r);
+}
+function warKlineYOf(v,lo,range,ch,padT){
+  return padT+ch-((v-lo)/range)*ch;
+}
+function renderWarKlineYaxis(plotH,hi,lo,range,pad,lastCandle){
+  const el=$('#warKlineYaxis');
+  if(!el||!lastCandle)return;
+  const ch=plotH-pad.t-pad.b;
+  const yOf=v=>warKlineYOf(v,lo,range,ch,pad.t);
+  const lastY=yOf(lastCandle.c);
+  const tickUp=warKlineFlash==='up',tickDn=warKlineFlash==='dn';
+  const badgeUp=tickUp||(!tickDn&&lastCandle.c>=lastCandle.o);
+  const flashCls=tickUp?' y-flash-up':tickDn?' y-flash-dn':'';
+  const badgeH=16;
+  const ymin=pad.t+badgeH/2+2;
+  const ymax=plotH-pad.b-badgeH/2-2;
+  const clampY=y=>Math.max(ymin,Math.min(ymax,y));
+  const ticks=[hi,(hi+lo)/2,lo];
+  const minGap=16;
+  const placed=[];
+  let html='';
+  ticks.forEach((v,i)=>{
+    const y=yOf(v);
+    if(i===ticks.length-1&&y>ymax-badgeH)return;
+    if(placed.some(py=>Math.abs(py-y)<minGap))return;
+    if(Math.abs(y-lastY)<minGap)return;
+    placed.push(y);
+    html+=`<span class="y-tick" style="top:${y}px">${v.toFixed(2)}</span>`;
+  });
+  html+=`<span class="y-last ${badgeUp?'up':'dn'}${flashCls}" style="top:${clampY(lastY)}px">$${lastCandle.c.toFixed(2)}</span>`;
+  el.innerHTML=html;
+}
+function renderWarKlineXaxis(chartW,pad,n){
+  const el=$('#warKlineXaxis');
+  if(!el||!warKlineCandles?.length)return;
+  const step=warKlineXLabelStep(warKlinePeriod,n);
+  let html='';
+  for(let i=0;i<n;i+=step){
+    const x=pad.l+WAR_KLINE_BAR_GAP+i*WAR_KLINE_BAR_PITCH+WAR_KLINE_BAR_W/2;
+    const lb=getRealTimeLabel(i,warKlinePeriod,warKlineCandles);
+    html+=`<span class="x-tick" style="left:${x}px">${lb}</span>`;
+  }
+  el.style.width=chartW+'px';
+  el.innerHTML=html;
+}
+function scrollWarKlineToEnd(){
+  const el=$('#warKlineScroll');
+  if(!el||warKlineUserScrolled)return;
+  el.scrollLeft=el.scrollWidth-el.clientWidth;
+}
+function drawWarKline(){
+  const canvas=$('#warKlineCanvas');
+  const scroll=$('#warKlineScroll');
+  const inner=$('#warKlineScrollInner');
+  if(!canvas||!scroll||!inner||!warKlineCandles?.length)return;
+  warKlineCandles=validateKlineTimestamps(sortKlineBars(warKlineCandles),warKlinePeriod);
+  const viewportW=scroll.clientWidth||280;
+  const plotH=Math.max(100,scroll.clientHeight-28);
+  const n=warKlineCandles.length;
+  const pad={...WAR_KLINE_PAD};
+  const chartW=warKlineChartWidth(n,viewportW);
+  inner.style.width=chartW+'px';
+  inner.style.height=plotH+28+'px';
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=Math.floor(chartW*dpr);
+  canvas.height=Math.floor(plotH*dpr);
+  canvas.style.width=chartW+'px';
+  canvas.style.height=plotH+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,chartW,plotH);
+  const cw=chartW-pad.l-pad.r,ch=plotH-pad.t-pad.b;
+  let hi=-Infinity,lo=Infinity;
+  warKlineCandles.forEach(c=>{hi=Math.max(hi,c.h);lo=Math.min(lo,c.l);});
+  const range=Math.max(hi-lo,hi*0.002);
+  const yOf=v=>warKlineYOf(v,lo,range,ch,pad.t);
+  ctx.strokeStyle='rgba(90,74,106,.12)';ctx.lineWidth=1;
+  for(let g=0;g<4;g++){
+    const gy=pad.t+ch*g/3;
+    ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(chartW-pad.r,gy);ctx.stroke();
+  }
+  warKlineCandles.forEach((c,i)=>{
+    const x=pad.l+WAR_KLINE_BAR_GAP+i*WAR_KLINE_BAR_PITCH+WAR_KLINE_BAR_W/2;
+    const up=c.c>=c.o;
+    const col=up?'#e05a5a':'#3f9e4d';
+    const yH=yOf(c.h),yL=yOf(c.l),yO=yOf(c.o),yC=yOf(c.c);
+    ctx.strokeStyle=col;ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(x,yH);ctx.lineTo(x,yL);ctx.stroke();
+    const top=Math.min(yO,yC),bot=Math.max(yO,yC),bodyH=Math.max(2,bot-top);
+    ctx.fillStyle=col;ctx.fillRect(x-WAR_KLINE_BAR_W/2,top,WAR_KLINE_BAR_W,bodyH);
+  });
+  const last=warKlineCandles[warKlineCandles.length-1];
+  renderWarKlineYaxis(plotH,hi,lo,range,pad,last);
+  renderWarKlineXaxis(chartW,pad,n);
+  requestAnimationFrame(scrollWarKlineToEnd);
+}
+function renderWarKlineTabs(){
+  const tabs=$('#warKlineTabs');if(!tabs)return;
+  const items=[{id:'m15',lb:'15分鐘K'},{id:'h1',lb:'小時K'},{id:'d1',lb:'日K'}];
+  tabs.innerHTML=items.map(t=>
+    `<button type="button" class="${warKlinePeriod===t.id?'on':''}" onclick="setWarKlinePeriod('${t.id}')">${t.lb}</button>`
+  ).join('');
+}
+function setWarKlinePeriod(p){
+  warKlinePeriod=p;
+  warKlinePrevClose=null;
+  warKlineFlash='';
+  warKlineCandles=getWarKlineCandles(warDraft.code,p);
+  warKlineUserScrolled=false;
+  renderWarKlineTabs();
+  drawWarKline();
+  startWarKlineLiveTicker();
+}
+function openWarKlineModal(){
+  ensureMarketTick();
+  warKlineOpen=true;
+  warKlinePeriod='m15';
+  warKlineUserScrolled=false;
+  const v=VSTOCK(warDraft.code);
+  const el=$('#warKline');
+  if(el){el.style.display='flex';el.setAttribute('aria-hidden','false');}
+  const sub=$('#warKlineSub');
+  if(sub)sub.textContent=(v?.n||warDraft.code)+' · '+warDraft.code;
+  lockWarSheetScroll();
+  warKlineCandles=getWarKlineCandles(warDraft.code,warKlinePeriod);
+  renderWarKlineTabs();
+  requestAnimationFrame(()=>{drawWarKline();requestAnimationFrame(()=>{drawWarKline();startWarKlineLiveTicker();});});
+}
+function closeWarKlineModal(){
+  warKlineOpen=false;
+  stopWarKlineLiveTicker();
+  const el=$('#warKline');
+  if(el){el.style.display='none';el.setAttribute('aria-hidden','true');}
+  unlockWarSheetScroll();
+}
+function refreshWarKlineIfOpen(){
+  if(!warKlineOpen)return;
+  warKlineCandles=getWarKlineCandles(warDraft.code,warKlinePeriod);
+  const v=VSTOCK(warDraft.code),sub=$('#warKlineSub');
+  if(sub)sub.textContent=(v?.n||warDraft.code)+' · '+warDraft.code;
+  warKlineUserScrolled=false;
+  drawWarKline();
+  startWarKlineLiveTicker();
+}
+
+let warDraft={unit:'long',code:'MOON',count:3,countInput:null};
 function renderWar(){
-  rollDay();
-  const recruitCap=5-S.daily.recruits, deployCap=5-S.daily.deploys;
-  $('#sheetRight').textContent=`今日招募 ${S.daily.recruits}/5・出征 ${S.daily.deploys}/5`;
-  const u=UNIT(warDraft.unit);
-  const cost=u.cost*warDraft.count;
+  maybeAdvanceMarket();
+  warNumpadOpen=false;
+  if(warDraft.countInput==null)warDraft.count=clampWarDraftCount(warDraft.count);
+  const m=S.market, u=WUNIT(warDraft.unit);
+  if(!m.stocks[warDraft.code])warDraft.code='MOON';
+  const sel=m.stocks[warDraft.code], selV=VSTOCK(warDraft.code);
+  $('#sheetRight').textContent=fmtMarketClock();
+  const rowsHtml=VSTOCKS.map(v=>{
+    const st=m.stocks[v.c];
+    const last=st.sessionOpen?((st.price/st.sessionOpen)-1):0;
+    const m15=st.kline?.m15?.bars;
+    const tr=m15&&m15.length?m15.slice(-5).map(b=>{
+      const r=b.c/b.o-1;
+      return r>0.001?'<span style="color:#3f9e4d">▲</span>':r<-0.001?'<span style="color:#e05a5a">▼</span>':'<span style="color:#b7ad9a">–</span>';
+    }).join(''):'';
+    const news=st.news?(st.news.dir==='bull'?'<span class="tag" style="background:#c8f0c8;color:#2a6">📈利多</span>':'<span class="tag" style="background:#f5c6c6;color:#a33">📉利空</span>'):'';
+    return `<button class="stock-card ${warDraft.code===v.c?'on':''}" onclick="warDraft.code='${v.c}';renderWar();refreshWarKlineIfOpen();">
+      <div class="sc-top"><b>${v.n}</b><span class="mini">${v.c}·${v.cat}</span></div>
+      <div class="sc-mid"><span class="sc-px">$${st.price.toFixed(1)}</span>
+        <span class="sc-ch ${last>=0?'up':'dn'}">${last>=0?'+':''}${(last*100).toFixed(1)}%</span>
+        <span class="sc-tr">${tr}</span>${news}</div>
+    </button>`;
+  }).join('');
+  const newsLine=sel.news?`<div class="hint" style="margin:2px 2px 6px;color:${sel.news.dir==='bull'?'#2a6':'#a33'}">📰 ${selV.n}：「${sel.news.txt}」</div>`:'';
   $('#sheetBody').innerHTML=`
-    <div class="hint" style="margin-bottom:8px">用<b>記帳賺來的代幣</b>招募像素小兵，指派兵種綁定真實標的進行<b>策略模擬演練</b>。每日有招募/出征上限，貼近真實理財紀律。</div>
-    <div class="grid2">${UNITS.map(x=>`
-      <div class="unit-card ${warDraft.unit===x.id?'on':''}" onclick="warDraft.unit='${x.id}';renderWar()">
-        <div class="u-em">${warIconHtml(x.id)}</div><div class="u-nm">${x.nm}</div><div class="u-ds">${x.ds}</div>
-        <div class="mini mt">${x.cost}${coinIc(true)}/兵</div>
-      </div>`).join('')}</div>
-    <label class="fld">綁定標的（模擬）</label>
-    <select id="tk" onchange="warDraft.ticker=this.value">${TICKERS.map(t=>`<option ${warDraft.ticker===t?'selected':''}>${t}</option>`).join('')}</select>
-    <label class="fld">派遣兵力：${warDraft.count} 兵（花費 ${fmt(cost)}${coinIc(true)}）</label>
-    <input type="range" min="1" max="20" value="${warDraft.count}" oninput="warDraft.count=+this.value;renderWar()" style="padding:0">
-    <button class="btn mt" style="width:100%" ${recruitCap<=0?'disabled':''} onclick="deploy()">
-      ${recruitCap<=0?'今日招募已達上限':`招募 ${warIconHtml(u.id,true)} ${u.nm} × ${warDraft.count} 出征！`}</button>
+    <div class="page-panel war-page">
+    <div class="market-bar"><span>🌐 大盤指數 ${m.M.toFixed(0)}</span>
+      <span class="${m.rM>=0?'mv-up':'mv-dn'}">${m.rM>=0?'▲':'▼'} ${(m.rM*100).toFixed(2)}%</span></div>
+    <div class="hint" style="margin-bottom:8px">用記帳賺的代幣招募小兵，綁定<b>虛擬標的</b>做多／做空。走勢依<b>真實時間</b>即時推進（15分／1小時／日K）。</div>
+    <div class="seg">${WUNITS.map(x=>`<button class="${warDraft.unit===x.id?'on':''}" onclick="warDraft.unit='${x.id}';renderWar()">${warIconHtml(x.id,true)} ${x.nm}</button>`).join('')}</div>
+    <p class="mini" style="margin:5px 2px 8px">${u.ds}</p>
+    <label class="fld">選擇標的（點擊選取）</label>
+    <div class="stock-list">${rowsHtml}</div>
+    ${newsLine}
+    <label class="fld" id="warDeployLbl">派遣兵力：<span id="warDeployCount">${warUiCount()}</span> 兵（花費 <span id="warDeployCost">${fmt(u.cost*warUiCount())}${warCostCoinHtml()}</span>）</label>
+    <div class="war-deploy-row">
+      <div class="war-count-wrap" id="warCountWrap">
+        <button type="button" class="war-count-display" id="warCountDisplay" onclick="toggleWarNumpad()" aria-label="輸入派遣兵力">
+          <span id="warCountTxt">${warCountDisplayText()||'<span class="war-count-empty">輸入兵力</span>'}</span>
+        </button>
+        <span class="war-count-unit">兵</span>
+      </div>
+      <button type="button" class="btn sec war-kline-btn" onclick="openWarKlineModal()">📊<span class="war-kline-lb"> K線</span></button>
+    </div>
+    <div class="pixel-numpad" id="warNumpad" style="display:none">${pixelNumpadHtml()}</div>
+    <p class="mini war-deploy-cap" id="warDeployCap"></p>
+    <button class="btn mt" id="warDeployBtn" style="width:100%" onclick="deploy()">招募 ${warIconHtml(u.id,true)} ${u.nm} × ${warUiCount()} 出征 · ${selV.n}！</button>
     <div class="spread mt"><b style="font-size:13px">🏰 前線軍團</b><span class="mini">召回可換回代幣</span></div>
     ${S.army.length?S.army.map(renderArmy).join(''):'<p class="hint center card" style="box-shadow:none">尚無出征中的部隊</p>'}
-    <div class="disclaimer">兵種對照真實交易策略（做多／做空／選擇權）純為遊戲化教學；標的走勢為<b>模擬亂數</b>非即時報價。凱旋只換回遊戲代幣，永不出金。</div>`;
+    <div class="disclaimer">全為<b>虛擬標的與模擬亂數</b>，非真實報價、不構成投資建議；凱旋只換回遊戲代幣，永不出金。</div>
+    </div>`;
+  updateWarDeployUi();
 }
 function renderArmy(a){
-  const u=UNIT(a.unit);
+  ensureArmyLiveFields(a);
+  const u=WUNIT(a.unit)||{nm:a.unit,id:a.unit};
+  const label=a.name||a.code||a.ticker||'';
+  if(a.live){
+    const flashCls=a.flash==='up'?' army-flash-up':a.flash==='dn'?' army-flash-dn':'';
+    return `<div class="army-item army-live" data-army-id="${a.id}">
+      <div class="army-live-bg">${armySparklineSvg(a)}</div>
+      <div class="a-em">${warIconHtml(a.unit)}</div>
+      <div class="tx-main"><div class="t">${u.nm} · ${label}</div>
+        <div class="s">兵力 ${a.count} ・ <span class="army-pnl${flashCls}">損益 ${fmtArmyPct(a.displayPct)}</span></div></div>
+      <button class="btn sm sec" onclick="recall(${a.id})">召回</button>
+    </div>`;
+  }
   const st=a.status==='win'?`<span class="tag" style="background:#c8f0c8;color:#2a6">大捷 +${fmt(a.pnl)}${coinIc(true)}</span>`
-        :a.status==='lose'?`<span class="tag" style="background:#f5c6c6;color:#a33">折損</span>`
-        :`<span class="tag">結算：${a.result>0?'+':''}${a.result}%</span>`;
+        :`<span class="tag" style="background:#f5c6c6;color:#a33">折損 ${a.result>0?'+':''}${a.result}%</span>`;
   return `<div class="army-item">
-    <div class="a-em">${warIconHtml(u.id)}</div>
-    <div class="tx-main"><div class="t">${u.nm} · ${a.ticker}</div><div class="s">兵力 ${a.count} ・ ${st}</div></div>
+    <div class="a-em">${warIconHtml(a.unit)}</div>
+    <div class="tx-main"><div class="t">${u.nm} · ${label}</div><div class="s">兵力 ${a.count} ・ ${st}</div></div>
     <button class="btn sm sec" onclick="recall(${a.id})">召回</button>
   </div>`;
 }
+function recallArmySettlement(a){
+  updateArmyFromPrice(a);
+  const v=VSTOCK(a.code), u=WUNIT(a.unit);
+  const dir=u.id==='long'?1:-1;
+  if(v&&(S.market.battles<3||S.market.lossStreak>=3)){
+    const need=dir*v.s*25.33;
+    a.settledPct=+(a.settledPct*0.4+need*0.6).toFixed(2);
+  }
+  a.displayPct=a.settledPct;
+  a.result=a.settledPct;
+  const win=a.settledPct>=0;
+  a.status=win?'win':'lose';
+  const r=a.settledPct/100;
+  let count=a.count;
+  if(u.id==='long')count=Math.max(0,Math.round(count*(1+u.k*r)));
+  else count=Math.max(0,Math.round(count*(1-u.k*r)));
+  a.value=Math.round(count*46);
+  a.pnl=a.value-a.cost;
+  return{win,move:a.settledPct};
+}
 function deploy(){
-  rollDay();
-  const u=UNIT(warDraft.unit);const cost=u.cost*warDraft.count;
-  if(S.daily.recruits>=5){toast('今日招募已達上限');return;}
-  if(S.wallet.coins<cost){toast('代幣不足');return;}
-  S.wallet.coins-=cost;S.daily.recruits++;S.daily.deploys++;
-  // 模擬市場走勢
-  const move=+(gauss()*4).toFixed(1); // 約 -12~+12%
-  let count=warDraft.count, status, pnl=0;
-  if(u.id==='long'){ count=Math.max(0,Math.round(count*(1+move/100*1.5))); }
-  if(u.id==='short'){ count=Math.max(0,Math.round(count*(1-move/100*1.5))); }
-  if(u.id==='call'){ count=move>=3?Math.round(count*(3+move)):0; }
-  if(u.id==='put'){ count=move<=-3?Math.round(count*(3+Math.abs(move))):0; }
-  const value=Math.round(count* (u.id==='long'||u.id==='short'?40:90));
-  pnl=value-cost;
-  status=count>warDraft.count?'win':(count===0?'lose':(count<warDraft.count?'lose':'neutral'));
-  const a={id:Date.now(),unit:u.id,ticker:warDraft.ticker,count,result:move,status,pnl,value};
+  maybeAdvanceMarket();
+  const count=commitWarCountFromInput();
+  warDraft.count=count;
+  const u=WUNIT(warDraft.unit), cost=u.cost*count;
+  if(S.wallet.coins<cost){toast('代幣不足');warDraft.count=warMaxAffordCount();warDraft.countInput=null;updateWarDeployUi();return;}
+  const v=VSTOCK(warDraft.code);
+  const st=S.market.stocks[v.c];
+  S.wallet.coins-=cost;
+  const a={
+    id:Date.now(),unit:u.id,code:v.c,name:v.n,count:count,cost,
+    live:true,settledPct:0,tickNoise:0,displayPct:0,prevDisplayPct:0,
+    sparkline:[0],flash:null,deployPrice:st.price,
+    value:cost,result:0,pnl:0,status:'win'
+  };
   S.army.unshift(a);
-  S.battleLog.unshift({ts:Date.now(),unit:u.nm,ticker:warDraft.ticker,move,pnl});
-  // 主寵物連動
-  if(status==='win'){S.pet.happiness=clamp(S.pet.happiness+10);say(pick(LINES.win));toast(`⚔️ ${warDraft.ticker} ${move>0?'+':''}${move}% ・大捷！`);}
-  else if(status==='lose'){S.pet.health=clamp(S.pet.health-12);say(pick(LINES.lose));toast(`💥 ${warDraft.ticker} ${move}% ・前線折損`);}
-  else toast(`${warDraft.ticker} ${move>0?'+':''}${move}%・小勝負`);
+  startWarTicker();
+  toast(`⚔️ ${u.nm} 已出征・${v.n}`);
   renderAll();switchTab('war');
 }
 function recall(id){
   const i=S.army.findIndex(a=>a.id===id);if(i<0)return;
-  const a=S.army[i];const back=a.value||0;
+  const a=S.army[i];
+  const u=WUNIT(a.unit)||{nm:a.unit};
+  let move=a.result||0,pnl=a.pnl||0,win=a.status==='win';
+  if(a.live){
+    const settled=recallArmySettlement(a);
+    move=settled.move;win=settled.win;pnl=a.pnl;
+    a.live=false;
+    S.market.battles++;S.market.lossStreak=win?0:(S.market.lossStreak+1);
+    S.battleLog.unshift({ts:Date.now(),unit:u.nm,ticker:a.code,move,pnl});
+    if(win){S.pet.happiness=clamp(S.pet.happiness+8);say(pick(LINES.win));}
+    else{S.pet.health=clamp(S.pet.health-8);say(pick(LINES.lose));}
+  }
+  const back=a.value||0;
   S.wallet.coins+=back;S.army.splice(i,1);
+  if(!hasLiveArmy())stopWarTicker();
   toast(`召回！換回 ${fmt(back)}${coinIc(true)}`);
-  if(back>0)gainExp(4);
+  if(back>a.cost)gainExp(4);
   renderAll();switchTab('war');
 }
 function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
@@ -2650,6 +4482,7 @@ function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();r
 /* ===== 商店（點卷 💎 純外觀）===== */
 function renderShop(){
   $('#sheetBody').innerHTML=`
+    <div class="page-panel shop-page">
     <div class="hint" style="margin-bottom:8px">${gemIc(true)} 點卷為付費幣（Demo 免費贈送），<b>僅能購買外觀與擴容</b>，完全不影響兵種戰力與戰役結算——法規護欄設計。<br>👕 服裝會<b>穿在原本的動物身上</b>（不會替換寵物），試穿功能即將開放。</div>
     ${SHOP.map(it=>{
       const owned=S.cosmetics.owned.includes(it.id);
@@ -2665,7 +4498,8 @@ function renderShop(){
         <div class="tx-main"><div class="t">${it.nm}</div><div class="s">${it.ds} ・ ${gemIc(true)} ${it.price}</div></div>
         ${right}
       </div>`;}).join('')}
-    <button class="btn ghost mt" style="width:100%" onclick="demoGems()">🎁 Demo：領取 20 ${gemIc(true)}</button>`;
+    <button class="btn ghost mt" style="width:100%" onclick="demoGems()">🎁 Demo：領取 20 ${gemIc(true)}</button>
+    </div>`;
 }
 function demoGems(){S.wallet.gems+=20;toast(`Demo 贈送 +20${gemIc(true)}`);renderAll();}
 function buy(id){
@@ -2680,8 +4514,10 @@ function buy(id){
 }
 function equip(id){
   const it=SHOP.find(s=>s.id===id);
-  if(it.type==='deco'){const i=S.cosmetics.decos.indexOf(id);i>=0?S.cosmetics.decos.splice(i,1):S.cosmetics.decos.push(id);}
-  renderAll();switchTab('shop');
+  if(it&&it.type==='deco'){ // 換裝一律走 PetRig 抽象層（未來換 Spine 時同一路徑）
+    (S.cosmetics.decos||[]).includes(id)?PetRig.unequip(id):PetRig.equip(id);
+  }
+  switchTab('shop');
 }
 
 /* ===== 統計 ===== */
@@ -2693,22 +4529,25 @@ function renderStats(){
   const max=cats.length?cats[0][1]:1;
   const rate=inc>0?Math.round((inc-exp)/inc*100):0;
   $('#sheetBody').innerHTML=`
-    <div class="grid2">
-      <div class="kpi"><b>${rate}%</b><span>本月儲蓄率</span></div>
-      <div class="kpi"><b>${S.tx.filter(t=>t.ts.slice(0,7)===m).length}</b><span>本月筆數</span></div>
-    </div>
-    <div class="spread mt"><b style="font-size:13px">本月支出分類</b><span class="mini">$${fmt(exp)}</span></div>
-    <div class="card" style="box-shadow:none">
-      ${cats.length?cats.map(([c,v])=>{
-        const em=(CATS.expense.find(x=>x[1]===c)||['✨'])[0];
-        return `<div class="barrow"><div class="lab"><span>${em} ${c}</span><span>$${fmt(v)} (${Math.round(v/exp*100)}%)</span></div><div class="track"><i style="width:${v/max*100}%"></i></div></div>`;
-      }).join(''):'<p class="hint center">本月尚無支出</p>'}
-    </div>
-    <div class="spread mt"><b style="font-size:13px">⚔️ 戰役日誌</b><span class="mini">近 6 場</span></div>
-    <div class="card" style="box-shadow:none">
-      ${S.battleLog.length?S.battleLog.slice(0,6).map(b=>`<div class="tx-item"><div class="tx-ic">${b.pnl>=0?'🏆':'💥'}</div><div class="tx-main"><div class="t">${b.unit} · ${b.ticker}</div><div class="s">${new Date(b.ts).toLocaleDateString()}・對照走勢 ${b.move>0?'+':''}${b.move}%</div></div><div class="tx-amt ${b.pnl>=0?'amt-inc':'amt-exp'}">${b.pnl>=0?'+':''}${fmt(b.pnl)}${coinIc(true)}</div></div>`).join(''):'<p class="hint center">尚無戰役紀錄</p>'}
-    </div>
-    <p class="disclaimer">戰役結算之走勢對照僅供<b>市場教育與策略反思</b>，不代表任何真實標的表現，亦不構成投資建議。</p>`;
+    <div class="stats-panel page-panel">
+      <p class="hint" style="margin-bottom:10px">深度圖表與戰役回顧。日常預算請點首頁下方膠囊開啟<b>帳務主頁</b>。</p>
+      <div class="grid2">
+        <div class="kpi"><b>${rate}%</b><span>本月儲蓄率</span></div>
+        <div class="kpi"><b>${S.tx.filter(t=>t.ts.slice(0,7)===m).length}</b><span>本月筆數</span></div>
+      </div>
+      <div class="spread mt"><b style="font-size:13px">本月支出分類</b><span class="mini">$${fmt(exp)}</span></div>
+      <div class="card" style="box-shadow:none">
+        ${cats.length?cats.map(([c,val])=>{
+          const em=(CATS.expense.find(x=>x[1]===c)||['✨'])[0];
+          return `<div class="barrow"><div class="lab"><span>${em} ${c}</span><span>$${fmt(val)} (${Math.round(val/exp*100)}%)</span></div><div class="track"><i style="width:${val/max*100}%"></i></div></div>`;
+        }).join(''):'<p class="hint center">本月尚無支出</p>'}
+      </div>
+      <div class="spread mt"><b style="font-size:13px">⚔️ 戰役日誌</b><span class="mini">近 6 場</span></div>
+      <div class="card" style="box-shadow:none">
+        ${S.battleLog.length?S.battleLog.slice(0,6).map(b=>`<div class="tx-item"><div class="tx-ic">${b.pnl>=0?'🏆':'💥'}</div><div class="tx-main"><div class="t">${b.unit} · ${b.ticker}</div><div class="s">${new Date(b.ts).toLocaleDateString()}・對照走勢 ${b.move>0?'+':''}${b.move}%</div></div><div class="tx-amt ${b.pnl>=0?'amt-inc':'amt-exp'}">${b.pnl>=0?'+':''}${fmt(b.pnl)}${coinIc(true)}</div></div>`).join(''):'<p class="hint center">尚無戰役紀錄</p>'}
+      </div>
+      <p class="disclaimer">戰役結算之走勢對照僅供<b>市場教育與策略反思</b>，不代表任何真實標的表現，亦不構成投資建議。</p>
+    </div>`;
 }
 
 /* ===== 每日衰減（模擬電子雞）===== */
@@ -2778,7 +4617,12 @@ async function sendChat(){
   typing.remove();
   const {clean,tx}=applyChatLog(reply);
   pushChat('pet',clean||reply);
-  if(tx){pushChat('sys',`📒 已記帳：${tx.type==='income'?'收入':'支出'}・${tx.cat} ${tx.type==='income'?'+':'−'}$${fmt(tx.amt)}　獎勵 +${tx.coinGain}${coinIc(true)}${tx.crit?' ⚡':''}`,true);}
+  if(tx){
+    const reward=tx.coinCapped
+      ?`（今日獎勵已滿 ${LEDGER_COIN_DAILY_CAP} 筆）`
+      :`獎勵 +${tx.coinGain}${coinIc(true)} +${tx.expGain}EXP${tx.crit?' ⚡':''}`;
+    pushChat('sys',`📒 已記帳：${tx.type==='income'?'收入':'支出'}・${tx.cat} ${tx.type==='income'?'+':'−'}$${fmt(tx.amt)}　${reward}`,true);
+  }
   renderChatHistory();
   inp.disabled=false;inp.focus();
   S.pet.happiness=clamp(S.pet.happiness+2);
@@ -2846,37 +4690,155 @@ async function callGemini(text){
   return t.trim()||pick(LINES.idle);
 }
 
-/* ===== 設定 ===== */
-function openSettings(){
-  const html=`<div class="qbox">
-    <div class="qt">⚙️ 設定</div>
-    <button class="opt" onclick="editBudget()">💰 調整每月預算（目前 $${fmt(S.budget)}）</button>
-    <button class="opt" onclick="renamePet()">✏️ 幫寵物改名（目前 ${esc(S.pet.name)}）</button>
-    <button class="opt" onclick="closeOverlay()">↩️ 返回遊戲</button>
-    <button class="opt" style="color:#e05a5a" onclick="resetGame()">🗑️ 重置全部資料</button>
-    <p class="mini center mt">浮島記帳 GameFi · 純前端 Demo · 資料存於本機</p>
-  </div>`;
-  showOverlay(html);
+/* ===== 設定（全螢幕分頁） ===== */
+function renderSettings(){
+  const mode=S.theme?.mode||'auto';
+  const themeOpts=[
+    ['day','白天模式','明亮藍天與白雲'],
+    ['night','黑夜模式','深藍夜空與細雨'],
+    ['auto','自動','跟隨真實時間切換']
+  ].map(([v,label,sub])=>`<button type="button" class="settings-key ${mode===v?'on':''}" onclick="setThemeMode('${v}')">
+      ${label}<span class="settings-key-sub">${sub}</span></button>`).join('');
+  const isGoogle=!!(S.auth?.email);
+  const isGuest=!!(S.guestMode||localStorage.getItem(GUEST_LS)==='1');
+  const petName=esc(S.pet?.name||'未命名');
+  const accountBlock=(isGoogle||isGuest)
+    ?`<div class="settings-account-gold${isGuest?' guest':''}"><span>已綁定帳戶</span><b>寵物夥伴：${petName}</b></div>`:'';
+  const logoutBtn=(isGoogle||isGuest)
+    ?`<button type="button" class="settings-logout" onclick="logoutAccount()">${isGoogle?'登出目前帳戶':'結束訪客試玩'}</button>`:'';
+  $('#sheetBody').innerHTML=`
+    <div class="settings-page page-panel">
+      <h2 class="settings-page-title">設定</h2>
+      <div class="settings-glass">
+        ${accountBlock}
+        <label class="fld">天空主題</label>
+        <div class="settings-list">${themeOpts}</div>
+        <div class="settings-section-gap" aria-hidden="true"></div>
+        <label class="fld">遊戲與帳務</label>
+        <div class="settings-list">
+          <button type="button" class="settings-key" onclick="editBudget()">調整每月預算<span class="settings-key-sub">目前 $${fmt(S.budget)}</span></button>
+          <button type="button" class="settings-key" onclick="renamePet()">幫寵物改名<span class="settings-key-sub">目前 ${petName}</span></button>
+          <button type="button" class="settings-key danger" onclick="resetGame()">重置全部資料<span class="settings-key-sub">清空本機存檔並重新開始</span></button>
+        </div>
+        ${logoutBtn}
+        <p class="settings-foot">亞里庫島 YarikuJima</p>
+      </div>
+    </div>`;
 }
-$('#gear').onclick=openSettings;
-function editBudget(){const v=prompt('每月預算（元）：',S.budget);if(v&&+v>0){S.budget=+v;toast('預算已更新');closeOverlay();renderAll();}}
-function renamePet(){const v=prompt('寵物名字：',S.pet.name);if(v){S.pet.name=v.slice(0,8);toast('改名成功');closeOverlay();renderAll();}}
-function resetGame(){if(confirm('確定清空所有資料並重新開始？')){localStorage.removeItem(LS);S=fresh();closeOverlay();startOnboard();}}
+function setThemeMode(mode){
+  if(!['auto','day','night'].includes(mode))return;
+  S.theme=S.theme||{};
+  S.theme.mode=mode;
+  save();
+  refreshSky();
+  if(curTab==='settings')renderSettings();
+}
+function editBudget(){
+  const v=prompt('每月預算（元）：',S.budget);
+  if(v&&+v>0){S.budget=+v;toast('預算已更新');renderAll();if(curTab==='settings')renderSettings();if(financeDashOpen)renderFinanceDash();}
+}
+function renamePet(){
+  const v=prompt('寵物名字：',S.pet.name);
+  if(v){S.pet.name=v.slice(0,8);S.pet.named=true;toast('改名成功');renderAll();if(curTab==='settings')renderSettings();}
+}
+function logoutAccount(){
+  const isGoogle=!!S.auth?.email;
+  const msg=isGoogle?'確定登出目前 Google 帳戶？將返回登入畫面。':'確定結束訪客試玩？將返回登入畫面。';
+  if(!confirm(msg))return;
+  localStorage.removeItem(AUTH_LS);
+  localStorage.removeItem(GUEST_LS);
+  if(window.google?.accounts?.id){
+    try{google.accounts.id.disableAutoSelect();}catch(e){/* ignore */}
+  }
+  S.auth=null;
+  S.guestMode=false;
+  location.reload();
+}
+function resetGame(){
+  if(!confirm('確定清空所有資料並重新開始？'))return;
+  localStorage.removeItem(LS);
+  localStorage.removeItem(AUTH_LS);
+  localStorage.removeItem(GUEST_LS);
+  S=fresh();
+  if(curTab==='settings')switchTab('home');
+  else closeOverlay();
+  startOnboard();
+}
 function showOverlay(html){const o=$('#onboard');o.innerHTML=html;o.style.display='flex';}
 function closeOverlay(){$('#onboard').style.display='none';}
 
 /* ===== 新手：性向測驗 → 孵蛋 ===== */
 let qi=0;
+let quizAnswers=[];
 /* ── 出生年月日 → 十二生肖 → 命運寵物（ANIMALS 索引：鼠0…豬11）── */
 const ZODIAC_NAMES=['鼠','牛','虎','兔','龍','蛇','馬','羊','猴','雞','狗','豬'];
 function zodiacIndexFromYear(y){return ((y-4)%12+12)%12;}
 let onboardZodiac=null;
+let bdayDraft={year:'2000',month:'1',day:'1'};
+function bdayDaysInMonth(y,m){
+  if(!y||!m)return 31;
+  return new Date(y,m,0).getDate();
+}
+function sanitizeBdayDigits(raw,maxLen){
+  return String(raw??'').replace(/\D/g,'').slice(0,maxLen);
+}
+function onBdayInput(part,el){
+  let raw=sanitizeBdayDigits(el.value,part==='year'?4:2);
+  if(el.value!==raw)el.value=raw;
+  if(part==='year'){
+    bdayDraft.year=raw;
+    el.value=raw;
+  }else if(part==='month'){
+    if(raw===''){bdayDraft.month='';el.value='';updateBdayHint();return;}
+    if(+raw>12)raw='12';
+    bdayDraft.month=raw;
+    el.value=raw;
+  }else if(part==='day'){
+    if(raw===''){bdayDraft.day='';el.value='';updateBdayHint();return;}
+    const y=+(bdayDraft.year||0),mo=+(bdayDraft.month||0);
+    const maxD=mo?bdayDaysInMonth(y||2000,mo):31;
+    if(+raw>maxD)raw=String(maxD);
+    bdayDraft.day=raw;
+    el.value=raw;
+  }
+  updateBdayHint();
+}
+function onBdayBlur(part,el){
+  if(part==='year'){
+    let y=+el.value;
+    const nowY=new Date().getFullYear();
+    if(!el.value||!Number.isFinite(y)||y<1920)y=2000;
+    if(y>nowY)y=nowY;
+    bdayDraft.year=String(y);
+    el.value=bdayDraft.year;
+  }else if(part==='month'){
+    if(el.value===''){bdayDraft.month='1';el.value='1';}
+    else{
+      let mo=Math.max(1,Math.min(12,+el.value||1));
+      bdayDraft.month=String(mo);
+      el.value=bdayDraft.month;
+    }
+  }else if(part==='day'){
+    const y=+(bdayDraft.year||2000),mo=+(bdayDraft.month||1);
+    const maxD=bdayDaysInMonth(y,mo);
+    if(el.value===''){bdayDraft.day='1';el.value='1';}
+    else{
+      let da=Math.max(1,Math.min(maxD,+el.value||1));
+      bdayDraft.day=String(da);
+      el.value=bdayDraft.day;
+    }
+  }
+  updateBdayHint();
+}
 function getBdayParts(){
-  const y=+($('#bY')?.value||0),mo=+($('#bM')?.value||0),da=+($('#bD')?.value||0);
+  const yEl=$('#bY'),mEl=$('#bM'),dEl=$('#bD');
+  const y=+(bdayDraft.year||yEl?.value||0);
+  const mo=+(bdayDraft.month||mEl?.value||0);
+  const da=+(bdayDraft.day||dEl?.value||0);
   if(!y||!mo||!da)return null;
   const d=new Date(y,mo-1,da);
-  if(d.getFullYear()!==y||d.getMonth()!==mo-1||d.getDate()!==da)return null; // 不存在的日期（如 2/30）
-  if(y<1900||d>new Date())return null;
+  if(d.getFullYear()!==y||d.getMonth()!==mo-1||d.getDate()!==da)return null;
+  if(y<1920||d>new Date())return null;
   return d;
 }
 function updateBdayHint(){
@@ -2889,22 +4851,27 @@ function updateBdayHint(){
 }
 function showBirthday(){
   const nowY=new Date().getFullYear();
-  let ys=''; for(let y=nowY;y>=1920;y--)ys+=`<option value="${y}"${y===2000?' selected':''}>${y}</option>`;
-  let ms=''; for(let m=1;m<=12;m++)ms+=`<option value="${m}">${m}</option>`;
-  let ds=''; for(let dd=1;dd<=31;dd++)ds+=`<option value="${dd}">${dd}</option>`;
+  if(!bdayDraft.year)bdayDraft.year='2000';
+  if(!bdayDraft.month)bdayDraft.month='1';
+  if(!bdayDraft.day)bdayDraft.day='1';
   showOverlay(`<div class="qbox">
     <div class="qn">第一步 · 出生年月日</div>
     <div class="qt">先告訴我你的生日<br>我會依你的生肖決定命運寵物</div>
     <div class="bday-row">
-      <select id="bY" class="bday-sel">${ys}</select><span>年</span>
-      <select id="bM" class="bday-sel">${ms}</select><span>月</span>
-      <select id="bD" class="bday-sel">${ds}</select><span>日</span>
+      <input id="bY" type="text" inputmode="numeric" pattern="[0-9]*" class="bday-inp" maxlength="4"
+        value="${bdayDraft.year}" aria-label="出生年" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
+        oninput="onBdayInput('year',this)" onblur="onBdayBlur('year',this)"><span>年</span>
+      <input id="bM" type="text" inputmode="numeric" pattern="[0-9]*" class="bday-inp" maxlength="2"
+        value="${bdayDraft.month}" aria-label="出生月" placeholder="月" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
+        oninput="onBdayInput('month',this)" onblur="onBdayBlur('month',this)"><span>月</span>
+      <input id="bD" type="text" inputmode="numeric" pattern="[0-9]*" class="bday-inp" maxlength="2"
+        value="${bdayDraft.day}" aria-label="出生日" placeholder="日" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
+        oninput="onBdayInput('day',this)" onblur="onBdayBlur('day',this)"><span>日</span>
     </div>
     <div id="bdayErr" class="mini" style="color:#e05a5a;min-height:15px;margin-top:8px"></div>
     <div id="bdayHint" class="mini" style="text-align:center;min-height:18px;margin-bottom:6px"></div>
     <button class="btn" style="width:100%" onclick="submitBirthday()">下一步 ▶</button>
   </div>`);
-  ['bY','bM','bD'].forEach(id=>{const s=$('#'+id); if(s)s.onchange=updateBdayHint;});
   updateBdayHint();
 }
 function submitBirthday(){
@@ -2916,23 +4883,37 @@ function submitBirthday(){
   showQuiz();
 }
 function startOnboard(){
-  qi=0;S.quizScore={save:0,plan:0,spend:0,invest:0};onboardZodiac=null;
+  qi=0;quizAnswers=[];S.quizScore={save:0,plan:0,spend:0,invest:0};onboardZodiac=null;
+  bdayDraft={year:'2000',month:'1',day:'1'};
   showOverlay(`<h1>🏝️ 浮島記帳</h1>
     <p>把理財變成一款會呼吸的養成遊戲。<br>先填<b>生日</b>決定你的生肖寵物，再做 4 題<b>理財性向測驗</b>。</p>
     <button class="btn mt" onclick="showBirthday()">開始 ▶</button>
     <p class="mini mt" style="max-width:320px">本遊戲為虛擬模擬養成，不做隱私監控、不強制銀行對帳，代幣不可提領，且不構成投資建議。</p>`);
 }
 function showQuiz(){
-  const q=QUIZ[qi];
+  const q=QUIZ[qi],sel=quizAnswers[qi];
   showOverlay(`<div class="qbox">
     <div class="qn">問題 ${qi+1} / ${QUIZ.length}</div>
     <div class="qt">${q.q}</div>
-    ${q.o.map((o,i)=>`<button class="opt" onclick="answer('${o[1]}')">${o[0]}</button>`).join('')}
-    <div class="dots">${QUIZ.map((_,i)=>`<i class="${i<=qi?'on':''}"></i>`).join('')}</div>
+    ${q.o.map(o=>`<button type="button" class="opt${sel===o[1]?' on':''}" onclick="answer('${o[1]}')">${o[0]}</button>`).join('')}
+    <div class="quiz-foot">
+      ${qi>0?`<button type="button" class="quiz-back" onclick="quizPrev()" aria-label="上一題">← 上一題</button>`:'<span class="quiz-back-spacer" aria-hidden="true"></span>'}
+      <div class="dots">${QUIZ.map((_,i)=>`<i class="${i<=qi?'on':''}"></i>`).join('')}</div>
+      <span class="quiz-back-spacer" aria-hidden="true"></span>
+    </div>
   </div>`);
 }
+function quizPrev(){
+  if(qi<=0)return;
+  qi--;
+  showQuiz();
+}
 function answer(k){
-  S.quizScore[k]++;qi++;
+  const prev=quizAnswers[qi];
+  if(prev)S.quizScore[prev]--;
+  quizAnswers[qi]=k;
+  S.quizScore[k]++;
+  qi++;
   if(qi<QUIZ.length)showQuiz();else hatch();
 }
 function hatch(){
@@ -2940,74 +4921,92 @@ function hatch(){
   const p=PERSONA[best];
   const idx=(S.pet.animal!=null?S.pet.animal:(onboardZodiac!=null?onboardZodiac:PET_TIGER_IDX)); // 依生日生肖
   const a=ANIMALS[idx];
-  S.pet.persona=best;S.pet.el=p.el;S.pet.baseEmoji=p.emoji;S.pet.animal=idx;S.budget=p.budget;
+  S.pet.persona=best;S.pet.el=p.el;S.pet.baseEmoji=p.emoji;S.budget=p.budget;
+  PetRig.setZodiac(idx); // 生肖套用一律走 PetRig 抽象層
   showOverlay(`<h1>命運之蛋孵化中…</h1><div class="egg" id="eg">🥚</div><p class="mt">你的理財性格：<b style="color:#ffd873">${p.nm}</b>（${p.el}）</p>`);
   let f=0;const eg=$('#eg');const iv=setInterval(()=>{eg.textContent=f++%2?'🥚':'🐣';},250);
   setTimeout(()=>{clearInterval(iv);
-    S.pet.stage=2;S.pet.name=a.n;S.onboarded=true;save();
-    const pic=PET_IMG[a.k]?`<img class="petImg pop" src="${PET_IMG[a.k]}" style="width:130px;height:150px;animation:pop .5s">`:`<div class="egg pop">${a.e}</div>`;
-    showOverlay(`<h1>🎉 孵化成功！</h1>
-      ${pic}
-      <p class="mt">生肖 <b>${ZODIAC_NAMES[idx]}</b>・命運夥伴 <b style="color:#ffd873">${a.n}</b> ${a.e} 誕生了！<br>理財性格：${p.nm}（${p.el}）— ${p.desc}</p>
-      <p class="mini mt">初始贈送 300${coinIc(true)} + 50${gemIc(true)}。開始記帳來餵養牠、灌溉你的懸空浮島吧！</p>
-      <button class="btn mt" onclick="finishOnboard()">進入浮島 ▶</button>`);
+    S.pet.stage=2;
+    save();
+    showPetNaming();
   },1800);
 }
-function finishOnboard(){closeOverlay();S._lastDecay=Date.now();layoutSheet();renderAll();say('嗨！我是你的守護靈，一起把理財變好玩吧～');}
+function needsPetNaming(){return !S.pet?.named;}
 
-/* ===== BottomSheet 上下拖曳 + 三段吸附 ===== */
-const sheetEl=$('#sheet'), grabEl=$('#sheetGrab');
-let SNAP={full:0,std:0,collapsed:0}, sheetSnap='std', dragging=false, startPY=0, startTY=0, liveTY=0;
+function startOnboardQuizOnly(){
+  qi=0;
+  quizAnswers=[];
+  S.quizScore={save:0,plan:0,spend:0,invest:0};
+  if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;
+  showQuiz();
+}
+
+function showPetNaming(){
+  const a=ANIMALS[S.pet.animal]||ANIMALS[0];
+  const draft=(S.pet.name&&S.pet.name!==a.n)?esc(S.pet.name):'';
+  showOverlay(`<div class="qbox">
+    <div class="qn">最後一步</div>
+    <div class="qt">請為你的寵物取名<br>牠將成為你浮島上的守護夥伴</div>
+    <input id="petNameIn" type="text" maxlength="8" placeholder="輸入名字（最多 8 字）" value="${draft}"
+      class="bday-inp" style="width:100%;margin-top:10px;box-sizing:border-box">
+    <div id="petNameErr" class="mini" style="color:#e05a5a;min-height:15px;margin-top:8px"></div>
+    <button class="btn mt" style="width:100%" onclick="submitPetName()">開始冒險</button>
+  </div>`);
+  setTimeout(()=>$('#petNameIn')?.focus(),120);
+}
+
+function submitPetName(){
+  const v=($('#petNameIn')?.value||'').trim();
+  const err=$('#petNameErr');
+  if(!v){if(err)err.textContent='請輸入寵物名字';return;}
+  S.pet.name=v.slice(0,8);
+  S.pet.named=true;
+  S.onboarded=true;
+  save();
+  closeOverlay();
+  S._lastDecay=Date.now();
+  layoutSheet();
+  renderAll();
+  if(S.auth)switchTab('war');
+  else switchTab('home');
+  toast(`歡迎，${S.pet.name}！`);
+  setTimeout(()=>say(`嗨 ${S.pet.name}！一起把理財變好玩吧～`),500);
+}
+
+function finishOnboard(){
+  closeOverlay();
+  S._lastDecay=Date.now();
+  layoutSheet();
+  renderAll();
+  say(`嗨 ${S.pet.name}！一起把理財變好玩吧～`);
+}
+
+/* ===== BottomSheet 固定高度底部面板 ===== */
+const sheetEl=$('#sheet');
 function layoutSheet(){
-  if(curTab==='home')renderSheetPeek();
-  syncHudOffset();
-  const appH=$('#app').clientHeight, hudH=$('#hud').offsetHeight, navH=$('#nav').offsetHeight;
-  const H=appH-hudH-navH;
-  sheetEl.style.height=H+'px';
-  sheetEl.style.bottom=navH+'px';
-  const grabH=grabEl.offsetHeight||118;
-  SNAP={full:0,std:Math.round(H*0.44),collapsed:Math.max(Math.round(H*0.62),H-grabH)};
-  setTY(SNAP[sheetSnap],false);
-  document.documentElement.style.setProperty('--inv-fab-bottom',Math.max(12,Math.round(H-liveTY+10))+'px');
-  layoutIsland();
-  updateSceneParallax(liveTY);
+  syncChromeInsets();
+  if(sheetEl){
+    sheetEl.style.display=curTab==='home'?'none':'flex';
+    if(curTab!=='home'){
+      sheetEl.style.top='0';
+      sheetEl.style.bottom='0';
+      sheetEl.style.left='0';
+      sheetEl.style.right='0';
+    }
+  }
+  if(curTab==='home'&&!financeDashOpen)renderBudgetCapsule();
+  if(curTab==='home'){layoutIsland();updateSceneParallax();}
+  requestAnimationFrame(syncChromeInsets);
 }
-function setTY(ty,anim){
-  liveTY=ty;
-  $('#app')?.classList.toggle('parallax-drag',!!anim);
-  sheetEl.classList.toggle('atTop',ty<10);
-  if(!anim){sheetEl.classList.add('dragging');}
-  sheetEl.style.transform='translateY('+ty+'px)';
-  if(!anim){requestAnimationFrame(()=>sheetEl.classList.remove('dragging'));}
-  const appH=$('#app').clientHeight,hudH=$('#hud').offsetHeight,navH=$('#nav').offsetHeight;
-  const H=appH-hudH-navH;
-  document.documentElement.style.setProperty('--inv-fab-bottom',Math.max(12,Math.round(H-ty+10))+'px');
-  layoutIsland();
-  updateSceneParallax(ty);
-}
-function snapTo(name){sheetSnap=name;sheetEl.classList.remove('dragging');$('#app')?.classList.remove('parallax-drag');sheetEl.classList.toggle('atTop',name==='full');sheetEl.style.transform='translateY('+SNAP[name]+'px)';liveTY=SNAP[name];const appH=$('#app').clientHeight,hudH=$('#hud').offsetHeight,navH=$('#nav').offsetHeight;const H=appH-hudH-navH;document.documentElement.style.setProperty('--inv-fab-bottom',Math.max(12,Math.round(H-liveTY+10))+'px');layoutIsland();updateSceneParallax(liveTY);}
-grabEl.addEventListener('pointerdown',e=>{
-  dragging=true;startPY=e.clientY;startTY=SNAP[sheetSnap];
-  sheetEl.classList.add('dragging');
-  try{grabEl.setPointerCapture(e.pointerId);}catch(_){}
-});
-grabEl.addEventListener('pointermove',e=>{
-  if(!dragging)return;
-  setTY(clamp(startTY+(e.clientY-startPY),0,SNAP.collapsed),true);
-});
-function endDrag(){
-  if(!dragging)return;dragging=false;
-  sheetEl.classList.remove('dragging');
-  let best='std',bd=1e9;
-  for(const k in SNAP){const d=Math.abs(SNAP[k]-liveTY);if(d<bd){bd=d;best=k;}}
-  snapTo(best);
-}
-grabEl.addEventListener('pointerup',endDrag);
-grabEl.addEventListener('pointercancel',endDrag);
+sheetEl?.addEventListener('touchmove',e=>{
+  if(e.target.closest('#sheetBody'))return;
+  e.stopPropagation();
+},{passive:true});
 window.addEventListener('resize',layoutSheet);
 
 /* ===== 動態時區天空 ===== */
 let _weatherCls='sunny';
+const SKY_EDGE_BG={day:'#5db8ff',dawn:'#7fa8d8',dusk:'#ff9e6d',night:'#141a3a'};
 function timeOfDay(d=new Date()){
   const h=d.getHours()+d.getMinutes()/60;
   if(h>=5&&h<8)return'dawn';
@@ -3015,16 +5014,46 @@ function timeOfDay(d=new Date()){
   if(h>=17&&h<19)return'dusk';
   return'night';
 }
+function getEffectiveTod(d=new Date()){
+  const mode=S.theme?.mode||'auto';
+  if(mode==='day')return'day';
+  if(mode==='night')return'night';
+  return timeOfDay(d);
+}
+function isDarkSky(tod){return tod==='night'||tod==='dusk';}
+function applySkyChrome(){
+  const tod=getEffectiveTod();
+  const pageBg=$('#pageBg'),sc=$('#scene'),app=$('#app');
+  if(pageBg)pageBg.dataset.tod=tod;
+  if(sc)sc.dataset.tod=tod;
+  if(app){
+    app.dataset.tod=tod;
+    app.dataset.sky=isDarkSky(tod)?'dark':'light';
+  }
+  const edge=SKY_EDGE_BG[tod]||'#141a3a';
+  document.body.style.background=edge;
+  if(app)app.style.backgroundColor=edge;
+}
 function refreshSky(){
-  const tod=timeOfDay(),sc=$('#scene'); if(sc)sc.dataset.tod=tod;
+  applySkyChrome();
+  const tod=getEffectiveTod();
   const night=tod==='night',dusk=tod==='dusk',dawn=tod==='dawn';
-  const storm=_weatherCls==='storm',cloudy=_weatherCls==='cloudy',partly=_weatherCls==='partly';
+  const mode=S.theme?.mode||'auto';
+  let storm,cloudy,partly;
+  if(mode==='night'){storm=true;cloudy=false;partly=false;}
+  else if(mode==='day'){storm=false;cloudy=false;partly=false;}
+  else{storm=_weatherCls==='storm';cloudy=_weatherCls==='cloudy';partly=_weatherCls==='partly';}
   let sunOp; if(night)sunOp=0; else if(dusk)sunOp=0.4; else if(dawn)sunOp=0.65;
   else sunOp=storm?0.15:cloudy?0.45:partly?0.7:1;
   const sun=$('#sun'); if(sun)sun.style.opacity=sunOp;
   const moon=$('#moon'); if(moon)moon.style.opacity=night?1:0;
   const stars=$('#stars'); if(stars)stars.style.opacity=night?1:0;
   const rain=$('#rain'); if(rain)rain.classList.toggle('on',storm);
+  const clouds=$('#skyDecor'); if(clouds){
+    clouds.querySelectorAll('.cloud').forEach(c=>{
+      c.style.opacity=(mode==='night'||storm)?'0.35':(cloudy?'0.55':'0.9');
+    });
+  }
   if(night)maybeNightDoze();
 }
 function maybeNightDoze(){
@@ -3050,25 +5079,29 @@ const SceneCarousel={
   init(){
     this.track=$('#sceneTrack'); const scene=$('#scene');
     if(!this.track||!scene)return;
-    this.w=scene.clientWidth;
+    this.scene=scene;
+    this._measure();
     this.track.addEventListener('pointerdown',e=>this.down(e));
     window.addEventListener('pointermove',e=>this.move(e),{passive:false});
     window.addEventListener('pointerup',()=>this.up());
     window.addEventListener('pointercancel',()=>this.up());
-    window.addEventListener('resize',()=>{this.w=scene.clientWidth;this.snap(false);});
+    window.addEventListener('resize',()=>{this._measure();this.snap(false);});
     this.snap(false);
   },
-  go(name){const idx=SCENES.indexOf(name); if(idx<0)return; this.i=idx; this.snap(true);},
-  down(e){this.dragging=true;this.axis=null;this._swiped=false;
+  // 重新量測場景寬度（登入後先切到聖戰分頁時可能量到 0；觸控/貼齊前重量才正確）
+  _measure(){const w=this.scene?this.scene.clientWidth:0; if(w>0)this.w=w; return this.w;},
+  go(name){const idx=SCENES.indexOf(name); if(idx<0)return; this.i=idx; this._measure(); this.snap(true);},
+  down(e){this._measure();this.dragging=true;this.axis=null;this._swiped=false;
     this.startX=e.clientX;this.startY=e.clientY;this.baseX=-this.i*this.w;this.track.classList.add('dragging');},
   move(e){
     if(!this.dragging)return;
     const dx=e.clientX-this.startX,dy=e.clientY-this.startY;
     if(this.axis===null){
-      if(Math.abs(dx)<6&&Math.abs(dy)<6)return;
+      // 位移未達 20px 一律視為「點擊」，放行給寵物移動；超過才鎖定手勢方向
+      if(Math.abs(dx)<20&&Math.abs(dy)<20)return;
       this.axis=Math.abs(dx)>Math.abs(dy)?'x':'y';
       if(this.axis==='y'){this.dragging=false;this.track.classList.remove('dragging');return;}
-      this._swiped=true;
+      this._swiped=true; // 已確定是水平滑動 → 交給翻頁、阻擋寵物移動
     }
     e.preventDefault();
     let x=this.baseX+dx,min=-(SCENES.length-1)*this.w;
@@ -3086,6 +5119,7 @@ const SceneCarousel={
   },
   snap(anim){
     if(!this.track)return;
+    if(!this.w||this.w<=0)this._measure();
     this.track.classList.toggle('dragging',!anim);
     this._x=-this.i*this.w;
     this.track.style.transform=`translate3d(${this._x}px,0,0)`;
@@ -3114,15 +5148,29 @@ function initScenes(){
   if(typeof renderMiniPets==='function')renderMiniPets();
   syncFoodInvHint();
   $('#foodInv')?.addEventListener('click',e=>{if(e.target.id==='foodInv')closeFoodInventory();});
+  $('#warKline')?.addEventListener('click',e=>{if(e.target.id==='warKline')closeWarKlineModal();});
+  $('#warKlineScroll')?.addEventListener('scroll',()=>{
+    const el=$('#warKlineScroll');
+    if(!el)return;
+    warKlineUserScrolled=el.scrollLeft<el.scrollWidth-el.clientWidth-6;
+  });
+  window.addEventListener('resize',()=>{if(warKlineOpen)drawWarKline();});
   const bind=(sel,scene)=>{const el=document.querySelector(sel); if(el)el.onclick=()=>SceneCarousel.go(scene);};
   bind('.pstat.hunger','kitchen'); bind('.pstat.happy','home'); bind('.pstat.health','bedroom');
 }
 
 /* ===== 啟動 ===== */
-document.querySelectorAll('.tab').forEach(b=>{b.onclick=()=>switchTab(b.dataset.tab);const img=b.querySelector('img.em');if(img&&NAV_ICON[b.dataset.tab])img.src=NAV_ICON[b.dataset.tab];});
+document.querySelectorAll('.tab').forEach(b=>{
+  b.onclick=()=>onNavTabClick(b.dataset.tab);
+  const img=b.querySelector('img.em');
+  if(!img)return;
+  if(b.dataset.tab==='settings'){const s=settingsIconSrc();if(s)img.src=s;}
+  else if(NAV_ICON[b.dataset.tab])img.src=NAV_ICON[b.dataset.tab];
+});
+const _gearIc=$('#gearIc');if(_gearIc){const s=settingsIconSrc();if(s)_gearIc.src=s;}
 setSheetTitle(curTab);
 document.querySelectorAll('#pet,.scene-pet').forEach(p=>{p.onclick=e=>{e.stopPropagation();playWithPet();};});
-scheduleHomeObject(2500); // 開場 2.5 秒後在浮島放第一個陪玩物件
+scheduleHomeObject(2500); // 開場 2.5 秒後在浮島放第一個互動物件
 initPetMovement();
 if(MONEY_IMG.coin)$('#coinIc').src=MONEY_IMG.coin;
 else if(typeof COIN_IMG_SRC!=='undefined')$('#coinIc').src=encodeURI(COIN_IMG_SRC);
@@ -3130,13 +5178,39 @@ if(MONEY_IMG.gem)$('#gemIc').src=MONEY_IMG.gem;
 if(ISLAND_IMG)$('#isleImg').src=ISLAND_IMG;
 makeRain();
 rollDay();
-if(!S.onboarded){startOnboard();}
-else{if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;decay();S._lastDecay=Date.now();renderAll();setTimeout(()=>sayPetLine(null,LINES.idle),600);}
-layoutSheet();
-initScenes();
-scheduleTimeOfDay();
-if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
-setInterval(()=>{decay();renderScene();save();},60000);
+let _gameBooted=false;
+_bootGameCore=function bootGameCore(){
+  if(_gameBooted)return;
+  _gameBooted=true;
+  initMarketIfNeeded();
+  if(needsPetNaming()){
+    startOnboardQuizOnly();
+    startMarketTicker();
+    layoutSheet();
+    initScenes();
+    scheduleTimeOfDay();
+    return;
+  }
+  if(S.auth){
+    decay();S._lastDecay=Date.now();renderAll();
+    if(curTab!=='war')switchTab('war');
+  }else if(S.guestMode){
+    decay();S._lastDecay=Date.now();renderAll();
+  }else if(!S.onboarded){startOnboard();}
+  else{if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;decay();S._lastDecay=Date.now();renderAll();setTimeout(()=>sayPetLine(null,LINES.idle),600);}
+  startMarketTicker();
+  layoutSheet();
+  initScenes();
+  scheduleTimeOfDay();
+  if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
+  setInterval(()=>{decay();renderScene();save();},60000);
+  scheduleChatter();
+};
+(async function bootGame(){
+  const authed=await initAuth();
+  if(!authed)return;
+  _bootGameCore();
+})();
 // 浮島碎念：寵物依當下狀態主動說話（用內建台詞，不呼叫 API、不花 token）
 function contextualLine(){
   const p=S.pet, m=todayStr().slice(0,7); let exp=0;
@@ -3158,13 +5232,12 @@ function proactiveChatter(){
   if(document.hidden||S.pet.stage<2)return;
   say(contextualLine());
 }
-// 閒置碎念：主人沒動作時，每 5~10 分鐘才換一句（不花 token）
-function scheduleChatter(){
-  const ms=300000+Math.random()*300000; // 5~10 分鐘
+// 閒置碎念：對話框消失後 50~60 秒才會再主動說話
+function scheduleChatter(){scheduleChatterAfterDismiss();}
+window.addEventListener('pagehide',()=>{
+  clearSpeechHideTimer();
   clearTimeout(window._chatterT);
-  window._chatterT=setTimeout(()=>{proactiveChatter();scheduleChatter();},ms);
-}
-scheduleChatter();
+});
 </script>
 </body>
 </html>

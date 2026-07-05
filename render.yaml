@@ -10,6 +10,12 @@ services:
     autoDeploy: true
     envVars:
       - key: GEMINI_API_KEY
-        sync: false            # 不寫在檔案裡，改在 Render 後台輸入（機密）
+        sync: false
       - key: GEMINI_MODEL
         value: gemini-flash-latest
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES
+        value: 7d
