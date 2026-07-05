@@ -51,6 +51,8 @@ router.get('/me', (req, res) => {
 
     return res.json({ ok: true, user: toClientUser(user, false) });
   } catch (err) {
+    const code = err.jwtCode || err.name || 'Error';
+    console.warn(`[auth/me] JWT verify failed (${code}):`, err.message);
     return res.status(401).json({ error: '登入已過期，請重新登入' });
   }
 });
@@ -66,6 +68,8 @@ router.post('/sync', (req, res) => {
 
     return res.json({ ok: true, user: toClientUser(user, false) });
   } catch (err) {
+    const code = err.jwtCode || err.name || 'Error';
+    console.warn(`[auth/sync] JWT verify failed (${code}):`, err.message);
     return res.status(401).json({ error: '登入已過期，請重新登入' });
   }
 });

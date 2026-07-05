@@ -249,15 +249,11 @@ img.ic.gem{margin-right:5px}
 .food-inv-name{font-size:9px;font-weight:800;color:#5a4a6a;line-height:1.15;text-align:center}
 .food-inv-hint{font-size:11px;color:#9a8a7a;text-align:center;margin-top:10px;font-weight:700}
 .food-inv-hint .money-ic{height:12px;vertical-align:-2px;margin:0 1px}
-#foodInvFab{
-  position:absolute;top:calc(var(--hud-h,58px) + 10px);right:var(--float-mx);z-index:21;
-  width:48px;height:48px;display:none;place-items:center;
-  background:#fffdf7;border:3px solid var(--line);border-radius:50%;
-  padding:0;margin:0;line-height:0;cursor:pointer;
-  box-shadow:0 3px 0 #d8c9b0;
-  -webkit-tap-highlight-color:transparent}
-#foodBagIc{width:40px;height:40px;object-fit:contain;image-rendering:pixelated;display:block}
-#foodInvFab:active{transform:translateY(2px);box-shadow:0 1px 0 #d8c9b0}
+#homeRightChrome{
+  position:absolute;right:var(--float-mx,10px);top:calc(var(--hud-h) + 12px);z-index:5}
+#foodInvFab{display:none;border:none;overflow:hidden}
+#foodBagIc{width:22px;height:22px;object-fit:contain;object-position:center;
+  image-rendering:pixelated;display:block;pointer-events:none}
 #chatFab{
   position:relative;top:auto;right:auto;left:auto;flex:none;
   display:none;margin:0;border:none;overflow:hidden}
@@ -979,9 +975,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       </button>
     </div>
   </div>
-  <button type="button" id="foodInvFab" onclick="toggleFoodInventory()" aria-label="食物背包">
-    <img id="foodBagIc" alt="食物背包">
-  </button>
 
   <!-- 場景 -->
   <div id="scene" data-tod="day">
@@ -1042,6 +1035,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       </div>
       <button type="button" id="chatFab" class="glass-fab" onclick="openChat()" aria-label="陪玩與聊天" title="陪玩與聊天">
         <img id="chatFabIc" alt="" aria-hidden="true">
+      </button>
+    </div>
+    <div id="homeRightChrome">
+      <button type="button" id="foodInvFab" class="glass-fab" onclick="toggleFoodInventory()" aria-label="食物背包" title="食物背包">
+        <img id="foodBagIc" alt="食物背包">
       </button>
     </div>
     <div id="pageDots"><i></i><i></i><i></i></div>
@@ -1378,7 +1376,7 @@ function initGuestGameState(forceNew){
   let useExisting=!forceNew;
   try{
     const d=JSON.parse(localStorage.getItem(LS)||'null');
-    if(!d?.pet||!d.onboarded)useExisting=false;
+    if(!d?.pet)useExisting=false;
   }catch(e){useExisting=false;}
   if(!useExisting){
     const zk=pickGuestZodiacKey();
@@ -1415,25 +1413,38 @@ function applyAuthUser(u,isNewUser){
   localStorage.removeItem(GUEST_LS);
   S.guestMode=false;
   S.auth={email:u.email,name:u.name,picture:u.picture,googleId:u.googleId};
-  if(u.wallet)S.wallet=u.wallet;
-  if(u.klineHistory)S.market=u.klineHistory;
   const zi=zodiacKeyToIndex(u.zodiacType);
   const a=ANIMALS[zi]||ANIMALS[0];
-  S.pet.stage=2;S.pet.animal=zi;
-  if(isNewUser){S.pet.name=a.n;S.pet.named=false;S.onboarded=false;}
-  else{
+
+  if(isNewUser){
+    if(u.wallet)S.wallet={...S.wallet,...u.wallet};
+    S.pet.stage=2;
+    if(S.pet.animal==null)S.pet.animal=zi;
+    S.pet.name=S.pet.name||a.n;
+    S.pet.named=false;
+    S.onboarded=false;
+    if(u.klineHistory)S.market=u.klineHistory;
+  }else{
+    const localAt=+(S._savedAt||0);
+    const remote=u.gameState;
+    const remoteAt=+(remote?._savedAt||0);
+    if(remote && remoteAt>=localAt)importGameState(remote);
+    else if(remote && !localAt)importGameState(remote);
+    S.pet.stage=S.pet.stage||2;
+    if(S.pet.animal==null)S.pet.animal=zi;
     if(S.onboarded){
       if(S.pet.named!==false)S.pet.named=true;
     }else{
       S.pet.named=false;
     }
     if(!S.pet.name)S.pet.name=a.n;
+    if(u.klineHistory && (!S.market||!S.market.stocks))S.market=u.klineHistory;
   }
   S.cosmetics=S.cosmetics||{owned:[],decos:[],skin:null};
   if(u.spineSkinId!=null)S.cosmetics.skin=u.spineSkinId;
   if(u.spineDecos?.length)S.cosmetics.decos=u.spineDecos.slice();
   PetRig.backend='spine';
-  PetRig.setZodiac(zi);
+  PetRig.setZodiac(S.pet.animal!=null?S.pet.animal:zi);
 }
 
 function initMarketIfNeeded(){
@@ -1540,10 +1551,18 @@ function initGoogleAuth(clientId){
 }
 
 async function restoreAuthSession(token){
-  const res=await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+token}});
-  if(!res.ok)return null;
-  const data=await res.json();
-  return data.user;
+  try{
+    const res=await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+token}});
+    if(!res.ok){
+      console.warn('[auth] session restore failed:',res.status);
+      return null;
+    }
+    const data=await res.json();
+    return data.user;
+  }catch(err){
+    console.warn('[auth] session restore error:',err);
+    return null;
+  }
 }
 
 function waitForGsi(){
@@ -1574,7 +1593,7 @@ async function initAuth(){
   const token=localStorage.getItem(AUTH_LS);
   if(token){
     const user=await restoreAuthSession(token);
-    if(user){applyAuthUser(user,false);hideAuthGate();return true;}
+    if(user){applyAuthUser(user,false);hideAuthGate();save();return true;}
     localStorage.removeItem(AUTH_LS);
   }
 
@@ -1598,7 +1617,7 @@ async function syncAuthState(){
   const token=localStorage.getItem(AUTH_LS);
   if(!token)return;
   try{
-    await fetch('/api/auth/sync',{
+    const res=await fetch('/api/auth/sync',{
       method:'POST',
       headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
       body:JSON.stringify({
@@ -1606,10 +1625,12 @@ async function syncAuthState(){
         zodiacType:PetRig.getZodiac(),
         spineSkinId:S.cosmetics?.skin??null,
         spineDecos:S.cosmetics?.decos||[],
-        market:S.market||null
+        market:S.market||null,
+        gameState:exportGameState()
       })
     });
-  }catch(e){/* 離線略過 */}
+    if(!res.ok)console.warn('[auth] sync failed:',res.status);
+  }catch(e){console.warn('[auth] sync error:',e);}
 }
 
 /** 依當前（或指定）心情值，從 pet-dialogues.js 取動物專屬台詞；無資料時回傳 null */
@@ -1697,7 +1718,28 @@ function fresh(){
   };
 }
 function load(){try{const d=JSON.parse(localStorage.getItem(LS));return d&&d.pet?d:fresh();}catch(e){return fresh();}}
-function save(){localStorage.setItem(LS,JSON.stringify(S));if(typeof scheduleAuthSync==='function')scheduleAuthSync();}
+const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','theme','market','chat'];
+function exportGameState(){
+  const o={_savedAt:Date.now()};
+  GAME_STATE_KEYS.forEach(k=>{if(S[k]!==undefined)o[k]=S[k];});
+  return o;
+}
+function importGameState(g){
+  if(!g||typeof g!=='object')return;
+  GAME_STATE_KEYS.forEach(k=>{
+    if(g[k]===undefined)return;
+    if(k==='pet'&&S.pet&&g.pet&&typeof g.pet==='object')S.pet={...S.pet,...g.pet};
+    else if(k==='wallet'&&g.wallet)S.wallet={...S.wallet,...g.wallet};
+    else if(k==='cosmetics'&&g.cosmetics)S.cosmetics={...S.cosmetics,...g.cosmetics};
+    else S[k]=g[k];
+  });
+  if(g._savedAt)S._savedAt=g._savedAt;
+}
+function save(){
+  S._savedAt=Date.now();
+  localStorage.setItem(LS,JSON.stringify(S));
+  if(typeof scheduleAuthSync==='function')scheduleAuthSync();
+}
 function rollDay(){if(S.daily.date!==todayStr())S.daily={date:todayStr(),recruits:0,deploys:0};}
 
 /* ============ 通用 UI ============ */
@@ -3165,6 +3207,7 @@ function updateTabChrome(t){
   const hudShop=$('#hudShop');
   if(hudShop)hudShop.classList.toggle('on',t==='shop');
   applySkyChrome();
+  updateFoodFab();
 }
 function onNavTabClick(t){
   switchTab(t);
@@ -3186,7 +3229,7 @@ function switchTab(t){
   layoutSheet();
   // 回首頁時重新量測場景寬度並對齊，修正登入後量到 0 寬導致無法左右滑的問題
   if(t==='home'&&typeof SceneCarousel!=='undefined'&&SceneCarousel.track){SceneCarousel._measure();SceneCarousel.snap(false);}
-  updateChatFab();
+  updateFoodFab();
 }
 function renderAll(){
   renderHUD();renderScene();
@@ -5319,7 +5362,8 @@ const SceneCarousel={
 /* 食物背包 FAB 只在餐廳頁顯示；離開餐廳時關閉背包 */
 function updateFoodFab(){
   const fab=$('#foodInvFab'); if(!fab)return;
-  const onKitchen=(typeof SceneCarousel!=='undefined' && SCENES[SceneCarousel.i]==='kitchen');
+  const onKitchen=curTab==='home' &&
+    (typeof SceneCarousel!=='undefined' && SCENES[SceneCarousel.i]==='kitchen');
   fab.classList.toggle('show',!!onKitchen);
   if(!onKitchen && typeof foodInvOpen!=='undefined' && foodInvOpen)closeFoodInventory();
   updateChatFab();

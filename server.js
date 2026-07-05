@@ -11,6 +11,8 @@ const http = require('http');
 const https = require('https');
 const express = require('express');
 const authRouter = require('./routes/auth');
+const db = require('./lib/db');
+const { isDefaultJwtSecret } = require('./lib/auth');
 
 function envStr(key, fallback = '') {
   return (process.env[key] || fallback).trim();
@@ -86,6 +88,11 @@ app.use((req, res) => {
 http.createServer(app).listen(PORT, () => {
   const googleClientId = getGoogleClientId();
   const jwtSecret = envStr('JWT_SECRET');
+  try {
+    db.logDbReady();
+  } catch (err) {
+    console.error('[db] 無法初始化使用者資料庫:', err.message);
+  }
   console.log(`\n🏝️  浮島記帳已啟動 → http://localhost:${PORT}`);
   console.log(`📁  .env 路徑：${path.join(__dirname, '.env')}`);
   console.log(
@@ -103,4 +110,7 @@ http.createServer(app).listen(PORT, () => {
       ? '🔑  JWT_SECRET 已載入'
       : '⚠️  尚未設定 JWT_SECRET，將使用開發用預設值。'
   );
+  if (isDefaultJwtSecret()) {
+    console.warn('⚠️  JWT_SECRET 使用預設值 — 每次重新部署若未設定環境變數，所有登入 token 會失效');
+  }
 });
