@@ -907,7 +907,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .bub.typing i{animation:blink 1s infinite}.bub.typing i:nth-child(2){animation-delay:.2s}.bub.typing i:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
 .chatIn{display:flex;gap:8px;padding:10px;border-top:3px solid #000;background:var(--panel2)}
-.chatIn input{flex:1;border-radius:20px;border:3px solid var(--line)}
+.chatIn input{flex:1;border-radius:20px;border:3px solid var(--line);padding:10px 14px;font-size:14px;font-weight:600}
+.chatWrap .chatIn input,.chatIn input{
+  color:#1a1a1a!important;background:#fffdf7!important;-webkit-text-fill-color:#1a1a1a!important}
+.chatWrap .chatIn input::placeholder,.chatIn input::placeholder{
+  color:#888!important;-webkit-text-fill-color:#888!important;opacity:1}
 .chatSend{background:var(--gold);border:3px solid var(--line);border-radius:50%;width:44px;height:44px;flex:none;font-size:18px;font-weight:900;box-shadow:0 3px 0 var(--wood2)}
 
 /* ===== 登入閘門（像素街機風） ===== */
