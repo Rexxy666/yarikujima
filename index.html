@@ -788,7 +788,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 }
 
 /* ===== 覆蓋層/測驗 ===== */
-.overlay{position:absolute;inset:0;z-index:20;background:#241a30f2;display:flex;flex-direction:column;
+.overlay{position:absolute;inset:0;z-index:55;background:#241a30f2;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:22px;text-align:center;color:#fff}
 .overlay h1{font-size:22px;margin-bottom:6px;color:#ffd873;text-shadow:2px 2px 0 #000}
 .overlay p{font-size:13px;color:#d8cbe8;line-height:1.6;max-width:340px}
@@ -1343,12 +1343,13 @@ if(typeof window!=='undefined')window.ZodiacSpine=ZodiacSpine;
 /* ===== Google OAuth + JWT 登入 ===== */
 const AUTH_LS='gamefi_auth_jwt';
 const GUEST_LS='gamefi_guest_mode';
-let _authSyncT=0,_googleClientId='',_bootGameCore=null;
+let _authSyncT=0,_googleClientId='',_bootGameCore=null,_enableBetaDebug=true;
 
 function isAuthDev(){
   return location.hostname==='localhost'||location.hostname==='127.0.0.1';
 }
 function isDevMode(){return isAuthDev();}
+function isLedgerDebugEnabled(){return isAuthDev()||_enableBetaDebug;}
 function authDevHint(msg){
   if(!isAuthDev())return;
   console.warn('[auth]',msg);
@@ -1399,9 +1400,8 @@ function onGuestLogin(){
   localStorage.removeItem(AUTH_LS);
   initGuestGameState(false);
   hideAuthGate();
-  closeOverlay();
   if(typeof _bootGameCore==='function')_bootGameCore();
-  if(needsPetNaming())return;
+  if(!S.onboarded||needsPetNaming())return;
   switchTab('home');
   toast(`歡迎訪客！資料保存在本機`);
   setTimeout(()=>say(`嗨 ${S.pet.name}！先在浮島上逛逛吧～`),500);
@@ -1418,8 +1418,11 @@ function applyAuthUser(u,isNewUser){
   S.pet.stage=2;S.pet.animal=zi;
   if(isNewUser){S.pet.name=a.n;S.pet.named=false;S.onboarded=false;}
   else{
-    if(S.pet.named!==false)S.pet.named=true;
-    if(S.onboarded!==false)S.onboarded=true;
+    if(S.onboarded){
+      if(S.pet.named!==false)S.pet.named=true;
+    }else{
+      S.pet.named=false;
+    }
     if(!S.pet.name)S.pet.name=a.n;
   }
   S.cosmetics=S.cosmetics||{owned:[],decos:[],skin:null};
@@ -1443,11 +1446,10 @@ function finishGoogleLogin(data){
   localStorage.removeItem(GUEST_LS);
   applyAuthUser(data.user,data.user.isNewUser);
   hideAuthGate();
-  closeOverlay();
   initMarketIfNeeded();
   save();
   if(typeof _bootGameCore==='function')_bootGameCore();
-  if(needsPetNaming())return;
+  if(!S.onboarded||needsPetNaming())return;
   decay();
   S._lastDecay=Date.now();
   renderAll();
@@ -1555,6 +1557,7 @@ async function initAuth(){
   let cfg={};
   try{cfg=await fetch('/api/config').then(r=>r.json());}catch(e){}
   _googleClientId=cfg.googleClientId||'';
+  _enableBetaDebug=cfg.enableBetaDebug!==false;
 
   if(localStorage.getItem(GUEST_LS)==='1'){
     initGuestGameState(false);
@@ -3526,11 +3529,11 @@ function renderLedger(){
     <button class="btn mt" style="width:100%" onclick="addTx()">記上一筆，餵養浮島</button>
     <div class="spread mt"><b style="font-size:13px">最近紀錄</b><span class="mini">共 ${S.tx.length} 筆</span></div>
     <div class="card" style="box-shadow:none">${renderTxList(8)}</div>
-    ${isDevMode()?`<button type="button" class="ledger-debug-btn" onclick="debugFreeCoins()">🛠️ 開發測試：免費領 100 硬幣</button>`:''}
+    ${isLedgerDebugEnabled()?`<button type="button" class="ledger-debug-btn" onclick="debugFreeCoins()">🛠️ 開發測試：免費領 100 硬幣</button>`:''}
     </div>`;
 }
 function debugFreeCoins(){
-  if(!isDevMode())return;
+  if(!isLedgerDebugEnabled())return;
   S.wallet.coins+=100;
   save();
   toast(`Debug +100${coinIc(true)}`);
@@ -4839,8 +4842,23 @@ function resetGame(){
   else closeOverlay();
   startOnboard();
 }
-function showOverlay(html){const o=$('#onboard');o.innerHTML=html;o.style.display='flex';}
-function closeOverlay(){$('#onboard').style.display='none';}
+function showOverlay(html){
+  const o=$('#onboard');
+  if(!o){console.error('[onboard] #onboard element missing');return;}
+  try{o.innerHTML=html;o.style.display='flex';o.setAttribute('aria-hidden','false');}
+  catch(err){console.error('[onboard] render failed',err);}
+}
+function closeOverlay(){
+  const o=$('#onboard');
+  if(!o)return;
+  o.style.display='none';
+  o.setAttribute('aria-hidden','true');
+}
+function ensureOnboarding(){
+  if(!S.onboarded){startOnboard();return true;}
+  if(!S.pet?.named){showPetNaming();return true;}
+  return false;
+}
 
 /* ===== 新手：性向測驗 → 孵蛋 ===== */
 let qi=0;
@@ -5048,6 +5066,8 @@ function startOnboard(){
     <p class="mini mt" style="max-width:320px">本遊戲為虛擬模擬養成，不做隱私監控、不強制銀行對帳，代幣不可提領，且不構成投資建議。</p>`);
 }
 function showQuiz(){
+  if(!Array.isArray(QUIZ)||!QUIZ.length){console.error('[onboard] QUIZ data missing');return;}
+  if(qi<0||qi>=QUIZ.length)qi=0;
   const q=QUIZ[qi],sel=quizAnswers[qi];
   showOverlay(`<div class="qbox">
     <div class="qn">問題 ${qi+1} / ${QUIZ.length}</div>
@@ -5091,6 +5111,7 @@ function hatch(){
 function needsPetNaming(){return !S.pet?.named;}
 
 function startOnboardQuizOnly(){
+  if(!S.onboarded){startOnboard();return;}
   qi=0;
   quizAnswers=[];
   S.quizScore={save:0,plan:0,spend:0,invest:0};
@@ -5350,12 +5371,12 @@ _bootGameCore=function bootGameCore(){
   if(_gameBooted)return;
   _gameBooted=true;
   initMarketIfNeeded();
-  if(needsPetNaming()){
-    startOnboardQuizOnly();
+  if(ensureOnboarding()){
     startMarketTicker();
     layoutSheet();
     initScenes();
     scheduleTimeOfDay();
+    if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
     return;
   }
   if(S.auth){
@@ -5363,8 +5384,11 @@ _bootGameCore=function bootGameCore(){
     if(curTab!=='war')switchTab('war');
   }else if(S.guestMode){
     decay();S._lastDecay=Date.now();renderAll();
-  }else if(!S.onboarded){startOnboard();}
-  else{if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;decay();S._lastDecay=Date.now();renderAll();setTimeout(()=>sayPetLine(null,LINES.idle),600);}
+  }else{
+    if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;
+    decay();S._lastDecay=Date.now();renderAll();
+    setTimeout(()=>sayPetLine(null,LINES.idle),600);
+  }
   startMarketTicker();
   layoutSheet();
   initScenes();

@@ -36,6 +36,7 @@ app.get('/api/config', (_req, res) => {
   res.json({
     googleClientId,
     authEnabled: !!googleClientId,
+    enableBetaDebug: envStr('ENABLE_BETA_DEBUG', 'true').toLowerCase() !== 'false',
   });
 });
 
