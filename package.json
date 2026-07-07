@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
+    "build": "node scripts/verify-build.js",
     "migrate:json-to-pg": "node scripts/migrate-json-to-pg.js"
   },
   "dependencies": {

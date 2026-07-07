@@ -22,28 +22,24 @@ function isProduction() {
   return envStr('NODE_ENV') === 'production' || envStr('RENDER') === 'true';
 }
 
-function assertProductionConfig() {
+function warnProductionConfig() {
   if (!isProduction()) return;
 
   if (!envStr('DATABASE_URL')) {
-    console.error(
-      '[FATAL] 生產環境必須設定 DATABASE_URL（Render PostgreSQL）。\n' +
-        '       未設定時資料會寫入容器暫存磁碟，每次 redeploy 都會清空。'
+    console.warn(
+      '[WARN] 未設定 DATABASE_URL — 將使用容器內暫存 JSON 檔。\n' +
+        '       請在 Render 建立 PostgreSQL 並綁定 DATABASE_URL，否則 redeploy 後資料會清空。'
     );
-    process.exit(1);
   }
 
   if (isDefaultJwtSecret()) {
-    console.error(
-      '[FATAL] 生產環境必須在 Render Dashboard 設定固定的 JWT_SECRET。\n' +
-        '       使用預設值或每次 redeploy 變更密鑰，會讓所有登入 token 失效。'
+    console.warn(
+      '[WARN] JWT_SECRET 使用預設值 — 請在 Render Dashboard 設定固定密鑰，否則 redeploy 後登入 token 會失效。'
     );
-    process.exit(1);
   }
 
   if (!envStr('GOOGLE_CLIENT_ID')) {
-    console.error('[FATAL] 生產環境必須設定 GOOGLE_CLIENT_ID。');
-    process.exit(1);
+    console.warn('[WARN] 未設定 GOOGLE_CLIENT_ID — Google 登入將無法使用。');
   }
 }
 
@@ -55,7 +51,7 @@ function getGoogleClientId() {
   return envStr('GOOGLE_CLIENT_ID');
 }
 
-assertProductionConfig();
+warnProductionConfig();
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
@@ -125,7 +121,8 @@ http.createServer(app).listen(PORT, async () => {
     await db.logDbReady();
   } catch (err) {
     console.error('[db] 無法初始化使用者資料庫:', err.message);
-    if (isProduction()) process.exit(1);
+    if (envStr('DATABASE_URL')) process.exit(1);
+    console.warn('[db] 已略過 PostgreSQL，改以本機 JSON 模式啟動。');
   }
   console.log(`\n🏝️  浮島記帳已啟動 → http://localhost:${PORT}`);
   console.log(`📁  .env 路徑：${path.join(__dirname, '.env')}`);

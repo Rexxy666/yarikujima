@@ -11,7 +11,7 @@ services:
     name: floating-island-ledger
     runtime: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install && npm run build
     startCommand: npm start
     autoDeploy: true
     envVars:
