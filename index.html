@@ -1842,6 +1842,7 @@ function applyAuthUser(u,isNewUser){
     const remoteAt=+(remote?._savedAt||0);
     if(remote && remoteAt>=localAt)importGameState(remote);
     else if(remote && !localAt)importGameState(remote);
+    else if(remote?.onboarded && !S.onboarded)importGameState(remote);
     S.pet.stage=S.pet.stage||2;
     if(S.pet.animal==null)S.pet.animal=zi;
     if(S.onboarded){
@@ -1962,18 +1963,31 @@ function initGoogleAuth(clientId){
   }
 }
 
-async function restoreAuthSession(token){
+async function restoreAuthSession(token,attempt=0){
+  const maxAttempts=3;
   try{
     const res=await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+token}});
+    if(res.status===401||res.status===403||res.status===404){
+      console.warn('[auth] session invalid:',res.status);
+      return {ok:false,invalid:true};
+    }
     if(!res.ok){
+      if(attempt+1<maxAttempts){
+        await new Promise(r=>setTimeout(r,600*(attempt+1)));
+        return restoreAuthSession(token,attempt+1);
+      }
       console.warn('[auth] session restore failed:',res.status);
-      return null;
+      return {ok:false,invalid:false};
     }
     const data=await res.json();
-    return data.user;
+    return {ok:true,user:data.user};
   }catch(err){
+    if(attempt+1<maxAttempts){
+      await new Promise(r=>setTimeout(r,600*(attempt+1)));
+      return restoreAuthSession(token,attempt+1);
+    }
     console.warn('[auth] session restore error:',err);
-    return null;
+    return {ok:false,invalid:false};
   }
 }
 
@@ -2004,9 +2018,9 @@ async function initAuth(){
 
   const token=localStorage.getItem(AUTH_LS);
   if(token){
-    const user=await restoreAuthSession(token);
-    if(user){applyAuthUser(user,false);hideAuthGate();save();return true;}
-    localStorage.removeItem(AUTH_LS);
+    const session=await restoreAuthSession(token);
+    if(session.ok&&session.user){applyAuthUser(session.user,false);hideAuthGate();save();return true;}
+    if(session.invalid)localStorage.removeItem(AUTH_LS);
   }
 
   showAuthGate();
@@ -2029,6 +2043,7 @@ async function syncAuthState(){
   const token=localStorage.getItem(AUTH_LS);
   if(!token)return;
   try{
+    await hydrateTxPhotosForCloudSync();
     const res=await fetch('/api/auth/sync',{
       method:'POST',
       headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
@@ -2142,29 +2157,48 @@ function migrateSavingGoals(){
 }
 function exportGameState(){
   const o={_savedAt:Date.now()};
+  const txList=Array.isArray(S.tx)?S.tx:[];
   GAME_STATE_KEYS.forEach(k=>{
     if(S[k]===undefined)return;
-    if(k==='tx')o.tx=S.tx.map(t=>{
-      const row={...t,photo:sanitizePhotoForCloudSync(t.photo)};
-      if(typeof t.photoData==='string'&&t.photoData.startsWith('data:')){
-        row.photoData={legacyInline:true,bytes:t.photoData.length,uploadStatus:'migrate'};
-      }
-      return row;
-    });
-    else o[k]=S[k];
+    if(k==='tx'){
+      o.tx=txList.map(t=>{
+        const row={...t,photo:sanitizePhotoForCloudSync(t.photo)};
+        if(typeof t.photoData==='string'&&(t.photoData.startsWith('data:')||t.photoData.startsWith('http'))){
+          row.photoData=t.photoData;
+        }else if(t.photoData && typeof t.photoData==='object' && t.photoData.legacyInline){
+          delete row.photoData;
+        }
+        return row;
+      });
+    }else o[k]=S[k];
   });
   return o;
 }
 function sanitizePhotoForCloudSync(photo){
   if(!photo)return null;
   if(typeof photo==='string'){
-    if(photo.startsWith('data:'))return {legacyInline:true,bytes:photo.length,uploadStatus:'migrate'};
+    if(photo.startsWith('data:')||photo.startsWith('blob:'))return null;
     return photo;
   }
   return {
     id:photo.id,mime:photo.mime,width:photo.width,height:photo.height,bytes:photo.bytes,
     uploadStatus:photo.uploadStatus||'pending',storageKey:photo.storageKey||null,remoteUrl:photo.remoteUrl||null
   };
+}
+async function hydrateTxPhotosForCloudSync(){
+  const txList=Array.isArray(S.tx)?S.tx:[];
+  for(const t of txList){
+    if(!t)continue;
+    if(typeof t.photoData==='string'&&(t.photoData.startsWith('data:')||t.photoData.startsWith('http')))continue;
+    if(t.photo?.remoteUrl){
+      t.photoData=t.photo.remoteUrl;
+      continue;
+    }
+    try{
+      const data=await assetToPhotoData(t.photo);
+      if(typeof data==='string'&&data.startsWith('data:'))t.photoData=data;
+    }catch(e){console.warn('[photo] hydrate for sync failed:',e);}
+  }
 }
 function importGameState(g){
   if(!g||typeof g!=='object')return;
@@ -4368,7 +4402,9 @@ function txPhotoDataSrc(item){
     if(typeof pd==='string')return pd;
     return null;
   }
-  return photoDisplaySrc(item.photo);
+  const fromPhoto=photoDisplaySrc(item.photo);
+  if(typeof fromPhoto==='string'&&fromPhoto.startsWith('blob:'))return null;
+  return fromPhoto;
 }
 function txPhotoThumbHtml(photoData){
   if(photoData==null||photoData===undefined)return '';

@@ -33,9 +33,10 @@ function warnProductionConfig() {
   }
 
   if (isDefaultJwtSecret()) {
-    console.warn(
-      '[WARN] JWT_SECRET 使用預設值 — 請在 Render Dashboard 設定固定密鑰，否則 redeploy 後登入 token 會失效。'
+    console.error(
+      '[FATAL] JWT_SECRET 仍為開發預設值 — 請在 Render Dashboard 設定固定密鑰（JWT_SECRET 或 NEXTAUTH_SECRET）。'
     );
+    process.exit(1);
   }
 
   if (!envStr('GOOGLE_CLIENT_ID')) {
@@ -54,7 +55,7 @@ function getGoogleClientId() {
 warnProductionConfig();
 
 const app = express();
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '16mb' }));
 
 // 公開設定（前端 Google 登入按鈕需要 Client ID）
 app.get('/api/config', (_req, res) => {

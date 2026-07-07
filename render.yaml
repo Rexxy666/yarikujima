@@ -29,6 +29,9 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      # 若 Dashboard 已用 NEXTAUTH_SECRET 名稱，可改設此項（與 JWT_SECRET 二擇一）
+      - key: NEXTAUTH_SECRET
+        sync: false
       - key: JWT_EXPIRES
         value: none
       - key: ENABLE_BETA_DEBUG
