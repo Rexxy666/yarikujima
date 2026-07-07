@@ -1,12 +1,32 @@
 const express = require('express');
 const { bearerFromReq, verifyAppJwt } = require('../lib/auth');
+const db = require('../lib/db');
+const { extractUserPhotoTransactions } = require('../lib/users');
 
 const router = express.Router();
 
 /**
- * 相片持久化：Base64 字串存在 PostgreSQL users.game_state.tx[].photoData
- * 此路由僅供未來 S3 選配；預設不寫入伺服器本地硬碟。
+ * 相片持久化：Base64 存在 PostgreSQL users.game_state.tx[].photoData
+ * 讀取時嚴格依 JWT 使用者隔離，訪客或未登入一律拒絕。
  */
+router.get('/', async (req, res) => {
+  try {
+    const token = bearerFromReq(req);
+    if (!token) return res.status(401).json({ error: '未登入', photos: [] });
+
+    const decoded = verifyAppJwt(token);
+    const user = (await db.findByEmail(decoded.email)) || (await db.findByGoogleId(decoded.sub));
+    if (!user) return res.status(404).json({ error: '找不到使用者', photos: [] });
+
+    const photos = extractUserPhotoTransactions(user);
+    return res.json({ ok: true, ownerId: user.googleId, photos });
+  } catch (err) {
+    const code = err.jwtCode || err.name || 'Error';
+    console.warn(`[photos/GET] auth failed (${code}):`, err.message);
+    return res.status(401).json({ error: '登入已過期', photos: [] });
+  }
+});
+
 router.post('/presign', (req, res) => {
   try {
     const token = bearerFromReq(req);

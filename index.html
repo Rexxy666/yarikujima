@@ -1756,7 +1756,57 @@ if(typeof window!=='undefined')window.ZodiacSpine=ZodiacSpine;
 
 /* ===== Google OAuth + JWT 登入 ===== */
 const AUTH_LS='gamefi_auth_jwt';
+const TAB_LS='yarikujima_active_tab';
+const TAB_IDS=['home','ledger','war','shop','stats','settings'];
+function loadSavedTab(){
+  try{
+    const t=localStorage.getItem(TAB_LS);
+    if(t&&TAB_IDS.includes(t))return t;
+  }catch(e){}
+  return 'home';
+}
+function saveActiveTab(t){
+  if(!TAB_IDS.includes(t))return;
+  try{localStorage.setItem(TAB_LS,t);}catch(e){}
+}
 const GUEST_LS='gamefi_guest_mode';
+function ownerKeyForGoogle(googleId){
+  return googleId?('g:'+String(googleId)):null;
+}
+function lsKeyForOwner(ownerKey){
+  return ownerKey?(LS+'::'+ownerKey):LS;
+}
+function currentOwnerKey(){
+  if(S.auth?.googleId)return ownerKeyForGoogle(S.auth.googleId);
+  if(S.guestMode||localStorage.getItem(GUEST_LS)==='1')return 'guest';
+  return S._ownerKey||null;
+}
+function loadStateForOwner(ownerKey){
+  try{
+    const d=JSON.parse(localStorage.getItem(lsKeyForOwner(ownerKey))||'null');
+    if(d?.pet){d._ownerKey=ownerKey;return d;}
+  }catch(e){}
+  const s=fresh();
+  s._ownerKey=ownerKey;
+  return s;
+}
+function persistOwnerState(ownerKey){
+  if(!ownerKey)return;
+  S._ownerKey=ownerKey;
+  localStorage.setItem(lsKeyForOwner(ownerKey),JSON.stringify(S));
+}
+function flushOwnerStateIfNeeded(nextOwnerKey){
+  const cur=currentOwnerKey();
+  if(cur&&cur!==nextOwnerKey)persistOwnerState(cur);
+}
+function bootLoadState(){
+  if(localStorage.getItem(GUEST_LS)==='1')return loadStateForOwner('guest');
+  try{
+    const d=JSON.parse(localStorage.getItem(LS)||'null');
+    if(d?.pet)return d;
+  }catch(e){}
+  return fresh();
+}
 let _authSyncT=0,_googleClientId='',_bootGameCore=null,_enableBetaDebug=true;
 
 function isAuthDev(){
@@ -1785,25 +1835,27 @@ function pickGuestZodiacKey(){
 }
 
 function initGuestGameState(forceNew){
-  let useExisting=!forceNew;
-  try{
-    const d=JSON.parse(localStorage.getItem(LS)||'null');
-    if(!d?.pet)useExisting=false;
-  }catch(e){useExisting=false;}
-  if(!useExisting){
+  flushOwnerStateIfNeeded('guest');
+  if(forceNew){
+    S=loadStateForOwner('guest');
     const zk=pickGuestZodiacKey();
     const zi=zodiacKeyToIndex(zk);
     const a=ANIMALS[zi]||ANIMALS[0];
     S=fresh();
+    S._ownerKey='guest';
     S.guestMode=true;
     S.wallet={coins:50000,gems:50};
     S.pet.stage=2;S.pet.animal=zi;S.pet.name=a.n;S.pet.named=false;
     S.onboarded=false;
+    S.tx=[];
     PetRig.backend='spine';
     PetRig.setZodiac(zi);
     save();
   }else{
+    S=loadStateForOwner('guest');
     S.guestMode=true;
+    S.auth=null;
+    S._ownerKey='guest';
     if(S.pet?.stage>=2)PetRig.backend='spine';
   }
   S.auth=null;
@@ -1823,8 +1875,17 @@ function onGuestLogin(){
 
 function applyAuthUser(u,isNewUser){
   localStorage.removeItem(GUEST_LS);
+  const newOwner=ownerKeyForGoogle(u.googleId);
+  const prevOwner=currentOwnerKey();
+  const accountChanged=!!(prevOwner&&newOwner&&prevOwner!==newOwner);
+  flushOwnerStateIfNeeded(newOwner);
+
+  if(accountChanged||isNewUser){
+    S=loadStateForOwner(newOwner);
+  }
   S.guestMode=false;
   S.auth={email:u.email,name:u.name,picture:u.picture,googleId:u.googleId};
+  S._ownerKey=newOwner;
   const zi=zodiacKeyToIndex(u.zodiacType);
   const a=ANIMALS[zi]||ANIMALS[0];
 
@@ -1835,18 +1896,24 @@ function applyAuthUser(u,isNewUser){
     S.pet.name=S.pet.name||a.n;
     S.pet.named=false;
     S.onboarded=false;
+    S.tx=[];
     if(u.klineHistory)S.market=u.klineHistory;
+    if(u.gameState)importGameState(u.gameState);
   }else{
     const remote=u.gameState;
     if(remote){
-      const localAt=+(S._savedAt||0);
-      const remoteAt=+(remote._savedAt||0);
-      const localSnap={_savedAt:S._savedAt};
-      GAME_STATE_KEYS.forEach(k=>{if(S[k]!==undefined)localSnap[k]=S[k];});
-      const merged=remoteAt>=localAt
-        ?mergeGameStateForSync(remote,localSnap)
-        :mergeGameStateForSync(localSnap,remote);
-      importGameState(merged);
+      if(accountChanged){
+        importGameState(remote);
+      }else{
+        const localAt=+(S._savedAt||0);
+        const remoteAt=+(remote._savedAt||0);
+        const localSnap={_savedAt:S._savedAt};
+        GAME_STATE_KEYS.forEach(k=>{if(S[k]!==undefined)localSnap[k]=S[k];});
+        const merged=remoteAt>=localAt
+          ?mergeGameStateForSync(remote,localSnap)
+          :mergeGameStateForSync(localSnap,remote);
+        importGameState(merged);
+      }
     }
     S.pet.stage=S.pet.stage||2;
     if(S.pet.animal==null)S.pet.animal=zi;
@@ -1890,7 +1957,7 @@ function finishGoogleLogin(data){
   decay();
   S._lastDecay=Date.now();
   renderAll();
-  switchTab('war');
+  switchTab(loadSavedTab());
   const welcome=data.user.isNewUser
     ?`歡迎！新指揮官獲得 ${fmt(data.user.wallet.coins)}${coinIc(true)}`
     :`歡迎回來！`;
@@ -2050,7 +2117,8 @@ function scheduleAuthSync(){
 }
 async function syncAuthState(){
   const token=localStorage.getItem(AUTH_LS);
-  if(!token)return false;
+  if(!token||localStorage.getItem(GUEST_LS)==='1')return false;
+  if(!S.auth?.googleId)return false;
   try{
     await hydrateTxPhotosForCloudSync();
     const res=await fetch('/api/auth/sync',{
@@ -2129,7 +2197,7 @@ const PERSONA={
 };
 
 /* ============ 狀態 ============ */
-let S=load();
+let S=bootLoadState();
 migrateSavingGoals();
 if(S.pet&&S.pet.named==null)S.pet.named=!!S.onboarded;
 if(S.dailyBookkeepingCount==null)S.dailyBookkeepingCount=0;
@@ -2264,13 +2332,15 @@ function importGameState(g){
 }
 function save(){
   S._savedAt=Date.now();
-  localStorage.setItem(LS,JSON.stringify(S));
+  const owner=currentOwnerKey();
+  if(owner)persistOwnerState(owner);
+  else localStorage.setItem(LS,JSON.stringify(S));
   if(typeof scheduleAuthSync==='function')scheduleAuthSync();
 }
 function rollDay(){if(S.daily.date!==todayStr())S.daily={date:todayStr(),recruits:0,deploys:0};}
 
 /* ============ 通用 UI ============ */
-let curTab='home';
+let curTab=loadSavedTab();
 function toast(msg){const t=$('#toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1700);}
 const SPEECH_AUTO_HIDE_MS=10000;
 const CHATTER_COOLDOWN_MIN=50000;
@@ -3750,6 +3820,7 @@ function switchTab(t){
   if(curTab==='ledger'&&t!=='ledger'){closeTimeBoxModal(true);clearTimeBoxCdTimer();}
   if(t!=='war')warDraft.countInput=null;
   curTab=t;
+  saveActiveTab(t);
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   updateTabChrome(t);
   setSheetTitle(t);
@@ -3981,13 +4052,34 @@ function renderPhotoWallCard(t){
   </figure>`;
 }
 let photoWallOpen=false;
+async function fetchOwnerPhotoTransactions(){
+  const isGuest=!!(S.guestMode||localStorage.getItem(GUEST_LS)==='1');
+  if(isGuest){
+    if(S._ownerKey!=='guest')return [];
+    return(Array.isArray(S.tx)?S.tx:[]).filter(t=>t&&(t.photo||txPhotoDataSrc(t)));
+  }
+  if(!S.auth?.googleId)return [];
+  const token=localStorage.getItem(AUTH_LS);
+  if(!token)return [];
+  const res=await fetch('/api/photos',{headers:{Authorization:'Bearer '+token}});
+  if(res.status===401||res.status===403)return [];
+  if(!res.ok)throw new Error('photos fetch failed:'+res.status);
+  const data=await res.json();
+  return Array.isArray(data.photos)?data.photos:[];
+}
 function openPhotoWall(){
+  void openPhotoWallAsync();
+}
+async function openPhotoWallAsync(){
   try{
     const ov=$('#photoWall'),body=$('#photoWallBody');
     if(!ov||!body)return;
     syncPhotoWallTitleIcon();
-    const txList=Array.isArray(S.tx)?S.tx:[];
-    const photos=txList.filter(t=>t&&(t.photo||txPhotoDataSrc(t)));
+    body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">載入相簿中…</p>';
+    ov.style.display='flex';
+    ov.setAttribute('aria-hidden','false');
+    photoWallOpen=true;
+    const photos=await fetchOwnerPhotoTransactions();
     if(!photos.length){
       body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
     }else{
@@ -3997,11 +4089,10 @@ function openPhotoWall(){
         <div class="pw-grid">${(g.items||[]).map(renderPhotoWallCard).join('')}</div>
       </section>`).join('')||'<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
     }
-    ov.style.display='flex';
-    ov.setAttribute('aria-hidden','false');
-    photoWallOpen=true;
   }catch(err){
     console.error('[photoWall] open failed:',err);
+    const body=$('#photoWallBody');
+    if(body)body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">相簿載入失敗，請稍後再試</p>';
     toast('相簿暫時無法開啟，請稍後再試');
   }
 }
@@ -6455,6 +6546,7 @@ function logoutAccount(){
   const isGoogle=!!S.auth?.email;
   const msg=isGoogle?'確定登出目前 Google 帳戶？將返回登入畫面。':'確定結束訪客試玩？將返回登入畫面。';
   if(!confirm(msg))return;
+  flushOwnerStateIfNeeded(null);
   localStorage.removeItem(AUTH_LS);
   localStorage.removeItem(GUEST_LS);
   if(window.google?.accounts?.id){
@@ -6777,8 +6869,7 @@ function submitPetName(){
   S._lastDecay=Date.now();
   layoutSheet();
   renderAll();
-  if(S.auth)switchTab('war');
-  else switchTab('home');
+  switchTab('home');
   toast(`歡迎，${S.pet.name}！`);
   setTimeout(()=>say(`嗨 ${S.pet.name}！一起把理財變好玩吧～`),500);
 }
@@ -7028,16 +7119,14 @@ _bootGameCore=function bootGameCore(){
     if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
     return;
   }
-  if(S.auth){
-    decay();S._lastDecay=Date.now();renderAll();
-    if(curTab!=='war')switchTab('war');
-  }else if(S.guestMode){
+  if(S.auth||S.guestMode){
     decay();S._lastDecay=Date.now();renderAll();
   }else{
     if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;
     decay();S._lastDecay=Date.now();renderAll();
     setTimeout(()=>sayPetLine(null,LINES.idle),600);
   }
+  switchTab(loadSavedTab());
   startMarketTicker();
   layoutSheet();
   initScenes();
