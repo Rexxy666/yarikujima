@@ -549,7 +549,7 @@ img.ic.gem{margin-right:5px}
 .pw-overlay{position:absolute;inset:0;z-index:33;background:rgba(0,0,0,.55);display:none;
   align-items:center;justify-content:center;padding:14px;box-sizing:border-box;
   -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
-.pw-panel{width:min(400px,94vw);max-height:min(88vh,640px);display:flex;flex-direction:column;background:#fffdf7;
+.pw-panel{width:min(400px,94vw);max-height:min(75vh,640px);min-height:0;display:flex;flex-direction:column;background:#fffdf7;
   border:3px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 5px 0 var(--line),0 10px 28px rgba(30,20,55,.28)}
 .pw-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;
   border-bottom:2px solid var(--line);flex:none;background:#fff8ec}
@@ -558,7 +558,8 @@ img.ic.gem{margin-right:5px}
 .pw-head b{font-size:14px;font-weight:900;color:#2c2c3a;line-height:1}
 .pw-x{background:#fff;border:2px solid var(--line);border-radius:8px;width:28px;height:28px;
   font-size:14px;cursor:pointer;flex:none;line-height:1;padding:0;color:#3a2c2c}
-.pw-body{flex:1;min-height:0;overflow-y:auto;padding:12px 12px 14px;-webkit-overflow-scrolling:touch}
+.pw-body{flex:1;min-height:0;overflow-y:auto;padding:12px 12px 14px;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:rgba(58,44,44,.28) transparent}
 .pw-day-group{margin-bottom:18px}
 .pw-day-group:last-child{margin-bottom:0}
 .pw-day-title{font-size:13px;font-weight:900;color:#3a2c2c;margin:0 0 8px;padding:0 2px;line-height:1.3}
@@ -4942,7 +4943,6 @@ function recordTx({type,amount,category,note='',hasPhoto=false,photo=null,photoD
   S.tx.unshift({id:Date.now(),ts:new Date().toISOString(),type,category:cat,amount:amt,note:note||'',
     hasPhoto:!!(hasPhoto||resolvedPhotoData),photo,photoData:resolvedPhotoData,
     coinGain:photoReward.coinGain,expGain,crit,rewardGranted:photoReward.rewardGranted,coinCapped:photoReward.coinCapped});
-  trimPhotos();
   if(expGain>0)gainExp(expGain);
   if(crit)S.lastPhotoCrit=Date.now();
   S.pet.hunger=clamp(S.pet.hunger+8);
@@ -4986,12 +4986,6 @@ function recordLine(r){
   if(exp>S.budget)return petMoodDialogue(moodValue())||pick(LINES.over);
   if(exp>S.budget*0.85)return petMoodDialogue(MOOD.COMFORT)||'記下了…不過快到預算上限囉，省著點花🐾';
   return petMoodDialogue()||pick(['記好了！乖乖記帳最棒～','+1 筆，浮島又亮了一點✨','收到，這筆幫你記上囉！']);
-}
-function trimPhotos(){
-  const withPhoto=S.tx.filter(t=>t.photo||t.photoData);
-  if(withPhoto.length>S.photoCap){
-    withPhoto.slice(S.photoCap).forEach(t=>{t.photo=null;t.photoData=null;t.shredded=true;});
-  }
 }
 function renderTxList(n){
   if(!S.tx.length)return '<p class="hint center">還沒有紀錄，記下第一筆吧！</p>';

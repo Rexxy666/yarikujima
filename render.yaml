@@ -1,5 +1,11 @@
 # Render Blueprint — 一鍵部署設定
-# 到 render.com → New → Blueprint，連到這個 repo 即可；或手動建立 Web Service 也行。
+# 到 render.com → New → Blueprint，連到這個 repo 即可；或手動建立 Web Service + PostgreSQL。
+databases:
+  - name: floating-island-db
+    plan: free
+    databaseName: floating_island
+    user: floating_island
+
 services:
   - type: web
     name: floating-island-ledger
@@ -9,6 +15,12 @@ services:
     startCommand: npm start
     autoDeploy: true
     envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: floating-island-db
+          property: connectionString
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
@@ -18,6 +30,6 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: JWT_EXPIRES
-        value: 7d
+        value: none
       - key: ENABLE_BETA_DEBUG
         value: "true"

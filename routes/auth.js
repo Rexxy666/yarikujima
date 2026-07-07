@@ -26,7 +26,7 @@ router.post('/google', async (req, res) => {
     }
 
     const payload = await verifyGoogleIdToken(idToken);
-    const { user, isNewUser } = loginOrRegister(payload);
+    const { user, isNewUser } = await loginOrRegister(payload);
     const token = signAppJwt(user);
 
     console.log(`[auth/google] 登入成功：${user.email}（${isNewUser ? '新用戶' : '老用戶'}）`);
@@ -40,13 +40,13 @@ router.post('/google', async (req, res) => {
   }
 });
 
-router.get('/me', (req, res) => {
+router.get('/me', async (req, res) => {
   try {
     const token = bearerFromReq(req);
     if (!token) return res.status(401).json({ error: '未登入' });
 
     const decoded = verifyAppJwt(token);
-    const user = db.findByEmail(decoded.email) || db.findByGoogleId(decoded.sub);
+    const user = (await db.findByEmail(decoded.email)) || (await db.findByGoogleId(decoded.sub));
     if (!user) return res.status(404).json({ error: '找不到使用者' });
 
     return res.json({ ok: true, user: toClientUser(user, false) });
@@ -57,13 +57,13 @@ router.get('/me', (req, res) => {
   }
 });
 
-router.post('/sync', (req, res) => {
+router.post('/sync', async (req, res) => {
   try {
     const token = bearerFromReq(req);
     if (!token) return res.status(401).json({ error: '未登入' });
 
     const decoded = verifyAppJwt(token);
-    const user = syncGameState(decoded.email, req.body || {});
+    const user = await syncGameState(decoded.email, req.body || {});
     if (!user) return res.status(404).json({ error: '找不到使用者' });
 
     return res.json({ ok: true, user: toClientUser(user, false) });

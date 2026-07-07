@@ -18,6 +18,35 @@ function envStr(key, fallback = '') {
   return (process.env[key] || fallback).trim();
 }
 
+function isProduction() {
+  return envStr('NODE_ENV') === 'production' || envStr('RENDER') === 'true';
+}
+
+function assertProductionConfig() {
+  if (!isProduction()) return;
+
+  if (!envStr('DATABASE_URL')) {
+    console.error(
+      '[FATAL] 生產環境必須設定 DATABASE_URL（Render PostgreSQL）。\n' +
+        '       未設定時資料會寫入容器暫存磁碟，每次 redeploy 都會清空。'
+    );
+    process.exit(1);
+  }
+
+  if (isDefaultJwtSecret()) {
+    console.error(
+      '[FATAL] 生產環境必須在 Render Dashboard 設定固定的 JWT_SECRET。\n' +
+        '       使用預設值或每次 redeploy 變更密鑰，會讓所有登入 token 失效。'
+    );
+    process.exit(1);
+  }
+
+  if (!envStr('GOOGLE_CLIENT_ID')) {
+    console.error('[FATAL] 生產環境必須設定 GOOGLE_CLIENT_ID。');
+    process.exit(1);
+  }
+}
+
 const PORT = envStr('PORT', '8787') || 8787;
 const KEY = envStr('GEMINI_API_KEY');
 const MODEL = envStr('GEMINI_MODEL', 'gemini-flash-latest');
@@ -25,6 +54,8 @@ const MODEL = envStr('GEMINI_MODEL', 'gemini-flash-latest');
 function getGoogleClientId() {
   return envStr('GOOGLE_CLIENT_ID');
 }
+
+assertProductionConfig();
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
@@ -86,16 +117,19 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-http.createServer(app).listen(PORT, () => {
+http.createServer(app).listen(PORT, async () => {
   const googleClientId = getGoogleClientId();
   const jwtSecret = envStr('JWT_SECRET');
+  const dbMode = envStr('DATABASE_URL') ? 'PostgreSQL' : 'local JSON file';
   try {
-    db.logDbReady();
+    await db.logDbReady();
   } catch (err) {
     console.error('[db] 無法初始化使用者資料庫:', err.message);
+    if (isProduction()) process.exit(1);
   }
   console.log(`\n🏝️  浮島記帳已啟動 → http://localhost:${PORT}`);
   console.log(`📁  .env 路徑：${path.join(__dirname, '.env')}`);
+  console.log(`💾  資料庫模式：${dbMode}`);
   console.log(
     KEY
       ? `🔮  Gemini 聊天已就緒（模型：${MODEL}）`
