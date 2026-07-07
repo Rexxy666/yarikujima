@@ -527,6 +527,14 @@ img.ic.gem{margin-right:5px}
 .tbox-corner.bl{bottom:8px;left:8px;border-right:none;border-top:none}
 .tbox-corner.br{bottom:8px;right:8px;border-left:none;border-top:none}
 .tbox-cam-footer{display:flex;align-items:center;justify-content:center;padding:14px 16px 16px;min-height:82px;box-sizing:border-box}
+.tbox-cam-controls{--tbox-shutter:54px;position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:54px}
+.tbox-cam-flip{position:absolute;left:calc((50% - var(--tbox-shutter)/2) * .45);top:50%;z-index:1;width:40px;height:40px;border-radius:50%;padding:0;cursor:pointer;
+  display:grid;place-items:center;border:2px solid rgba(0,0,0,.35);background:rgba(0,0,0,.3);
+  box-shadow:0 2px 0 rgba(0,0,0,.22);-webkit-tap-highlight-color:transparent;
+  transform:translate(-50%,-50%)}
+.tbox-cam-flip:active{transform:translate(-50%,-50%) scale(.94)}
+.tbox-shutter{position:relative;z-index:2;flex:none}
+.tbox-flip-ic{width:20px;height:20px;display:block;flex:none}
 .tbox-shutter{width:54px;height:54px;border-radius:50%;border:4px solid #000;background:#FFD43F;
   cursor:pointer;box-shadow:0 3px 0 #b87d12;-webkit-tap-highlight-color:transparent;transition:transform .08s}
 .tbox-shutter:active{transform:translateY(2px);box-shadow:none}
@@ -545,7 +553,9 @@ img.ic.gem{margin-right:5px}
   border:3px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 5px 0 var(--line),0 10px 28px rgba(30,20,55,.28)}
 .pw-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;
   border-bottom:2px solid var(--line);flex:none;background:#fff8ec}
-.pw-head b{font-size:14px;font-weight:900;color:#2c2c3a}
+.pw-head-title{display:flex;align-items:center;gap:7px;min-width:0}
+.pw-head-title .sheet-title-ic{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;flex:none}
+.pw-head b{font-size:14px;font-weight:900;color:#2c2c3a;line-height:1}
 .pw-x{background:#fff;border:2px solid var(--line);border-radius:8px;width:28px;height:28px;
   font-size:14px;cursor:pointer;flex:none;line-height:1;padding:0;color:#3a2c2c}
 .pw-body{flex:1;min-height:0;overflow-y:auto;padding:12px 12px 14px;-webkit-overflow-scrolling:touch}
@@ -684,22 +694,16 @@ img.ic.gem{margin-right:5px}
 .war-page .fld{margin-top:14px}
 .shop-page .hint{line-height:1.55;margin-bottom:12px}
 .stats-panel.page-panel{padding-top:2px}
-/* 設定分頁：標題 + 字卡同一 flex 流，於 HUD 與 Tab Bar 之間垂直置中 */
+/* 設定分頁：與其他功能頁相同固定標題 + 可滾動內容 */
 #app.tab-settings #sheet{background:transparent;pointer-events:none;display:flex;flex-direction:column;min-height:0}
-#app.tab-settings #sheetHead{display:none}
 #app.tab-settings #sheetBody{
   pointer-events:auto;flex:1;min-height:0;
   display:flex;flex-direction:column;align-items:stretch;
-  padding:calc(var(--hud-h,58px) + 8px) 16px calc(var(--nav-stack-h,var(--nav-h,70px)) + 8px);
+  padding:14px 16px calc(var(--nav-stack-h,var(--nav-h,70px)) + 16px);
   box-sizing:border-box;overflow-y:auto}
 .settings-page{
-  width:100%;max-width:28rem;margin:auto;
+  width:100%;max-width:28rem;margin:0 auto;
   display:flex;flex-direction:column;flex:none}
-.settings-page-title{
-  margin:0 0 16px;padding-left:4px;text-align:left;flex:none;
-  font-size:20px;font-weight:900;letter-spacing:.06em;line-height:1.2;
-  color:#FFD256;text-shadow:1px 1px 0 rgba(0,0,0,.35)}
-#app[data-sky="light"].tab-settings .settings-page-title{color:#C07A10;text-shadow:none}
 .settings-glass{
   position:relative;z-index:1;flex:none;
   display:flex;flex-direction:column;gap:16px;
@@ -1186,7 +1190,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .seg{display:flex;border:3px solid var(--line);border-radius:8px;overflow:hidden}
 .seg button{flex:1;padding:9px;background:rgba(255,255,255,.12);font-weight:800;font-size:13px;color:rgba(255,255,255,.88)}
 #app[data-sky="light"] .seg button{background:#fff;color:var(--ink)}
-.seg button.on{background:var(--gold);color:#4a3410}
+.seg button.on,#app[data-sky="light"] .seg button.on,#app[data-sky="dark"] .seg button.on{background:var(--gold);color:#4a3410;border-color:var(--line)}
 .theme-seg{display:flex;flex-direction:column;gap:8px;margin:10px 0 14px}
 .theme-opt{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;background:#fff;border:3px solid var(--line);
   border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;text-align:left;line-height:1.35}
@@ -1449,7 +1453,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
   </div>
   <div id="photoWall" class="pw-overlay" style="display:none" aria-hidden="true" onclick="if(event.target===this)closePhotoWall()">
     <div class="pw-panel" role="dialog" aria-labelledby="photoWallTitle">
-      <div class="pw-head"><b id="photoWallTitle">📷 浮島相簿</b><button type="button" class="pw-x" onclick="closePhotoWall()" aria-label="關閉">✕</button></div>
+      <div class="pw-head">
+        <div class="pw-head-title">
+          <img id="photoWallTitleIc" class="sheet-title-ic" src="" alt="" aria-hidden="true">
+          <b id="photoWallTitle">浮島相簿</b>
+        </div>
+        <button type="button" class="pw-x" onclick="closePhotoWall()" aria-label="關閉">✕</button>
+      </div>
       <div class="pw-body" id="photoWallBody"></div>
     </div>
   </div>
@@ -3614,14 +3624,12 @@ const TABS={home:renderHome,ledger:renderLedger,war:renderWar,shop:renderShop,st
 const TITLES={home:'浮島首頁',ledger:'誠實記帳',war:'股市小兵聖戰',shop:'像素商店',stats:'財務統計',settings:'設定'};
 function setSheetTitle(t){
   const ic=$('#sheetTitleIc'),title=$('#sheetTitle');
-  if(t==='settings'){
-    if(title)title.textContent='';
-    if(ic)ic.hidden=true;
-    return;
-  }
   if(title)title.textContent=TITLES[t]||'';
   if(ic){
-    if(NAV_ICON&&NAV_ICON[t]){ic.src=NAV_ICON[t];ic.hidden=false;}
+    let src='';
+    if(t==='settings')src=settingsIconSrc();
+    else if(NAV_ICON&&NAV_ICON[t])src=NAV_ICON[t];
+    if(src){ic.src=src;ic.hidden=false;}
     else ic.hidden=true;
   }
 }
@@ -3883,6 +3891,7 @@ function renderPhotoWallCard(t){
 let photoWallOpen=false;
 function openPhotoWall(){
   const ov=$('#photoWall'),body=$('#photoWallBody'); if(!ov||!body)return;
+  syncPhotoWallTitleIcon();
   const photos=S.tx.filter(t=>t.photo||t.photoData);
   if(!photos.length){
     body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
@@ -4516,12 +4525,17 @@ function processCameraIcon(img){
   octx.drawImage(src,minX,minY,cropW,cropH,ox,oy,dw,dh);
   return out.toDataURL('image/png');
 }
+function syncPhotoWallTitleIcon(){
+  const ic=$('#photoWallTitleIc');
+  if(!ic)return;
+  ic.src=cameraIconDataUrl||cameraIconSrc();
+}
 function loadCameraIcon(){
   if(cameraIconDataUrl)return;
   const img=new Image();
   img.onload=()=>{
     cameraIconDataUrl=processCameraIcon(img);
-    document.querySelectorAll('.tbox-title-ic,#albumFabIc').forEach(el=>{el.src=cameraIconDataUrl;});
+    document.querySelectorAll('.tbox-title-ic,#albumFabIc,#photoWallTitleIc').forEach(el=>{el.src=cameraIconDataUrl;});
   };
   img.onerror=()=>console.warn('相機圖示載入失敗');
   img.src=cameraIconSrc();
@@ -4616,8 +4630,14 @@ function renderTimeBoxModalFooter(){
       <button type="button" class="tbox-cam-btn tbox-cam-confirm" onclick="confirmTimeBoxPhoto()">[ 確認 ]</button>
     </div>`;
   }else{
-    foot.innerHTML=`<button type="button" class="tbox-shutter" onclick="captureTimeBoxPhoto()" aria-label="拍照"></button>`;
+    foot.innerHTML=`<div class="tbox-cam-controls">
+      <button type="button" class="tbox-shutter" onclick="captureTimeBoxPhoto()" aria-label="拍照"></button>
+      <button type="button" class="tbox-cam-flip" id="tboxCamFlip" onclick="flipTimeBoxCamera()" aria-label="翻轉鏡頭" title="翻轉鏡頭">${tboxFlipIconHtml()}</button>
+    </div>`;
   }
+}
+function tboxFlipIconHtml(){
+  return `<svg class="tbox-flip-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`;
 }
 function syncTimeBoxModalUI(){
   const modal=$('#timeBoxModal'),vp=$('#tboxCamViewport');
@@ -4669,16 +4689,28 @@ async function startTimeBoxCamera(){
   if(timeBoxInCaptureState())return;
   stopTimeBoxCamera();
   if(!navigator.mediaDevices?.getUserMedia){toast('此裝置不支援相機');closeTimeBoxModal(true);return;}
-  try{
-    const constraints={video:{facingMode:timeBoxFacing,width:{ideal:1280},height:{ideal:720}},audio:false};
-    timeBoxStream=await navigator.mediaDevices.getUserMedia(constraints);
-    const v=$('#tboxVideo');if(!v)return;
-    v.srcObject=timeBoxStream;
-    await v.play();
-  }catch(e){
-    toast('無法開啟相機');
-    closeTimeBoxModal(true);
+  const base={width:{ideal:1280},height:{ideal:720}};
+  const tries=[
+    {video:{...base,facingMode:{exact:timeBoxFacing}},audio:false},
+    {video:{...base,facingMode:timeBoxFacing},audio:false},
+    {video:base,audio:false}
+  ];
+  for(const constraints of tries){
+    try{
+      timeBoxStream=await navigator.mediaDevices.getUserMedia(constraints);
+      const v=$('#tboxVideo');if(!v)return;
+      v.srcObject=timeBoxStream;
+      await v.play();
+      return;
+    }catch(_){/* try next constraint set */}
   }
+  toast('無法開啟相機');
+  closeTimeBoxModal(true);
+}
+async function flipTimeBoxCamera(){
+  if(timeBoxInCaptureState()||photoCritOnCooldown())return;
+  timeBoxFacing=timeBoxFacing==='environment'?'user':'environment';
+  await startTimeBoxCamera();
 }
 function tboxDpr(){return Math.min(window.devicePixelRatio||1,3);}
 const PHOTO_EXPORT_MAX=800;
@@ -6247,7 +6279,6 @@ function renderSettings(){
     ?`<button type="button" class="settings-logout" onclick="logoutAccount()">${isGoogle?'登出目前帳戶':'結束訪客試玩'}</button>`:'';
   $('#sheetBody').innerHTML=`
     <div class="settings-page page-panel">
-      <h2 class="settings-page-title">設定</h2>
       <div class="settings-glass">
         ${accountBlock}
         <label class="fld">天空主題</label>
@@ -6841,6 +6872,7 @@ const _gearIc=$('#gearIc');if(_gearIc){const s=settingsIconSrc();if(s)_gearIc.sr
 const _hudShopIc=$('#hudShopIc');if(_hudShopIc&&typeof NAV_ICON!=='undefined'&&NAV_ICON.shop)_hudShopIc.src=NAV_ICON.shop;
 const _chatFabIc=$('#chatFabIc');if(_chatFabIc){const s=playChatIconSrc();if(s)_chatFabIc.src=s;}
 const _albumFabIc=$('#albumFabIc');if(_albumFabIc){const s=cameraIconDataUrl||cameraIconSrc();if(s)_albumFabIc.src=s;}
+syncPhotoWallTitleIcon();
 setSheetTitle(curTab);
 document.querySelectorAll('#pet,.scene-pet').forEach(p=>{p.onclick=e=>{e.stopPropagation();playWithPet();};});
 scheduleHomeObject(2500); // 開場 2.5 秒後在浮島放第一個互動物件
