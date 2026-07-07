@@ -3,7 +3,10 @@ const { bearerFromReq, verifyAppJwt } = require('../lib/auth');
 
 const router = express.Router();
 
-/** 預留 S3 / Cloudinary Presigned URL 端點（尚未設定雲端時回傳 deferred） */
+/**
+ * 相片持久化：Base64 字串存在 PostgreSQL users.game_state.tx[].photoData
+ * 此路由僅供未來 S3 選配；預設不寫入伺服器本地硬碟。
+ */
 router.post('/presign', (req, res) => {
   try {
     const token = bearerFromReq(req);
@@ -22,18 +25,17 @@ router.post('/presign', (req, res) => {
     if (!bucket) {
       return res.json({
         configured: false,
-        mode: 'deferred',
+        mode: 'database',
         id,
         mime,
         bytes,
-        message: '雲端物件儲存尚未設定，相片將以本機結構暫存待上傳。',
+        message: '相片以 Base64 存入 PostgreSQL game_state；未使用本地 uploads 目錄。',
       });
     }
 
     const storageKey = `ledger-photos/${id}`;
     const publicUrl = `https://${bucket}.s3.${region}.amazonaws.com/${storageKey}`;
 
-    // TODO: 接入 @aws-sdk/client-s3 getSignedUrl 產生真實 PUT presign
     return res.json({
       configured: true,
       mode: 'presigned',

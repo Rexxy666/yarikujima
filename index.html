@@ -1837,15 +1837,23 @@ function applyAuthUser(u,isNewUser){
     S.onboarded=false;
     if(u.klineHistory)S.market=u.klineHistory;
   }else{
-    const localAt=+(S._savedAt||0);
     const remote=u.gameState;
-    const remoteAt=+(remote?._savedAt||0);
-    if(remote && remoteAt>=localAt)importGameState(remote);
-    else if(remote && !localAt)importGameState(remote);
-    else if(remote?.onboarded && !S.onboarded)importGameState(remote);
+    if(remote){
+      const localAt=+(S._savedAt||0);
+      const remoteAt=+(remote._savedAt||0);
+      const localSnap={_savedAt:S._savedAt};
+      GAME_STATE_KEYS.forEach(k=>{if(S[k]!==undefined)localSnap[k]=S[k];});
+      const merged=remoteAt>=localAt
+        ?mergeGameStateForSync(remote,localSnap)
+        :mergeGameStateForSync(localSnap,remote);
+      importGameState(merged);
+    }
     S.pet.stage=S.pet.stage||2;
     if(S.pet.animal==null)S.pet.animal=zi;
     if(S.onboarded){
+      if(S.pet.named!==false)S.pet.named=true;
+    }else if(remote?.onboarded){
+      S.onboarded=true;
       if(S.pet.named!==false)S.pet.named=true;
     }else{
       S.pet.named=false;
@@ -1877,6 +1885,7 @@ function finishGoogleLogin(data){
   initMarketIfNeeded();
   save();
   if(typeof _bootGameCore==='function')_bootGameCore();
+  if(!data.user.isNewUser)void syncAuthStateNow();
   if(!S.onboarded||needsPetNaming())return;
   decay();
   S._lastDecay=Date.now();
@@ -2041,7 +2050,7 @@ function scheduleAuthSync(){
 }
 async function syncAuthState(){
   const token=localStorage.getItem(AUTH_LS);
-  if(!token)return;
+  if(!token)return false;
   try{
     await hydrateTxPhotosForCloudSync();
     const res=await fetch('/api/auth/sync',{
@@ -2056,8 +2065,13 @@ async function syncAuthState(){
         gameState:exportGameState()
       })
     });
-    if(!res.ok)console.warn('[auth] sync failed:',res.status);
-  }catch(e){console.warn('[auth] sync error:',e);}
+    if(!res.ok){console.warn('[auth] sync failed:',res.status);return false;}
+    return true;
+  }catch(e){console.warn('[auth] sync error:',e);return false;}
+}
+async function syncAuthStateNow(){
+  clearTimeout(_authSyncT);
+  return syncAuthState();
 }
 
 /** 依當前（或指定）心情值，從 pet-dialogues.js 取動物專屬台詞；無資料時回傳 null */
@@ -2199,6 +2213,42 @@ async function hydrateTxPhotosForCloudSync(){
       if(typeof data==='string'&&data.startsWith('data:'))t.photoData=data;
     }catch(e){console.warn('[photo] hydrate for sync failed:',e);}
   }
+}
+function isPersistablePhotoData(pd){
+  return typeof pd==='string'&&(pd.startsWith('data:')||pd.startsWith('http://')||pd.startsWith('https://'));
+}
+function mergeTxPhotoRowsForSync(existingTx,incomingTx){
+  if(!Array.isArray(incomingTx))return Array.isArray(existingTx)?existingTx:[];
+  if(!Array.isArray(existingTx))return incomingTx;
+  const prevById=new Map(existingTx.filter(t=>t&&t.id!=null).map(t=>[t.id,t]));
+  const seen=new Set();
+  const out=[];
+  incomingTx.forEach(t=>{
+    if(!t||t.id==null){out.push(t);return;}
+    seen.add(t.id);
+    const prev=prevById.get(t.id);
+    if(!prev){out.push(t);return;}
+    const merged={...prev,...t};
+    if(isPersistablePhotoData(t.photoData))merged.photoData=t.photoData;
+    else if(isPersistablePhotoData(prev.photoData))merged.photoData=prev.photoData;
+    else delete merged.photoData;
+    merged.photo=sanitizePhotoForCloudSync(merged.photo);
+    out.push(merged);
+  });
+  existingTx.forEach(t=>{
+    if(t&&t.id!=null&&!seen.has(t.id))out.push(t);
+  });
+  return out.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+}
+function mergeGameStateForSync(base,overlay){
+  if(!overlay||typeof overlay!=='object')return base;
+  if(!base||typeof base!=='object')return overlay;
+  const merged={...base,...overlay};
+  if(Array.isArray(base.tx)||Array.isArray(overlay.tx)){
+    merged.tx=mergeTxPhotoRowsForSync(base.tx,overlay.tx);
+  }
+  merged._savedAt=Math.max(+(base._savedAt||0),+(overlay._savedAt||0))||Date.now();
+  return merged;
 }
 function importGameState(g){
   if(!g||typeof g!=='object')return;
@@ -5060,6 +5110,9 @@ async function addTxAsync(amt){
   say(r.crit&&r.expGain>0?'相片暴擊！額外經驗與心情加成～':recordLine(r));
   toast(formatLedgerRewardToast(r,!!photoData));
   renderAll();hop();switchTab('ledger');
+  if(photoData&&localStorage.getItem(AUTH_LS)&&localStorage.getItem(GUEST_LS)!=='1'){
+    void syncAuthStateNow();
+  }
 }
 // 有動作（記帳/收入/超支）時的即時對應台詞
 function recordLine(r){

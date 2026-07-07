@@ -67,6 +67,16 @@ app.get('/api/config', (_req, res) => {
     googleClientId,
     authEnabled: !!googleClientId,
     enableBetaDebug: envStr('ENABLE_BETA_DEBUG', 'true').toLowerCase() !== 'false',
+    dbMode: envStr('DATABASE_URL') ? 'postgresql' : 'file',
+    jwtConfigured: !!(envStr('JWT_SECRET') || envStr('NEXTAUTH_SECRET')),
+  });
+});
+
+app.get('/api/health', (_req, res) => {
+  res.json({
+    ok: true,
+    dbMode: envStr('DATABASE_URL') ? 'postgresql' : 'file',
+    jwtConfigured: !!(envStr('JWT_SECRET') || envStr('NEXTAUTH_SECRET')),
   });
 });
 
