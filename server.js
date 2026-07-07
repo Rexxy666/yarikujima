@@ -82,6 +82,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/photos', require('./routes/photos'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Gemini 代理端點
 app.post('/api/chat', (req, res) => {

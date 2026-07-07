@@ -1251,6 +1251,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
   padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));
   background:linear-gradient(180deg,rgba(20,16,36,.72) 0%,rgba(36,26,48,.88) 100%)}
 .auth-gate.show{display:flex}
+.auth-boot-loading{position:absolute;inset:0;z-index:55;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(165deg,#1a2744 0%,#0f172a 55%,#162032 100%);color:#e2e8f0;gap:14px}
+.auth-boot-loading[hidden]{display:none!important}
+.auth-boot-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#fbbf24;border-radius:50%;animation:authSpin .75s linear infinite}
+@keyframes authSpin{to{transform:rotate(360deg)}}
+.auth-boot-loading p{margin:0;font-size:14px;opacity:.85}
 .auth-panel{max-width:380px;width:100%;text-align:center;padding:24px 20px 22px;
   background:#FDFBF7;border:4px solid #0f172a;border-radius:4px;
   box-shadow:8px 8px 0 #0f172a, inset 0 0 0 2px rgba(255,255,255,.65);
@@ -1434,6 +1440,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       <p id="authGateDev" class="auth-dev-hint" hidden></p>
       <div id="gsiHidden" aria-hidden="true"></div>
     </div>
+  </div>
+  <div id="authBootLoading" class="auth-boot-loading" hidden aria-live="polite">
+    <div class="auth-boot-spinner" aria-hidden="true"></div>
+    <p>載入雲端存檔中…</p>
   </div>
   <div class="overlay" id="onboard" style="display:none"></div>
   <div id="foodInv" class="food-inv-overlay" style="display:none" aria-hidden="true">
@@ -1756,6 +1766,7 @@ if(typeof window!=='undefined')window.ZodiacSpine=ZodiacSpine;
 
 /* ===== Google OAuth + JWT 登入 ===== */
 const AUTH_LS='gamefi_auth_jwt';
+const AUTH_OWNER_LS='gamefi_auth_google_id';
 const TAB_LS='yarikujima_active_tab';
 const TAB_IDS=['home','ledger','war','shop','stats','settings'];
 function loadSavedTab(){
@@ -1771,6 +1782,8 @@ function saveActiveTab(t){
 }
 const GUEST_LS='gamefi_guest_mode';
 const GUEST_ID_LS='gamefi_guest_session_id';
+const GUEST_NAME_LS='gamefi_guest_pet_name';
+const GUEST_ONBOARD_LS='gamefi_guest_onboarded';
 function createGuestOwnerKey(){
   return 'guest_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);
 }
@@ -1781,6 +1794,25 @@ function getGuestOwnerKey(){
 }
 function isGuestSessionActive(){
   return !!(S.guestMode||localStorage.getItem(GUEST_LS)==='1');
+}
+function clearGuestProfileFlags(){
+  localStorage.removeItem(GUEST_NAME_LS);
+  localStorage.removeItem(GUEST_ONBOARD_LS);
+}
+function persistGuestProfileFlags(){
+  if(!isGuestSessionActive())return;
+  if(S.onboarded)localStorage.setItem(GUEST_ONBOARD_LS,'1');
+  if(S.pet?.name)localStorage.setItem(GUEST_NAME_LS,S.pet.name);
+}
+function restoreGuestProfileFlags(state){
+  if(state.onboarded)return state;
+  if(localStorage.getItem(GUEST_ONBOARD_LS)!=='1')return state;
+  state.onboarded=true;
+  state.pet=state.pet||{};
+  state.pet.named=true;
+  const savedName=localStorage.getItem(GUEST_NAME_LS);
+  if(savedName)state.pet.name=savedName;
+  return state;
 }
 function purgeGuestStorage(guestOwnerKey){
   if(guestOwnerKey)localStorage.removeItem(lsKeyForOwner(guestOwnerKey));
@@ -1797,6 +1829,7 @@ function purgeAllGuestLocalData(){
   }catch(e){}
   localStorage.removeItem(GUEST_ID_LS);
   localStorage.removeItem(GUEST_LS);
+  clearGuestProfileFlags();
   localStorage.removeItem(LS);
   localStorage.removeItem(TAB_LS);
   try{sessionStorage.clear();}catch(e){}
@@ -1833,8 +1866,12 @@ function flushOwnerStateIfNeeded(nextOwnerKey){
 function bootLoadState(){
   if(localStorage.getItem(GUEST_LS)==='1'){
     const gid=localStorage.getItem(GUEST_ID_LS);
-    if(gid)return loadStateForOwner(gid);
+    if(gid)return restoreGuestProfileFlags(loadStateForOwner(gid));
     return fresh();
+  }
+  const googleId=localStorage.getItem(AUTH_OWNER_LS);
+  if(localStorage.getItem(AUTH_LS)&&googleId){
+    return loadStateForOwner(ownerKeyForGoogle(googleId));
   }
   if(localStorage.getItem(AUTH_LS))return fresh();
   try{
@@ -1864,6 +1901,14 @@ function showAuthGate(){
 function hideAuthGate(){
   const g=$('#authGate');if(g){g.classList.remove('show');g.setAttribute('aria-hidden','true');}
 }
+function showAuthBootLoading(){
+  const el=$('#authBootLoading');
+  if(el){el.hidden=false;el.removeAttribute('hidden');}
+}
+function hideAuthBootLoading(){
+  const el=$('#authBootLoading');
+  if(el){el.hidden=true;el.setAttribute('hidden','');}
+}
 
 function pickGuestZodiacKey(){
   const keys=ANIMALS.map(a=>a.k);
@@ -1873,13 +1918,14 @@ function pickGuestZodiacKey(){
 function initGuestGameState(forceNew,guestId){
   const id=guestId||getGuestOwnerKey();
   if(!forceNew&&id){
-    S=loadStateForOwner(id);
+    S=restoreGuestProfileFlags(loadStateForOwner(id));
     S.guestMode=true;
     S.auth=null;
     S._ownerKey=id;
     S.guestSessionId=id;
     if(S.pet?.stage>=2)PetRig.backend='spine';
     S.auth=null;
+    persistGuestProfileFlags();
     return;
   }
   const newId=guestId||createGuestOwnerKey();
@@ -1902,6 +1948,7 @@ function initGuestGameState(forceNew,guestId){
   localStorage.setItem(GUEST_ID_LS,newId);
   localStorage.setItem(GUEST_LS,'1');
   save();
+  persistGuestProfileFlags();
 }
 
 function onGuestLogin(){
@@ -1922,11 +1969,10 @@ function applyAuthUser(u,isNewUser){
   else flushOwnerStateIfNeeded(newOwner);
   localStorage.removeItem(GUEST_LS);
   localStorage.removeItem(GUEST_ID_LS);
+  localStorage.setItem(AUTH_OWNER_LS,String(u.googleId));
   const accountChanged=!!(prevOwner&&newOwner&&prevOwner!==newOwner);
 
-  if(accountChanged||isNewUser){
-    S=loadStateForOwner(newOwner);
-  }
+  S=loadStateForOwner(newOwner);
   S.guestMode=false;
   S.auth={email:u.email,name:u.name,picture:u.picture,googleId:u.googleId};
   S._ownerKey=newOwner;
@@ -1937,10 +1983,12 @@ function applyAuthUser(u,isNewUser){
     if(u.wallet)S.wallet={...S.wallet,...u.wallet};
     S.pet.stage=2;
     if(S.pet.animal==null)S.pet.animal=zi;
-    S.pet.name=S.pet.name||a.n;
-    S.pet.named=false;
-    S.onboarded=false;
-    S.tx=[];
+    if(!S.onboarded){
+      S.pet.name=S.pet.name||a.n;
+      S.pet.named=false;
+      S.onboarded=false;
+    }
+    S.tx=S.tx||[];
     if(u.klineHistory)S.market=u.klineHistory;
     if(u.gameState)importGameState(u.gameState);
   }else{
@@ -6599,6 +6647,7 @@ function logoutAccount(){
   if(isGoogle){
     flushOwnerStateIfNeeded(null);
     localStorage.removeItem(AUTH_LS);
+    localStorage.removeItem(AUTH_OWNER_LS);
     localStorage.removeItem(GUEST_LS);
     localStorage.removeItem(GUEST_ID_LS);
     try{sessionStorage.clear();}catch(e){}
@@ -6922,6 +6971,7 @@ function submitPetName(){
   S.pet.named=true;
   S.onboarded=true;
   save();
+  persistGuestProfileFlags();
   closeOverlay();
   S._lastDecay=Date.now();
   layoutSheet();
@@ -7193,9 +7243,15 @@ _bootGameCore=function bootGameCore(){
   scheduleChatter();
 };
 (async function bootGame(){
-  const authed=await initAuth();
-  if(!authed)return;
-  _bootGameCore();
+  const resuming=!!(localStorage.getItem(AUTH_LS)||localStorage.getItem(GUEST_LS)==='1');
+  if(resuming)showAuthBootLoading();
+  try{
+    const authed=await initAuth();
+    if(!authed)return;
+    _bootGameCore();
+  }finally{
+    hideAuthBootLoading();
+  }
 })();
 // 浮島碎念：寵物依當下狀態主動說話（用內建台詞，不呼叫 API、不花 token）
 function contextualLine(){
