@@ -1770,6 +1770,35 @@ function saveActiveTab(t){
   try{localStorage.setItem(TAB_LS,t);}catch(e){}
 }
 const GUEST_LS='gamefi_guest_mode';
+const GUEST_ID_LS='gamefi_guest_session_id';
+function createGuestOwnerKey(){
+  return 'guest_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);
+}
+function getGuestOwnerKey(){
+  if(S._ownerKey&&String(S._ownerKey).startsWith('guest'))return S._ownerKey;
+  const id=localStorage.getItem(GUEST_ID_LS);
+  return id||null;
+}
+function isGuestSessionActive(){
+  return !!(S.guestMode||localStorage.getItem(GUEST_LS)==='1');
+}
+function purgeGuestStorage(guestOwnerKey){
+  if(guestOwnerKey)localStorage.removeItem(lsKeyForOwner(guestOwnerKey));
+  localStorage.removeItem(lsKeyForOwner('guest'));
+}
+function purgeAllGuestLocalData(){
+  const guestId=getGuestOwnerKey()||localStorage.getItem(GUEST_ID_LS);
+  purgeGuestStorage(guestId);
+  try{
+    const prefix=lsKeyForOwner('guest');
+    Object.keys(localStorage).forEach(k=>{
+      if(k===prefix||k.startsWith(prefix+'_'))localStorage.removeItem(k);
+    });
+  }catch(e){}
+  localStorage.removeItem(GUEST_ID_LS);
+  localStorage.removeItem(GUEST_LS);
+  try{sessionStorage.clear();}catch(e){}
+}
 function ownerKeyForGoogle(googleId){
   return googleId?('g:'+String(googleId)):null;
 }
@@ -1778,7 +1807,7 @@ function lsKeyForOwner(ownerKey){
 }
 function currentOwnerKey(){
   if(S.auth?.googleId)return ownerKeyForGoogle(S.auth.googleId);
-  if(S.guestMode||localStorage.getItem(GUEST_LS)==='1')return 'guest';
+  if(isGuestSessionActive())return getGuestOwnerKey();
   return S._ownerKey||null;
 }
 function loadStateForOwner(ownerKey){
@@ -1800,7 +1829,11 @@ function flushOwnerStateIfNeeded(nextOwnerKey){
   if(cur&&cur!==nextOwnerKey)persistOwnerState(cur);
 }
 function bootLoadState(){
-  if(localStorage.getItem(GUEST_LS)==='1')return loadStateForOwner('guest');
+  if(localStorage.getItem(GUEST_LS)==='1'){
+    const gid=localStorage.getItem(GUEST_ID_LS);
+    if(gid)return loadStateForOwner(gid);
+    return fresh();
+  }
   try{
     const d=JSON.parse(localStorage.getItem(LS)||'null');
     if(d?.pet)return d;
@@ -1834,51 +1867,58 @@ function pickGuestZodiacKey(){
   return keys[Math.floor(Math.random()*keys.length)];
 }
 
-function initGuestGameState(forceNew){
-  flushOwnerStateIfNeeded('guest');
-  if(forceNew){
-    S=loadStateForOwner('guest');
-    const zk=pickGuestZodiacKey();
-    const zi=zodiacKeyToIndex(zk);
-    const a=ANIMALS[zi]||ANIMALS[0];
-    S=fresh();
-    S._ownerKey='guest';
-    S.guestMode=true;
-    S.wallet={coins:50000,gems:50};
-    S.pet.stage=2;S.pet.animal=zi;S.pet.name=a.n;S.pet.named=false;
-    S.onboarded=false;
-    S.tx=[];
-    PetRig.backend='spine';
-    PetRig.setZodiac(zi);
-    save();
-  }else{
-    S=loadStateForOwner('guest');
+function initGuestGameState(forceNew,guestId){
+  const id=guestId||getGuestOwnerKey();
+  if(!forceNew&&id){
+    S=loadStateForOwner(id);
     S.guestMode=true;
     S.auth=null;
-    S._ownerKey='guest';
+    S._ownerKey=id;
+    S.guestSessionId=id;
     if(S.pet?.stage>=2)PetRig.backend='spine';
+    S.auth=null;
+    return;
   }
+  const newId=guestId||createGuestOwnerKey();
+  flushOwnerStateIfNeeded(newId);
+  const zk=pickGuestZodiacKey();
+  const zi=zodiacKeyToIndex(zk);
+  const a=ANIMALS[zi]||ANIMALS[0];
+  S=fresh();
+  S._ownerKey=newId;
+  S.guestSessionId=newId;
+  S.guestMode=true;
+  S.wallet={coins:50000,gems:50};
+  S.pet.stage=2;S.pet.animal=zi;S.pet.name=a.n;S.pet.named=false;
+  S.onboarded=false;
+  S.quizScore={save:0,plan:0,spend:0,invest:0};
+  S.tx=[];
   S.auth=null;
+  PetRig.backend='spine';
+  PetRig.setZodiac(zi);
+  localStorage.setItem(GUEST_ID_LS,newId);
+  localStorage.setItem(GUEST_LS,'1');
+  save();
 }
 
 function onGuestLogin(){
-  localStorage.setItem(GUEST_LS,'1');
+  purgeAllGuestLocalData();
+  const guestId=createGuestOwnerKey();
   localStorage.removeItem(AUTH_LS);
-  initGuestGameState(false);
+  initGuestGameState(true,guestId);
   hideAuthGate();
   if(typeof _bootGameCore==='function')_bootGameCore();
-  if(!S.onboarded||needsPetNaming())return;
-  switchTab('home');
-  toast(`歡迎訪客！資料保存在本機`);
-  setTimeout(()=>say(`嗨 ${S.pet.name}！先在浮島上逛逛吧～`),500);
 }
 
 function applyAuthUser(u,isNewUser){
-  localStorage.removeItem(GUEST_LS);
   const newOwner=ownerKeyForGoogle(u.googleId);
   const prevOwner=currentOwnerKey();
+  const prevWasGuest=!!(prevOwner&&String(prevOwner).startsWith('guest'));
+  if(prevWasGuest)purgeAllGuestLocalData();
+  else flushOwnerStateIfNeeded(newOwner);
+  localStorage.removeItem(GUEST_LS);
+  localStorage.removeItem(GUEST_ID_LS);
   const accountChanged=!!(prevOwner&&newOwner&&prevOwner!==newOwner);
-  flushOwnerStateIfNeeded(newOwner);
 
   if(accountChanged||isNewUser){
     S=loadStateForOwner(newOwner);
@@ -2085,6 +2125,11 @@ async function initAuth(){
   _enableBetaDebug=cfg.enableBetaDebug!==false;
 
   if(localStorage.getItem(GUEST_LS)==='1'){
+    if(!localStorage.getItem(GUEST_ID_LS)){
+      purgeAllGuestLocalData();
+      showAuthGate();
+      return false;
+    }
     initGuestGameState(false);
     hideAuthGate();
     return true;
@@ -4053,9 +4098,10 @@ function renderPhotoWallCard(t){
 }
 let photoWallOpen=false;
 async function fetchOwnerPhotoTransactions(){
-  const isGuest=!!(S.guestMode||localStorage.getItem(GUEST_LS)==='1');
+  const isGuest=isGuestSessionActive();
   if(isGuest){
-    if(S._ownerKey!=='guest')return [];
+    const gid=getGuestOwnerKey();
+    if(!gid||S._ownerKey!==gid)return [];
     return(Array.isArray(S.tx)?S.tx:[]).filter(t=>t&&(t.photo||txPhotoDataSrc(t)));
   }
   if(!S.auth?.googleId)return [];
@@ -6546,9 +6592,14 @@ function logoutAccount(){
   const isGoogle=!!S.auth?.email;
   const msg=isGoogle?'確定登出目前 Google 帳戶？將返回登入畫面。':'確定結束訪客試玩？將返回登入畫面。';
   if(!confirm(msg))return;
-  flushOwnerStateIfNeeded(null);
-  localStorage.removeItem(AUTH_LS);
-  localStorage.removeItem(GUEST_LS);
+  if(isGoogle){
+    flushOwnerStateIfNeeded(null);
+    localStorage.removeItem(AUTH_LS);
+    localStorage.removeItem(GUEST_LS);
+    localStorage.removeItem(GUEST_ID_LS);
+  }else{
+    purgeAllGuestLocalData();
+  }
   if(window.google?.accounts?.id){
     try{google.accounts.id.disableAutoSelect();}catch(e){/* ignore */}
   }
@@ -6558,9 +6609,9 @@ function logoutAccount(){
 }
 function resetGame(){
   if(!confirm('確定清空所有資料並重新開始？'))return;
+  purgeAllGuestLocalData();
   localStorage.removeItem(LS);
   localStorage.removeItem(AUTH_LS);
-  localStorage.removeItem(GUEST_LS);
   S=fresh();
   if(curTab==='settings')switchTab('home');
   else closeOverlay();
