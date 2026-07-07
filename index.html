@@ -305,8 +305,9 @@ img.ic.gem{margin-right:5px}
 /* 狀態卡：可收合（預設圓點，點開展開）*/
 /* 寵物狀態 + 陪玩聊天（左上角堆疊） */
 #homeLeftChrome{
-  position:absolute;left:8px;top:calc(var(--hud-h) + 12px);z-index:5;
-  display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+  position:absolute;left:8px;top:calc(var(--hud-h) + 12px);z-index:10;
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+#homeLeftChrome .glass-fab,#homeLeftChrome #petStats{pointer-events:auto}
 #petStats{position:relative;left:auto;top:auto}
 .glass-fab{
   width:34px;height:34px;border-radius:50%;padding:0;cursor:pointer;line-height:1;
@@ -515,7 +516,7 @@ img.ic.gem{margin-right:5px}
   padding:4px 8px;font-family:var(--font);font-size:11px;font-weight:800;line-height:1;cursor:pointer;
   box-shadow:2px 2px 0 0 #000;-webkit-tap-highlight-color:transparent}
 .tbox-cam-close:active{transform:translate(2px,2px);box-shadow:none}
-.tbox-cam-viewport{position:relative;width:100%;aspect-ratio:4/3;background:#111;border-bottom:3px solid #000;overflow:hidden}
+.tbox-cam-viewport{position:relative;width:100%;aspect-ratio:4/3;background:#111;border-bottom:3px solid #000;overflow:hidden;cursor:pointer;touch-action:manipulation}
 .tbox-video,.tbox-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
   image-rendering:auto;-webkit-image-rendering:auto}
 .tbox-canvas{display:none;z-index:2}
@@ -3867,8 +3868,10 @@ function formatPhotoWallTime(ts){
   return `${h}:${String(m).padStart(2,'0')} ${ap}`;
 }
 function groupTxPhotosByDate(photos){
+  const list=Array.isArray(photos)?photos:[];
   const map=new Map();
-  photos.forEach(t=>{
+  list.forEach(t=>{
+    if(!t?.ts)return;
     const ds=txLocalDateStr(t.ts);
     if(!map.has(ds))map.set(ds,[]);
     map.get(ds).push(t);
@@ -3878,10 +3881,14 @@ function groupTxPhotosByDate(photos){
     .map(([ds,items])=>({ds,items:items.sort((a,b)=>new Date(b.ts)-new Date(a.ts))}));
 }
 function renderPhotoWallCard(t){
+  if(!t)return '';
   const src=txPhotoDataSrc(t);
-  if(!src)return '';
-  const c=(CATS[t.type].find(x=>x[1]===t.category)||['✨'])[0];
-  return `<figure class="pw-card" onclick="photoWallZoom(${t.id})">
+  if(typeof src!=='string'||!src)return '';
+  const type=t.type==='income'?'income':'expense';
+  const c=(CATS[type]?.find(x=>x[1]===t.category)||['✨'])[0];
+  const id=Number(t.id);
+  if(!Number.isFinite(id))return '';
+  return `<figure class="pw-card" onclick="photoWallZoom(${id})">
     <div class="pw-frame">
       <img src="${esc(src)}" alt="">
       <span class="pw-cat-badge" aria-hidden="true">${catIcon(t.category,c)}</span>
@@ -3891,20 +3898,28 @@ function renderPhotoWallCard(t){
 }
 let photoWallOpen=false;
 function openPhotoWall(){
-  const ov=$('#photoWall'),body=$('#photoWallBody'); if(!ov||!body)return;
-  syncPhotoWallTitleIcon();
-  const photos=S.tx.filter(t=>t.photo||t.photoData);
-  if(!photos.length){
-    body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
-  }else{
-    const groups=groupTxPhotosByDate(photos);
-    body.innerHTML=groups.map(g=>`<section class="pw-day-group">
-      <h3 class="pw-day-title">${esc(formatPhotoWallDateTitle(g.ds))}</h3>
-      <div class="pw-grid">${g.items.map(renderPhotoWallCard).join('')}</div>
-    </section>`).join('');
+  try{
+    const ov=$('#photoWall'),body=$('#photoWallBody');
+    if(!ov||!body)return;
+    syncPhotoWallTitleIcon();
+    const txList=Array.isArray(S.tx)?S.tx:[];
+    const photos=txList.filter(t=>t&&(t.photo||txPhotoDataSrc(t)));
+    if(!photos.length){
+      body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
+    }else{
+      const groups=groupTxPhotosByDate(photos);
+      body.innerHTML=groups.map(g=>`<section class="pw-day-group">
+        <h3 class="pw-day-title">${esc(formatPhotoWallDateTitle(g.ds))}</h3>
+        <div class="pw-grid">${(g.items||[]).map(renderPhotoWallCard).join('')}</div>
+      </section>`).join('')||'<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
+    }
+    ov.style.display='flex';
+    ov.setAttribute('aria-hidden','false');
+    photoWallOpen=true;
+  }catch(err){
+    console.error('[photoWall] open failed:',err);
+    toast('相簿暫時無法開啟，請稍後再試');
   }
-  ov.style.display='flex';ov.setAttribute('aria-hidden','false');
-  photoWallOpen=true;
 }
 function closePhotoWall(){
   const z=$('#pwZoom');if(z){z.remove();return;}
@@ -4314,10 +4329,11 @@ function clearGoal(id){
 }
 /* ===== 回憶相片牆 ===== */
 function photoWallZoom(id){
-  const t=S.tx.find(x=>x.id===id); if(!t||(!t.photo&&!t.photoData))return;
-  const ov=$('#photoWall'); if(!ov)return;
+  const t=(Array.isArray(S.tx)?S.tx:[]).find(x=>x.id===id);
+  if(!t)return;
   const src=txPhotoDataSrc(t);
-  if(!src)return;
+  if(typeof src!=='string'||!src)return;
+  const ov=$('#photoWall'); if(!ov)return;
   $('#pwZoom')?.remove();
   const z=document.createElement('div'); z.id='pwZoom'; z.className='pw-zoom';
   z.onclick=()=>z.remove();
@@ -4347,7 +4363,11 @@ function catIconCell(name,fallback){
 }
 function txPhotoDataSrc(item){
   if(!item)return null;
-  if(item.photoData!=null&&item.photoData!=='')return item.photoData;
+  const pd=item.photoData;
+  if(pd!=null&&pd!==''){
+    if(typeof pd==='string')return pd;
+    return null;
+  }
   return photoDisplaySrc(item.photo);
 }
 function txPhotoThumbHtml(photoData){
@@ -4640,9 +4660,35 @@ function renderTimeBoxModalFooter(){
 function tboxFlipIconHtml(){
   return `<svg class="tbox-flip-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`;
 }
+let timeBoxLastViewportTap=0;
+function bindTimeBoxViewportFlip(){
+  const vp=$('#tboxCamViewport');
+  if(!vp||vp.dataset.flipBound==='1')return;
+  vp.dataset.flipBound='1';
+  const onFlipTap=(e)=>{
+    if(timeBoxInCaptureState()||photoCritOnCooldown())return;
+    if(e.target.closest('.tbox-cam-close'))return;
+    const now=Date.now();
+    if(now-timeBoxLastViewportTap<320){
+      timeBoxLastViewportTap=0;
+      e.preventDefault();
+      e.stopPropagation();
+      void flipTimeBoxCamera();
+      return;
+    }
+    timeBoxLastViewportTap=now;
+  };
+  vp.addEventListener('click',onFlipTap);
+  vp.addEventListener('dblclick',(e)=>{
+    if(timeBoxInCaptureState()||photoCritOnCooldown())return;
+    e.preventDefault();
+    void flipTimeBoxCamera();
+  });
+}
 function syncTimeBoxModalUI(){
   const modal=$('#timeBoxModal'),vp=$('#tboxCamViewport');
   if(!modal||!timeBoxModalOpen)return;
+  bindTimeBoxViewportFlip();
   modal.style.display='flex';
   modal.setAttribute('aria-hidden','false');
   const captured=timeBoxInCaptureState();
@@ -6129,7 +6175,7 @@ function decay(){
 
 /* ===== 與寵物聊天（Gemini 動態守護靈）===== */
 const TONE={save:'穩重、療癒，像溫柔的守護者',plan:'條理分明、貼心，像可靠的小管家',spend:'活潑俏皮、偶爾撒嬌耍賴',invest:'熱血、像並肩作戰的戰友'};
-function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function esc(s){return String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function chatWithPet(){
   boostMood(10);
   if(isMoodComfortable())triggerPetAction(Math.random()<.5?'cheer':'wave');
