@@ -9,7 +9,9 @@
   "scripts": {
     "start": "node server.js",
     "build": "node scripts/verify-build.js",
-    "migrate:json-to-pg": "node scripts/migrate-json-to-pg.js"
+    "migrate:json-to-pg": "node scripts/migrate-json-to-pg.js",
+    "reset:photos": "node scripts/reset-all-transaction-photos.js",
+    "reset:photos:dry-run": "node scripts/reset-all-transaction-photos.js --dry-run"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
