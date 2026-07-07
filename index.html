@@ -1790,13 +1790,15 @@ function purgeAllGuestLocalData(){
   const guestId=getGuestOwnerKey()||localStorage.getItem(GUEST_ID_LS);
   purgeGuestStorage(guestId);
   try{
-    const prefix=lsKeyForOwner('guest');
+    const ownerPrefix=LS+'::guest';
     Object.keys(localStorage).forEach(k=>{
-      if(k===prefix||k.startsWith(prefix+'_'))localStorage.removeItem(k);
+      if(k===ownerPrefix||k.startsWith(ownerPrefix+'_'))localStorage.removeItem(k);
     });
   }catch(e){}
   localStorage.removeItem(GUEST_ID_LS);
   localStorage.removeItem(GUEST_LS);
+  localStorage.removeItem(LS);
+  localStorage.removeItem(TAB_LS);
   try{sessionStorage.clear();}catch(e){}
 }
 function ownerKeyForGoogle(googleId){
@@ -1834,6 +1836,7 @@ function bootLoadState(){
     if(gid)return loadStateForOwner(gid);
     return fresh();
   }
+  if(localStorage.getItem(AUTH_LS))return fresh();
   try{
     const d=JSON.parse(localStorage.getItem(LS)||'null');
     if(d?.pet)return d;
@@ -1907,6 +1910,7 @@ function onGuestLogin(){
   localStorage.removeItem(AUTH_LS);
   initGuestGameState(true,guestId);
   hideAuthGate();
+  _gameBooted=false;
   if(typeof _bootGameCore==='function')_bootGameCore();
 }
 
@@ -6597,12 +6601,14 @@ function logoutAccount(){
     localStorage.removeItem(AUTH_LS);
     localStorage.removeItem(GUEST_LS);
     localStorage.removeItem(GUEST_ID_LS);
+    try{sessionStorage.clear();}catch(e){}
   }else{
     purgeAllGuestLocalData();
   }
   if(window.google?.accounts?.id){
     try{google.accounts.id.disableAutoSelect();}catch(e){/* ignore */}
   }
+  S=fresh();
   S.auth=null;
   S.guestMode=false;
   location.reload();
