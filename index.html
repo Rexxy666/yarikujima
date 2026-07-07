@@ -261,6 +261,13 @@ img.ic.gem{margin-right:5px}
   image-rendering:pixelated;display:block;pointer-events:none;
   filter:brightness(0) invert(1)}
 #chatFab.show{display:grid}
+#albumFab{
+  position:relative;top:auto;right:auto;left:auto;flex:none;
+  display:none;margin:0;border:none;overflow:hidden}
+#albumFab img{width:20px;height:20px;object-fit:contain;object-position:center;
+  image-rendering:pixelated;display:block;pointer-events:none;
+  filter:brightness(0) invert(1)}
+#albumFab.show{display:grid}
 #foodInvFab.show{display:grid}
 @keyframes bob{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 8px))}}
 @keyframes shiver{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-53%,-100%)}}
@@ -366,11 +373,304 @@ img.ic.gem{margin-right:5px}
 #sheetHead b{color:#2B2233}
 #app[data-sky="dark"] #sheetHead b{color:rgba(255,255,255,.95)}
 .page-panel{display:flex;flex-direction:column;gap:0;max-width:100%}
-.ledger-page .seg{margin-bottom:8px}
 .ledger-page .fld{margin-top:16px;margin-bottom:6px}
-.ledger-page #amt{font-size:24px;padding:14px 12px}
-.ledger-page .chips{gap:8px;margin-top:6px}
-.ledger-page .chip{padding:9px 12px;font-size:13px}
+.ledger-page #amt{font-size:24px;padding:14px 12px;cursor:pointer;caret-color:transparent;user-select:none;
+  transition:transform .15s ease,box-shadow .15s ease;width:100%;box-sizing:border-box}
+.ledger-page #amt.open{outline:2px solid var(--coin);outline-offset:1px;animation:amtBreath 1.3s ease-in-out infinite}
+@keyframes amtBreath{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,.5);transform:scale(1)}
+  50%{box-shadow:0 0 0 5px rgba(245,166,35,.14);transform:scale(1.02)}}
+/* 記帳頂部：單一 grid，四顆按鈕 + 金額欄位共用欄寬 */
+.ledger-stack{width:100%;box-sizing:border-box;position:relative;z-index:4;margin-bottom:4px}
+.ledger-unified-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  column-gap:8px;row-gap:8px;width:100%;box-sizing:border-box}
+.ledger-unified-grid>.ledger-tab-btn:nth-of-type(1){grid-column:1;grid-row:1}
+.ledger-unified-grid>.ledger-tab-btn:nth-of-type(2){grid-column:2;grid-row:1}
+.ledger-unified-grid>.ledger-tab-btn:nth-of-type(3){grid-column:1;grid-row:2}
+.ledger-unified-grid>.ledger-tab-btn:nth-of-type(4){grid-column:2;grid-row:2}
+.ledger-unified-grid>.ledger-amt-block{grid-column:1/-1}
+.ledger-tab-btn{width:100%;min-width:0;box-sizing:border-box;padding:10px 8px;font-family:var(--font);font-size:13px;font-weight:800;
+  text-align:center;border:3px solid transparent;border-radius:8px;cursor:pointer;margin:0;
+  background:rgba(0,0,0,.3);color:#fff;-webkit-tap-highlight-color:transparent;
+  box-shadow:none;transition:background .15s,color .15s,border-color .15s,transform .08s,box-shadow .08s}
+#app[data-sky="light"] .ledger-tab-btn{background:rgba(0,0,0,.08);color:var(--ink);border-color:rgba(0,0,0,.12)}
+/* 第一層：快速記帳 / 圓夢浮島 */
+.ledger-tab-btn.ledger-sub-tab.on,
+#app[data-sky="dark"] .ledger-tab-btn.ledger-sub-tab.on,
+#app[data-sky="light"] .ledger-tab-btn.ledger-sub-tab.on{
+  background:#FFD43F;color:#000;border-color:#000;transform:translateY(2px);box-shadow:2px 2px 0 0 #000}
+/* 第二層：支出 / 收入 — 選中統一像素白，未選維持深灰半透明 */
+.ledger-tab-btn.ledger-type-tab.on,
+#app[data-sky="dark"] .ledger-tab-btn.ledger-type-tab.on,
+#app[data-sky="light"] .ledger-tab-btn.ledger-type-tab.on{
+  background:#fff;color:#000;border-color:#000;box-shadow:2px 2px 0 0 #000}
+.ledger-tab-btn.ledger-sub-tab.on:active{transform:translate(2px,4px);box-shadow:none!important}
+.ledger-tab-btn.on:active,
+.ledger-tab-btn:active{transform:translate(2px,2px);box-shadow:none!important}
+.ledger-amt-block{width:100%;box-sizing:border-box}
+.ledger-amt-block .fld{margin-top:0;margin-bottom:6px}
+.ledger-amt-block #amt{border:3px solid var(--line);border-radius:8px}
+.cloud{z-index:0}
+
+/* 自訂 Numpad 觸發欄位（記帳金額、圓夢目標等） */
+.numpad-field{cursor:pointer;caret-color:transparent;user-select:none;color:#1a1a1a;font-weight:800}
+.numpad-field.open{outline:2px solid var(--coin);outline-offset:1px}
+.ledger-page #goalAmt,.ledger-page #goalDays{font-size:20px;padding:12px}
+.ledger-page #goalAmt.open,.ledger-page #goalDays.open{animation:amtBreath 1.3s ease-in-out infinite}
+/* 圓夢浮島 */
+.dream-empty .dream-hero{font-size:44px;text-align:center;margin-top:4px}
+.dream-top{display:flex;gap:12px;align-items:center;background:linear-gradient(180deg,#eaf4ff,#dff0e6);
+  border:3px solid var(--line);border-radius:14px;padding:12px;margin-top:4px}
+.dream-building{width:96px;height:116px;flex:none;image-rendering:pixelated;filter:drop-shadow(0 3px 4px rgba(0,0,0,.18))}
+/* 像素液體流動存錢豬 */
+.liquid-piggy{position:relative;width:96px;height:116px;flex:none;display:flex;align-items:center;justify-content:center}
+.lp-clip{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:90px;height:90px;overflow:hidden;
+  -webkit-mask-image:var(--piggy-mask);mask-image:var(--piggy-mask);
+  -webkit-mask-size:contain;mask-size:contain;-webkit-mask-position:center;mask-position:center;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.lp-fluid{position:absolute;left:0;right:0;bottom:0;height:0;
+  background:linear-gradient(180deg,#ffe066,#ffc400 55%,#f5a300);transition:height .55s cubic-bezier(.4,0,.2,1)}
+.lp-wave{position:absolute;top:-5px;left:-50%;width:200%;height:9px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='9'%3E%3Cpath d='M0 5 Q16 0 32 5 T64 5 V9 H0 Z' fill='%23ffe066'/%3E%3C/svg%3E");
+  background-size:64px 9px;background-repeat:repeat-x;animation:lpWave 1.1s linear infinite}
+@keyframes lpWave{from{transform:translateX(0)}to{transform:translateX(64px)}}
+.lp-bub{position:absolute;width:5px;height:5px;background:rgba(255,255,255,.85);border-radius:1px;bottom:6px;
+  opacity:0;animation:lpBub 2.8s ease-in infinite;image-rendering:pixelated}
+.lp-bub.b1{left:32%;animation-delay:.2s}
+.lp-bub.b2{left:57%;width:4px;height:4px;animation-delay:1.1s}
+.lp-bub.b3{left:45%;width:6px;height:6px;animation-delay:2s}
+@keyframes lpBub{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}80%{opacity:.45}100%{opacity:0;transform:translateY(-42px)}}
+.lp-shell{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:90px;height:90px;z-index:2;
+  background-image:var(--piggy-shell);background-size:contain;background-position:center;background-repeat:no-repeat;image-rendering:pixelated}
+.liquid-piggy.done{animation:lpFloat 1.6s ease-in-out infinite}
+.liquid-piggy.done .lp-shell{filter:drop-shadow(0 0 5px #ffd700) drop-shadow(0 0 9px rgba(255,215,0,.6))}
+@keyframes lpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.dream-meta{flex:1;min-width:0}
+.dream-name{font-weight:900;font-size:15px;color:#2c2c3a;line-height:1.2}
+.dream-pct{font-weight:900;font-size:34px;color:#2f8f4d;line-height:1;margin-top:2px}
+.dream-pct span{font-size:16px}
+.dream-sub{font-size:12px;color:#5a5a6a;margin-top:3px}
+.dream-safe{display:flex;gap:8px;margin-top:10px}
+.safe-cell{flex:1;background:#fffdf7;border:2px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center}
+.safe-k{font-size:10.5px;color:#8a7a6a;font-weight:700}
+.safe-v{font-size:15px;font-weight:900;color:#2c2c2c;margin-top:2px}
+.dream-tip{margin-top:10px;background:#fff6df;border:2px dashed var(--coin);border-radius:10px;padding:9px 10px;
+  font-size:12px;font-weight:700;color:#6a5326;line-height:1.55}
+.dream-tip.warn{background:#ffe6e0;border-color:#e05a5a;color:#a3402e}
+/* 分類像素圖標（expenseicon.png sprite 4×3）*/
+.cat-ic{display:inline-block;width:22px;height:22px;vertical-align:middle;flex:none;
+  background-image:var(--cat-sheet);background-size:400% 300%;background-repeat:no-repeat;image-rendering:pixelated}
+.cat-ic-em{display:inline-block;vertical-align:middle;line-height:1}
+.chip.cat-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;line-height:1.2;vertical-align:middle}
+.chip.cat-chip .cat-ic{
+  flex-shrink:0;display:block;width:20px;height:20px;margin:0;vertical-align:unset;
+  background-size:400% 300%;background-repeat:no-repeat}
+.chip.cat-chip .cat-ic.cat-ic--other{transform:translateY(2px)}
+.chip.cat-chip .cat-ic-em{
+  flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;font-size:14px;line-height:1}
+.chip.cat-chip>span{display:inline-flex;align-items:center;line-height:1.2;letter-spacing:.02em}
+.tx-ic .cat-ic{width:26px;height:26px}
+.barrow .lab .cat-ic{width:18px;height:18px}
+/* 浮島生活剪影（列 + 懸浮相機視窗） */
+.tbox{position:relative;width:100%;border:3px solid var(--line);border-radius:10px;
+  background:rgba(0,0,0,.28);overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.ledger-page .tbox{margin-top:16px;margin-bottom:24px}
+#app[data-sky="light"] .tbox{background:rgba(255,255,255,.55);box-shadow:0 3px 0 #d8c9b0}
+.tbox-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;min-height:52px;box-sizing:border-box}
+.tbox-title-wrap{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.tbox-title-ic-wrap{display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:32px;height:32px;overflow:hidden;line-height:0}
+.tbox-title-ic{display:block;width:32px;height:32px;object-fit:contain;
+  image-rendering:pixelated;image-rendering:crisp-edges;-webkit-image-rendering:pixelated}
+.tbox-title-text{min-width:0;font-size:13px;font-weight:900;color:#fff;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app[data-sky="light"] .tbox-title-text{color:var(--ink)}
+.tbox-open-btn{flex:none;display:flex;align-items:center;justify-content:center;
+  min-height:32px;min-width:88px;border:2px solid #000;background:#fff;color:#000;border-radius:6px;
+  padding:6px 12px;font-family:var(--font);font-size:11px;font-weight:800;line-height:1;cursor:pointer;white-space:nowrap;
+  box-shadow:2px 2px 0 0 #000;-webkit-tap-highlight-color:transparent;transition:transform .08s}
+.tbox-open-btn:active{transform:translate(2px,2px);box-shadow:none}
+.tbox-right-ctrls{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0;margin-left:auto}
+.tbox-action-slot{flex:none;display:flex;align-items:center;justify-content:flex-end}
+.tbox-cooldown-badge{display:flex;align-items:center;justify-content:center;flex:none;
+  min-height:32px;min-width:88px;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;
+  border-radius:6px;padding:6px 12px;font-family:var(--font);font-size:11px;font-weight:800;line-height:1;white-space:nowrap;
+  box-sizing:border-box}
+.tbox-dev-reset-btn{display:inline-flex;align-items:center;flex-shrink:0;
+  border:1px solid #ff4d4d;background:rgba(255,77,77,.14);color:#ff4d4d;border-radius:4px;
+  padding:4px 6px;font-family:var(--font);font-size:9px;font-weight:900;line-height:1;cursor:pointer;white-space:nowrap;
+  box-shadow:1px 1px 0 0 #ff4d4d;-webkit-tap-highlight-color:transparent}
+.tbox-dev-reset-btn:active{transform:translate(1px,1px);box-shadow:none}
+.tbox.is-cooldown .tbox-right-ctrls{justify-content:flex-end}
+.tbox-cam-overlay{position:absolute;inset:0;z-index:34;background:rgba(0,0,0,.6);display:none;
+  align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+.tbox-cam-panel{width:min(360px,94vw);display:flex;flex-direction:column;background:#fff8ec;
+  border:3px solid #000;border-radius:12px;overflow:hidden;box-shadow:0 8px 0 rgba(0,0,0,.35)}
+.tbox-cam-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 12px;border-bottom:3px solid #000;background:#ffd43f}
+.tbox-cam-title{font-size:13px;font-weight:900;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbox-cam-close{flex:none;border:2px solid #000;background:#fff;color:#000;border-radius:6px;
+  padding:4px 8px;font-family:var(--font);font-size:11px;font-weight:800;line-height:1;cursor:pointer;
+  box-shadow:2px 2px 0 0 #000;-webkit-tap-highlight-color:transparent}
+.tbox-cam-close:active{transform:translate(2px,2px);box-shadow:none}
+.tbox-cam-viewport{position:relative;width:100%;aspect-ratio:4/3;background:#111;border-bottom:3px solid #000;overflow:hidden}
+.tbox-video,.tbox-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+  image-rendering:auto;-webkit-image-rendering:auto}
+.tbox-canvas{display:none;z-index:2}
+.tbox-cam-viewport.has-capture .tbox-video{display:none}
+.tbox-cam-viewport.has-capture .tbox-canvas{display:block}
+.tbox-corner{position:absolute;width:18px;height:18px;border:3px solid rgba(255,255,255,.92);z-index:3;pointer-events:none}
+.tbox-corner.tl{top:8px;left:8px;border-right:none;border-bottom:none}
+.tbox-corner.tr{top:8px;right:8px;border-left:none;border-bottom:none}
+.tbox-corner.bl{bottom:8px;left:8px;border-right:none;border-top:none}
+.tbox-corner.br{bottom:8px;right:8px;border-left:none;border-top:none}
+.tbox-cam-footer{display:flex;align-items:center;justify-content:center;padding:14px 16px 16px;min-height:82px;box-sizing:border-box}
+.tbox-shutter{width:54px;height:54px;border-radius:50%;border:4px solid #000;background:#FFD43F;
+  cursor:pointer;box-shadow:0 3px 0 #b87d12;-webkit-tap-highlight-color:transparent;transition:transform .08s}
+.tbox-shutter:active{transform:translateY(2px);box-shadow:none}
+.tbox-cam-actions{display:flex;align-items:center;justify-content:center;gap:12px;width:100%}
+.tbox-cam-btn{flex:1;max-width:140px;min-height:40px;border:2px solid #000;border-radius:8px;
+  font-family:var(--font);font-size:12px;font-weight:900;line-height:1;cursor:pointer;
+  box-shadow:2px 2px 0 0 #000;-webkit-tap-highlight-color:transparent}
+.tbox-cam-btn:active{transform:translate(2px,2px);box-shadow:none}
+.tbox-cam-retake{background:#fff;color:#000}
+.tbox-cam-confirm{background:#FFD43F;color:#000}
+/* 回憶相片牆 */
+.pw-overlay{position:absolute;inset:0;z-index:33;background:rgba(0,0,0,.55);display:none;
+  align-items:center;justify-content:center;padding:14px;box-sizing:border-box;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.pw-panel{width:min(400px,94vw);max-height:min(88vh,640px);display:flex;flex-direction:column;background:#fffdf7;
+  border:3px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 5px 0 var(--line),0 10px 28px rgba(30,20,55,.28)}
+.pw-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;
+  border-bottom:2px solid var(--line);flex:none;background:#fff8ec}
+.pw-head b{font-size:14px;font-weight:900;color:#2c2c3a}
+.pw-x{background:#fff;border:2px solid var(--line);border-radius:8px;width:28px;height:28px;
+  font-size:14px;cursor:pointer;flex:none;line-height:1;padding:0;color:#3a2c2c}
+.pw-body{flex:1;min-height:0;overflow-y:auto;padding:12px 12px 14px;-webkit-overflow-scrolling:touch}
+.pw-day-group{margin-bottom:18px}
+.pw-day-group:last-child{margin-bottom:0}
+.pw-day-title{font-size:13px;font-weight:900;color:#3a2c2c;margin:0 0 8px;padding:0 2px;line-height:1.3}
+.pw-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pw-card{margin:0;cursor:pointer;background:#fff;border:2px solid var(--line);border-radius:4px;
+  padding:4px 4px 5px;box-shadow:0 2px 0 #d8c9b0;transition:transform .12s;-webkit-tap-highlight-color:transparent}
+.pw-card:active{transform:scale(.96)}
+.pw-frame{position:relative;width:100%;aspect-ratio:1;border:2px solid #2c2c2c;overflow:hidden;
+  background:#111;border-radius:2px;box-shadow:inset 0 0 0 2px #fff}
+.pw-frame img{width:100%;height:100%;object-fit:cover;image-rendering:auto;-webkit-image-rendering:auto;display:block}
+.pw-cat-badge{position:absolute;top:4px;right:4px;z-index:1;display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:6px;background:rgba(0,0,0,.4);border:1.5px solid var(--line);
+  box-shadow:0 1px 0 rgba(0,0,0,.22);pointer-events:none;line-height:0}
+.pw-cat-badge .cat-ic{width:12px;height:12px;background-size:400% 300%}
+.pw-cat-badge .cat-ic-em{font-size:11px;line-height:1}
+.pw-time{margin:4px 0 0;padding:0 1px;font-size:10px;line-height:1.2;font-weight:700;color:#8a7a6a;
+  letter-spacing:.02em;text-align:left;white-space:nowrap}
+.pw-card figcaption.pw-time{margin-block:4px 0;margin-inline:0}
+.pw-zoom{position:absolute;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:24px;z-index:2}
+.pw-zoom-inner{max-width:100%;text-align:center}
+.pw-zoom-inner img{max-width:100%;max-height:64vh;border:4px solid #fff;image-rendering:auto;-webkit-image-rendering:auto;border-radius:4px}
+.pw-zoom-cap{color:#fff;font-size:12px;font-weight:700;margin-top:10px}
+@media (max-width:340px){.pw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.dream-scroll-list{display:flex;flex-direction:column;gap:12px;margin-top:4px;padding-bottom:10px}
+.dream-card .dream-wrap{margin-top:0}
+.dream-add-goal-btn{width:100%;margin-top:4px;margin-bottom:4px;flex:none}
+.dream-piggy-debug{
+  margin-top:10px;padding:10px 11px;background:rgba(0,0,0,.45);
+  border:2px dashed rgba(245,166,35,.55);border-radius:10px}
+.dream-piggy-debug-head{display:flex;justify-content:space-between;gap:8px;
+  font-size:11px;font-weight:800;color:#fbbf24;margin-bottom:6px}
+.dream-piggy-debug-val{font-weight:900;color:#fde68a}
+.dream-piggy-debug-range{width:100%;height:8px;cursor:pointer;accent-color:#fbbf24;
+  -webkit-appearance:none;appearance:none;background:#374151;border-radius:6px}
+.dream-history-btn{
+  display:block;width:100%;margin-top:14px;padding:11px 14px;box-sizing:border-box;
+  font-family:var(--font);font-size:12px;font-weight:800;text-align:center;color:#3a3548;
+  background:#fffdf7;border:3px solid var(--line);border-radius:10px;box-shadow:0 3px 0 #d8c9b0;
+  cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dream-history-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #d8c9b0}
+.ledger-page .dream-history-btn{margin-top:12px;margin-bottom:0}
+.ledger-page .btn.mt+.dream-history-btn{margin-top:12px}
+.ledger-page .dream-history-btn+.ledger-debug-btn{margin-top:12px}
+.history-modal-overlay{position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;padding:16px;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.history-modal-panel{width:min(360px,92vw);max-height:min(72vh,520px);background:#fffdf7;
+  border:3px solid var(--line);border-radius:14px;display:flex;flex-direction:column;
+  box-shadow:0 5px 0 var(--line),0 10px 28px rgba(30,20,55,.25)}
+.history-modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 12px;border-bottom:2px solid var(--line);flex:none}
+.history-modal-head h2{margin:0;font-size:14px;font-weight:900;color:#2c2c3a}
+.history-modal-x{background:#fff;border:2px solid var(--line);border-radius:8px;width:28px;height:28px;
+  font-size:14px;cursor:pointer;flex:none;line-height:1;padding:0}
+.history-modal-tabs{display:flex;gap:5px;padding:8px 10px;border-bottom:2px solid var(--line);flex:none;background:#fff8ec}
+.history-tab{
+  flex:1;padding:7px 4px;border:2px solid var(--line);border-radius:8px;
+  background:rgba(255,255,255,.72);font-size:11px;font-weight:800;color:#5a4a6a;
+  cursor:pointer;line-height:1.2;-webkit-tap-highlight-color:transparent}
+.history-tab.on{background:var(--gold);color:#4a3410;border-color:var(--line);box-shadow:0 2px 0 #d8c9b0}
+.history-modal-body{flex:1;min-height:0;overflow-y:auto;padding:8px 12px 8px 10px;-webkit-overflow-scrolling:touch;color:#1a1a1a}
+#historyModal .history-modal-body .tx-main .t,
+#app[data-sky="dark"] #historyModal .history-modal-body .tx-main .t{color:#1a1a1a}
+#historyModal .history-modal-body .tx-main .s,
+#app[data-sky="dark"] #historyModal .history-modal-body .tx-main .s{color:#666}
+#historyModal .history-modal-body .hint,
+#app[data-sky="dark"] #historyModal .history-modal-body .hint{color:#8a7a6a}
+#historyModal .history-modal-body .mini,
+#app[data-sky="dark"] #historyModal .history-modal-body .mini{color:#8a7a6a}
+#historyModal .history-modal-body .tx-amt.amt-exp{color:#c43c3c}
+#historyModal .history-modal-body .tx-amt.amt-inc{color:#2d8a45}
+#historyModal .history-modal-body .tx-item{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;
+  align-items:center;width:100%;padding:9px 0;border-bottom:2px dashed #e6dcc8;box-sizing:border-box}
+#historyModal .history-modal-body .tx-item:last-child{border-bottom:none}
+#historyModal .history-modal-body .tx-left{grid-column:1;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+#historyModal .history-modal-body .tx-ic{flex-shrink:0}
+#historyModal .history-modal-body .tx-main{flex:1;min-width:0;overflow:hidden}
+#historyModal .history-modal-body .tx-main .t{display:block;min-width:0;font-weight:800;font-size:13.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#historyModal .history-modal-body .tx-main .s{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#historyModal .history-modal-body .tx-note-text{display:inline}
+#historyModal .history-modal-body .tx-main--expand{cursor:pointer;-webkit-tap-highlight-color:transparent}
+#historyModal .history-modal-body .tx-main--expand:active .t{opacity:.75}
+#historyModal .history-modal-body .tx-right-rail{
+  grid-column:2;display:flex;align-items:center;gap:8px;flex-shrink:0;
+  width:150px;min-width:150px;max-width:150px;padding-right:2px;box-sizing:border-box}
+#historyModal .history-modal-body .tx-photo-cell{
+  display:flex;align-items:center;justify-content:center;flex:none;flex-shrink:0;
+  width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px}
+#historyModal .history-modal-body .tx-amt-cell{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;overflow:hidden}
+#historyModal .history-modal-body .tx-photo-thumb-wrap{flex:none;flex-shrink:0;width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px}
+#historyModal .history-modal-body .tx-photo-thumb{display:block;flex:none;flex-shrink:0;width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px;
+  object-fit:cover;border-radius:3px;image-rendering:pixelated;image-rendering:crisp-edges;-webkit-image-rendering:pixelated}
+#historyModal .history-modal-body .tx-amt{
+  display:block;min-width:0;max-width:100%;font-weight:900;font-size:14px;line-height:1.1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+#historyModal .history-modal-body .tx-amt.tx-amt--md{font-size:12px}
+#historyModal .history-modal-body .tx-amt.tx-amt--lg{font-size:11px;letter-spacing:-.02em}
+#historyModal .history-modal-body .tx-amt.tx-amt--xl{font-size:10px;letter-spacing:-.02em}
+#historyModal .history-modal-body .tx-amt.tx-amt--xxl{font-size:9px;letter-spacing:-.03em}
+.tx-note-overlay{position:absolute;inset:0;z-index:35;background:rgba(0,0,0,.55);display:none;
+  align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
+.tx-note-panel{width:min(300px,88vw);background:#fffdf7;border:3px solid var(--line);border-radius:12px;
+  box-shadow:0 5px 0 var(--line),0 8px 24px rgba(30,20,55,.28);overflow:hidden}
+.tx-note-head{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 12px;border-bottom:2px solid var(--line);background:#fff8ec}
+.tx-note-head b{font-size:13px;font-weight:900;color:#2c2c3a}
+.tx-note-x{background:#fff;border:2px solid var(--line);border-radius:8px;width:28px;height:28px;
+  font-size:14px;cursor:pointer;flex:none;line-height:1;padding:0}
+.tx-note-body{padding:14px 12px;font-size:13px;font-weight:700;line-height:1.55;color:#1a1a1a;
+  word-break:break-word;max-height:min(40vh,220px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tx-note-ok{display:block;width:calc(100% - 24px);margin:0 12px 12px;padding:10px 12px;box-sizing:border-box;
+  font-family:var(--font);font-size:12px;font-weight:900;color:#4a3410;background:var(--gold);
+  border:2px solid var(--line);border-radius:8px;box-shadow:0 2px 0 #d8c9b0;cursor:pointer}
+.tx-note-ok:active{transform:translateY(1px);box-shadow:0 1px 0 #d8c9b0}
+.ledger-page .cat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:6px;width:100%}
+.ledger-page .cat-grid.cat-grid--income{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ledger-page .cat-grid .chip.cat-chip{display:flex;width:100%;min-width:0;box-sizing:border-box;
+  align-items:center;justify-content:center;padding:9px 6px;font-size:12px;gap:6px;border-radius:10px;line-height:1.2}
+.ledger-page #note{margin-bottom:0}
+.ledger-page .btn.mt.ledger-submit-btn{margin-top:0;height:50px;font-size:15px}
 .ledger-page .card.mt{margin-top:18px!important}
 .ledger-page .btn.mt{margin-top:20px;height:50px;font-size:15px}
 .ledger-debug-btn{
@@ -578,20 +878,34 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 #app[data-sky="dark"] input,#app[data-sky="dark"] select,#app[data-sky="dark"] textarea{color:rgba(255,255,255,.95)}
 #app[data-sky="dark"] input::placeholder,#app[data-sky="dark"] textarea::placeholder{color:rgba(255,255,255,.45)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:7px 10px;border:2px solid rgba(255,255,255,.28);border-radius:16px;background:rgba(255,255,255,.12);font-size:12px;font-weight:800}
+.chip{padding:7px 10px;border:2px solid rgba(255,255,255,.28);border-radius:16px;background:rgba(255,255,255,.12);font-size:12px;font-weight:800;line-height:1}
 #app[data-sky="light"] .chip{border:2px solid var(--line);background:#fff}
 #app[data-sky="dark"] .chip{color:rgba(255,255,255,.9)}
-.chip.on{background:var(--gold);color:#4a3410;border-color:var(--line)}
+.chip.on,#app[data-sky="light"] .chip.on,#app[data-sky="dark"] .chip.on{background:var(--gold);color:#4a3410;border-color:var(--line)}
 .chip.exp{--c:#e05a5a} .chip.inc{--c:#3f9e4d}
-.tx-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px dashed #e6dcc8}
+.tx-item{display:flex;justify-content:space-between;align-items:center;width:100%;gap:16px;padding:9px 0;border-bottom:2px dashed #e6dcc8}
 .tx-item:last-child{border-bottom:none}
-.tx-ic{width:38px;height:38px;flex:none;display:grid;place-items:center;font-size:19px;border-radius:8px;background:#f4ecdb;border:2px solid var(--line)}
+.tx-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0;overflow:hidden}
+.tx-right{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-shrink:0}
+.tx-ic{width:38px;height:38px;min-width:38px;min-height:38px;flex:none;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:0;line-height:0;border-radius:8px;background:#f4ecdb;border:2px solid var(--line);overflow:hidden}
+.tx-ic .cat-ic-cell{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.tx-ic .cat-ic-cell .cat-ic,
+.tx-ic .cat-ic-cell .cat-ic-em{display:block;margin:0;flex-shrink:0}
+.tx-ic .cat-ic-cell .cat-ic{width:26px;height:26px}
+.tx-ic .cat-ic-cell .cat-ic-em{
+  width:26px;height:26px;font-size:18px;line-height:1;
+  display:flex;align-items:center;justify-content:center;transform:none}
 .tx-main{flex:1;min-width:0}
 .tx-main .t{font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-photo-thumb-wrap{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;
+  width:38px;height:38px;min-width:38px;min-height:38px;border:1px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box;background:#111}
+.tx-photo-thumb{display:block;flex-shrink:0;width:38px;height:38px;min-width:38px;min-height:38px;object-fit:cover;border-radius:3px;
+  image-rendering:pixelated;image-rendering:crisp-edges;-webkit-image-rendering:pixelated}
 .tx-main .s{font-size:11px;color:#8a7a6a;margin-top:1px}
 #app[data-sky="dark"] .tx-main .t{color:rgba(255,255,255,.92)}
 #app[data-sky="dark"] .tx-main .s{color:rgba(255,255,255,.58)}
-.tx-amt{font-weight:900;font-size:14px;white-space:nowrap}
+.tx-amt{flex-shrink:0;font-weight:900;font-size:14px;white-space:nowrap}
 .amt-exp{color:var(--bad)} .amt-inc{color:var(--good)}
 .tag{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;background:#ffe08a;color:#7a5a10;border:1px solid #c99}
 .badge{background:#e05a5a;color:#fff;border-radius:10px;font-size:10px;font-weight:800;padding:1px 6px}
@@ -668,7 +982,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .home-recent-head .link{font-size:11px;font-weight:800;color:#C07A10;background:none;border:none;padding:0;cursor:pointer}
 .home-recent-list{background:rgba(255,255,255,.78);border-radius:16px;padding:4px 12px;box-shadow:0 6px 16px rgba(30,20,55,.07)}
 .home-recent-list .tx-item{padding:8px 0}
-.home-recent-list .tx-ic{width:34px;height:34px;font-size:17px}
+.home-recent-list .tx-ic{width:34px;height:34px}
+.home-recent-list .tx-ic .cat-ic-cell .cat-ic,
+.home-recent-list .tx-ic .cat-ic-cell .cat-ic-em{width:22px;height:22px;font-size:15px}
 .home-recent-list .tx-main .t{font-size:13px}
 .home-recent-list .tx-main .s{font-size:10.5px}
 .home-panel .disclaimer{margin-top:10px;margin-bottom:2px}
@@ -725,12 +1041,26 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .war-count-display .war-count-empty{color:#9a8a7a;font-size:18px}
 .war-count-unit{font-size:12px;font-weight:800;color:#5a4a6a;flex:none}
 .war-cost-ic{height:1em;width:auto;vertical-align:-.15em;margin-left:3px}
-.pixel-numpad{display:none;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 4px;padding:10px;
-  background:rgba(255,248,236,.95);border:3px solid var(--line);border-radius:12px;box-shadow:0 4px 0 var(--line)}
+/* 共用懸浮像素 Numpad */
+.float-numpad-overlay{position:absolute;inset:0;z-index:29;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;padding:16px;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.float-numpad-panel{width:min(220px,84vw);background:rgba(255,248,236,.98);
+  border:3px solid var(--line);border-radius:14px;padding:10px 10px 12px;
+  box-shadow:0 5px 0 var(--line),0 10px 28px rgba(30,20,55,.25)}
+.float-numpad-title{font-size:11px;font-weight:800;color:#5a4a6a;text-align:center;margin-bottom:2px}
+.float-numpad-preview{font-size:28px;font-weight:900;color:#2c2c2c;text-align:center;
+  padding:2px 8px 10px;line-height:1.1;min-height:1.1em}
+.float-numpad-preview.empty{color:#9a8a7a}
+.float-numpad-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 .px-np-key{padding:13px 6px;font-size:17px;font-weight:900;background:var(--gold);color:#4a3410;
   border:3px solid var(--line);border-radius:8px;box-shadow:0 3px 0 var(--wood2);cursor:pointer;
   -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.float-numpad-keys .px-np-key{padding:11px 2px;font-size:16px;border-width:2px;border-radius:8px;box-shadow:0 2px 0 var(--wood2)}
+.float-numpad-keys .px-np-del{box-shadow:0 2px 0 #6b5a8a}
+.float-numpad-keys .px-np-ok{box-shadow:0 2px 0 #2d6b30}
 .px-np-key:active{transform:translateY(2px);box-shadow:0 1px 0 var(--wood2)}
+.float-numpad-keys .px-np-key:active{transform:translateY(1px)}
 .px-np-del{background:#c9b8e0;color:#33254a;box-shadow:0 3px 0 #6b5a8a}
 .px-np-ok{background:#4caf50;color:#fff;box-shadow:0 3px 0 #2d6b30}
 .war-kline-btn{flex:none;white-space:nowrap;padding:10px 11px;font-size:12px;font-weight:900;line-height:1.2;
@@ -1036,6 +1366,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       <button type="button" id="chatFab" class="glass-fab" onclick="openChat()" aria-label="陪玩與聊天" title="陪玩與聊天">
         <img id="chatFabIc" alt="" aria-hidden="true">
       </button>
+      <button type="button" id="albumFab" class="glass-fab" onclick="openPhotoWall()" aria-label="浮島相簿" title="浮島相簿">
+        <img id="albumFabIc" alt="" aria-hidden="true">
+      </button>
     </div>
     <div id="homeRightChrome">
       <button type="button" id="foodInvFab" class="glass-fab" onclick="toggleFoodInventory()" aria-label="食物背包" title="食物背包">
@@ -1107,6 +1440,59 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       <p class="food-inv-hint" id="foodInvHint"></p>
     </div>
   </div>
+  <div id="floatNumpad" class="float-numpad-overlay" style="display:none" aria-hidden="true">
+    <div class="float-numpad-panel" role="dialog" aria-labelledby="floatNumpadTitle">
+      <div class="float-numpad-title" id="floatNumpadTitle">輸入數字</div>
+      <div class="float-numpad-preview empty" id="floatNumpadPreview">0</div>
+      <div class="float-numpad-keys" id="floatNumpadKeys"></div>
+    </div>
+  </div>
+  <div id="photoWall" class="pw-overlay" style="display:none" aria-hidden="true" onclick="if(event.target===this)closePhotoWall()">
+    <div class="pw-panel" role="dialog" aria-labelledby="photoWallTitle">
+      <div class="pw-head"><b id="photoWallTitle">📷 浮島相簿</b><button type="button" class="pw-x" onclick="closePhotoWall()" aria-label="關閉">✕</button></div>
+      <div class="pw-body" id="photoWallBody"></div>
+    </div>
+  </div>
+  <div id="historyModal" class="history-modal-overlay" style="display:none" aria-hidden="true">
+    <div class="history-modal-panel" role="dialog" aria-labelledby="historyModalTitle">
+      <div class="history-modal-head">
+        <h2 id="historyModalTitle">歷史記帳紀錄</h2>
+        <button type="button" class="history-modal-x" onclick="closeHistoryModal()" aria-label="關閉">✕</button>
+      </div>
+      <div class="history-modal-tabs" id="historyModalTabs">
+        <button type="button" class="history-tab on" data-f="all" onclick="setHistoryFilter('all')">全部</button>
+        <button type="button" class="history-tab" data-f="day" onclick="setHistoryFilter('day')">本日</button>
+        <button type="button" class="history-tab" data-f="week" onclick="setHistoryFilter('week')">本週</button>
+        <button type="button" class="history-tab" data-f="month" onclick="setHistoryFilter('month')">本月</button>
+      </div>
+      <div class="history-modal-body" id="historyModalBody"></div>
+    </div>
+  </div>
+  <div id="txNotePopover" class="tx-note-overlay" style="display:none" aria-hidden="true" onclick="if(event.target===this)closeTxNotePopover()">
+    <div class="tx-note-panel" role="dialog" aria-labelledby="txNotePopoverTitle">
+      <div class="tx-note-head">
+        <b id="txNotePopoverTitle">完整備註</b>
+        <button type="button" class="tx-note-x" onclick="closeTxNotePopover()" aria-label="關閉">✕</button>
+      </div>
+      <div class="tx-note-body" id="txNotePopoverBody"></div>
+      <button type="button" class="tx-note-ok" onclick="closeTxNotePopover()">確定</button>
+    </div>
+  </div>
+  <div id="timeBoxModal" class="tbox-cam-overlay" style="display:none" aria-hidden="true" onclick="if(event.target===this)closeTimeBoxModal()">
+    <div class="tbox-cam-panel" role="dialog" aria-label="浮島生活剪影">
+      <div class="tbox-cam-head">
+        <span class="tbox-cam-title">浮島生活剪影</span>
+        <button type="button" class="tbox-cam-close" onclick="closeTimeBoxModal()" aria-label="收起">[ 收起 ]</button>
+      </div>
+      <div class="tbox-cam-viewport" id="tboxCamViewport">
+        <video id="tboxVideo" class="tbox-video" autoplay playsinline muted></video>
+        <canvas id="tboxCanvas" class="tbox-canvas"></canvas>
+        <span class="tbox-corner tl" aria-hidden="true"></span><span class="tbox-corner tr" aria-hidden="true"></span>
+        <span class="tbox-corner bl" aria-hidden="true"></span><span class="tbox-corner br" aria-hidden="true"></span>
+      </div>
+      <div class="tbox-cam-footer" id="tboxCamFooter"></div>
+    </div>
+  </div>
   <div id="warKline" class="war-kline-overlay" style="display:none" aria-hidden="true">
     <div class="war-kline-panel" role="dialog" aria-labelledby="warKlineTitle">
       <div class="war-kline-head">
@@ -1164,9 +1550,23 @@ const fmt=n=>n.toLocaleString('en-US');
 
 /* ---- 分類 ---- */
 const CATS={
-  expense:[['🍜','飲食'],['🚌','交通'],['🛍️','購物'],['🏠','居住'],['🎮','娛樂'],['💊','醫療'],['📚','學習'],['✨','其他']],
-  income:[['💼','薪資'],['🧧','獎金'],['📈','投資'],['🎁','其他']]
+  expense:[['🍎','飲食'],['🚌','交通'],['🛍️','購物'],['🏠','居住'],['🎮','娛樂'],['🏥','醫療'],['📚','學習'],['📈','投資'],['⚙️','其他']],
+  income:[['💼','薪資'],['📈','投資'],['🐷','零用錢'],['⚙️','其他']]
 };
+/* 分類像素圖標：expenseicon.png 4欄×3列 sprite 的 [row,col]（0-indexed）*/
+const CAT_SPRITE={
+  '飲食':[0,0],'交通':[0,1],'購物':[0,2],'居住':[0,3],
+  '娛樂':[1,0],'醫療':[1,1],'學習':[1,2],'其他':[1,3],
+  '薪資':[2,0],'投資':[2,2],'零用錢':[2,3]
+};
+/* 可複用像素圖標：依分類名回傳 sprite <span>；無對應時回退 emoji */
+function catIcon(name,fallback){
+  const s=CAT_SPRITE[name];
+  if(!s)return `<span class="cat-ic-em">${fallback||''}</span>`;
+  const x=s[1]/3*100,y=s[0]/2*100;
+  const cls=name==='其他'?' cat-ic--other':'';
+  return `<span class="cat-ic${cls}" style="background-position:${x}% ${y}%"></span>`;
+}
 /* ---- 兵種（交易策略遊戲化）---- */
 const UNITS=[
   {id:'long', em:'⚔️', nm:'做多步兵', ds:'綁定標的上漲時瘋狂分裂增殖，下跌時陣亡。', cost:50, kind:'up',  lev:1, exp:0},
@@ -1689,6 +2089,7 @@ const PERSONA={
 
 /* ============ 狀態 ============ */
 let S=load();
+migrateSavingGoals();
 if(S.pet&&S.pet.named==null)S.pet.named=!!S.onboarded;
 if(S.dailyBookkeepingCount==null)S.dailyBookkeepingCount=0;
 if(S.lastBookkeepingDate==null)S.lastBookkeepingDate=null;
@@ -1713,16 +2114,45 @@ function fresh(){
     lastPhotoCrit:0, streak:0, lastRecordDate:null,
     dailyBookkeepingCount:0, lastBookkeepingDate:null,
     battleLog:[],
+    savingGoals:[], // 圓夢存錢目標 [{id,name,target,days,start}]
     gemini:{key:'',model:'gemini-flash-latest'}, chat:[],
     theme:{mode:'auto'}
   };
 }
 function load(){try{const d=JSON.parse(localStorage.getItem(LS));return d&&d.pet?d:fresh();}catch(e){return fresh();}}
-const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','theme','market','chat'];
+const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','savingGoals','theme','market','chat'];
+function migrateSavingGoals(){
+  if(Array.isArray(S.savingGoals))return;
+  if(S.goal&&S.goal.target){
+    S.savingGoals=[{id:S.goal.id||Date.now(),name:S.goal.name||'我的夢想',target:S.goal.target,days:S.goal.days||30,start:S.goal.start||new Date().toISOString()}];
+  }else S.savingGoals=[];
+  delete S.goal;
+}
 function exportGameState(){
   const o={_savedAt:Date.now()};
-  GAME_STATE_KEYS.forEach(k=>{if(S[k]!==undefined)o[k]=S[k];});
+  GAME_STATE_KEYS.forEach(k=>{
+    if(S[k]===undefined)return;
+    if(k==='tx')o.tx=S.tx.map(t=>{
+      const row={...t,photo:sanitizePhotoForCloudSync(t.photo)};
+      if(typeof t.photoData==='string'&&t.photoData.startsWith('data:')){
+        row.photoData={legacyInline:true,bytes:t.photoData.length,uploadStatus:'migrate'};
+      }
+      return row;
+    });
+    else o[k]=S[k];
+  });
   return o;
+}
+function sanitizePhotoForCloudSync(photo){
+  if(!photo)return null;
+  if(typeof photo==='string'){
+    if(photo.startsWith('data:'))return {legacyInline:true,bytes:photo.length,uploadStatus:'migrate'};
+    return photo;
+  }
+  return {
+    id:photo.id,mime:photo.mime,width:photo.width,height:photo.height,bytes:photo.bytes,
+    uploadStatus:photo.uploadStatus||'pending',storageKey:photo.storageKey||null,remoteUrl:photo.remoteUrl||null
+  };
 }
 function importGameState(g){
   if(!g||typeof g!=='object')return;
@@ -1734,6 +2164,7 @@ function importGameState(g){
     else S[k]=g[k];
   });
   if(g._savedAt)S._savedAt=g._savedAt;
+  migrateSavingGoals();
 }
 function save(){
   S._savedAt=Date.now();
@@ -3219,7 +3650,11 @@ function switchTab(t){
   if(foodInvOpen)closeFoodInventory();
   if(warKlineOpen)closeWarKlineModal();
   if(financeDashOpen)closeFinanceDash(true);
-  if(t!=='war'){warNumpadOpen=false;warDraft.countInput=null;}
+  closeFloatingNumpad(true);
+  closeHistoryModal();
+  closePhotoWall();
+  if(curTab==='ledger'&&t!=='ledger'){closeTimeBoxModal(true);clearTimeBoxCdTimer();}
+  if(t!=='war')warDraft.countInput=null;
   curTab=t;
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   updateTabChrome(t);
@@ -3403,12 +3838,76 @@ function formatDateGroup(ds){
   const d=new Date(ds+'T12:00:00');
   return `${d.getMonth()+1}月${d.getDate()}日`;
 }
+function txLocalDateStr(ts){
+  const d=new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatPhotoWallDateTitle(ds){
+  const d=new Date(ds+'T12:00:00');
+  const long=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  if(ds===todayStr())return '今天';
+  const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  if(ds===y)return `昨天，${long}`;
+  return long;
+}
+function formatPhotoWallTime(ts){
+  const d=new Date(ts);
+  let h=d.getHours(),m=d.getMinutes();
+  const ap=h>=12?'PM':'AM';
+  h=h%12||12;
+  return `${h}:${String(m).padStart(2,'0')} ${ap}`;
+}
+function groupTxPhotosByDate(photos){
+  const map=new Map();
+  photos.forEach(t=>{
+    const ds=txLocalDateStr(t.ts);
+    if(!map.has(ds))map.set(ds,[]);
+    map.get(ds).push(t);
+  });
+  return [...map.entries()]
+    .sort((a,b)=>b[0].localeCompare(a[0]))
+    .map(([ds,items])=>({ds,items:items.sort((a,b)=>new Date(b.ts)-new Date(a.ts))}));
+}
+function renderPhotoWallCard(t){
+  const src=txPhotoDataSrc(t);
+  if(!src)return '';
+  const c=(CATS[t.type].find(x=>x[1]===t.category)||['✨'])[0];
+  return `<figure class="pw-card" onclick="photoWallZoom(${t.id})">
+    <div class="pw-frame">
+      <img src="${esc(src)}" alt="">
+      <span class="pw-cat-badge" aria-hidden="true">${catIcon(t.category,c)}</span>
+    </div>
+    <figcaption class="pw-time">${formatPhotoWallTime(t.ts)}</figcaption>
+  </figure>`;
+}
+let photoWallOpen=false;
+function openPhotoWall(){
+  const ov=$('#photoWall'),body=$('#photoWallBody'); if(!ov||!body)return;
+  const photos=S.tx.filter(t=>t.photo||t.photoData);
+  if(!photos.length){
+    body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
+  }else{
+    const groups=groupTxPhotosByDate(photos);
+    body.innerHTML=groups.map(g=>`<section class="pw-day-group">
+      <h3 class="pw-day-title">${esc(formatPhotoWallDateTitle(g.ds))}</h3>
+      <div class="pw-grid">${g.items.map(renderPhotoWallCard).join('')}</div>
+    </section>`).join('');
+  }
+  ov.style.display='flex';ov.setAttribute('aria-hidden','false');
+  photoWallOpen=true;
+}
+function closePhotoWall(){
+  const z=$('#pwZoom');if(z){z.remove();return;}
+  const ov=$('#photoWall');
+  if(ov){ov.style.display='none';ov.setAttribute('aria-hidden','true');}
+  photoWallOpen=false;
+}
 function formatTxHm(ts){const d=new Date(ts);return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 function homeTxItem(t,hmOnly){
   const c=(CATS[t.type].find(x=>x[1]===t.category)||['✨'])[0];
   const ts=typeof t.ts==='function'?t.ts():t.ts;
   return `<div class="tx-item">
-    <div class="tx-ic">${c}</div>
+    <div class="tx-ic">${catIconCell(t.category,c)}</div>
     <div class="tx-main"><div class="t">${t.category}${t.note?' · '+t.note:''}</div><div class="s">${hmOnly?formatTxHm(ts):formatTxTime(ts)}</div></div>
     <div class="tx-amt ${t.type==='expense'?'amt-exp':'amt-inc'}">${t.type==='expense'?'−':'+'}$${fmt(t.amount)}</div>
   </div>`;
@@ -3546,38 +4045,400 @@ function sleepInBedroom(){
 function feedPlay(){playWithPet();}
 
 /* ===== 記帳 ===== */
-let draft={type:'expense',cat:'飲食',photo:null};
+let draft={type:'expense',cat:'飲食',photo:null,amt:''};
+let ledgerSub='quick'; // 記帳子分頁：'quick' 快速記帳 / 'dream' 圓夢浮島
+function setLedgerSub(s){ledgerSub=s;renderLedger();}
 function renderLedger(){
+  if(floatNumpadCtx)closeFloatingNumpad(true);
+  const modalWasOpen=timeBoxModalOpen;
+  if(!modalWasOpen)stopTimeBoxCamera();
+  if(photoCritOnCooldown())closeTimeBoxModal();
+  const quickRows=ledgerSub==='quick'
+    ?`<button type="button" class="ledger-tab-btn ledger-type-tab expense ${draft.type==='expense'?'on':''}" onclick="setType('expense')">− 支出</button><button type="button" class="ledger-tab-btn ledger-type-tab income ${draft.type==='income'?'on':''}" onclick="setType('income')">＋ 收入</button>`
+    :'';
+  const quickAmt=ledgerSub==='quick'
+    ?`<div class="ledger-amt-block"><label class="fld">金額</label><input id="amt" type="text" readonly inputmode="none" placeholder="0" value="${draft.amt||''}" onclick="openLedgerNumpad()" aria-label="金額" class="numpad-field"></div>`
+    :'';
+  const stack=`<div class="ledger-stack"><div class="ledger-unified-grid"><button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='quick'?'on':''}" onclick="setLedgerSub('quick')">快速記帳</button><button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='dream'?'on':''}" onclick="setLedgerSub('dream')">圓夢浮島</button>${quickRows}${quickAmt}</div></div>`;
+  $('#sheetBody').innerHTML=`<div class="page-panel ledger-page">${stack}${ledgerSub==='dream'?renderDreamLedger():renderQuickLedger()}</div>`;
+  if(ledgerSub==='quick')requestAnimationFrame(()=>{
+    bootTimeBox();
+    if(modalWasOpen)syncTimeBoxModalUI();
+  });
+}
+function renderQuickLedger(){
   const cds=CATS[draft.type];
-  const onCD=Date.now()-S.lastPhotoCrit<600000;
-  const cdLeft=Math.ceil((600000-(Date.now()-S.lastPhotoCrit))/60000);
-  $('#sheetBody').innerHTML=`
-    <div class="page-panel ledger-page">
-    <div class="seg">
-      <button class="${draft.type==='expense'?'on':''}" onclick="setType('expense')">− 支出</button>
-      <button class="${draft.type==='income'?'on':''}" onclick="setType('income')">＋ 收入</button>
-    </div>
-    <label class="fld">金額</label>
-    <input id="amt" type="number" inputmode="numeric" placeholder="0" min="1">
+  if(!cds.some(c=>c[1]===draft.cat))draft.cat=cds[0][1];
+  return `
     <label class="fld">分類</label>
-    <div class="chips" id="catChips">${cds.map(c=>`<button class="chip ${draft.cat===c[1]?'on':''}" onclick="setCat('${c[1]}')">${c[0]} ${c[1]}</button>`).join('')}</div>
+    <div class="chips cat-grid${draft.type==='income'?' cat-grid--income':''}" id="catChips">${cds.map(c=>`<button type="button" class="chip cat-chip ${draft.cat===c[1]?'on':''}" onclick="setCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${c[1]}</span></button>`).join('')}</div>
     <label class="fld">備註</label>
     <input id="note" type="text" placeholder="例：午餐、捷運、發薪…">
-    <div class="card mt" style="box-shadow:none;margin:10px 0 0">
-      <div class="spread"><b style="font-size:13px">📸 時光寶箱・相片暴擊</b>${onCD?`<span class="mini">冷卻中 ${cdLeft} 分</span>`:`<span class="tag">2× 代幣/經驗</span>`}</div>
-      <p class="hint" style="margin:5px 0 8px">附上相片可獲雙倍獎勵，不審查真偽。冷卻 10 分鐘、可隨時補拍。</p>
-      <div class="row">
-        <button class="btn sm ghost" onclick="$('#photoIn').click()">${draft.photo?'✅ 已附相片':'🖼️ 拍照/上傳'}</button>
-        ${draft.photo?`<img src="${draft.photo}" style="width:40px;height:40px;border-radius:6px;border:2px solid #000;image-rendering:pixelated">`:''}
-        ${draft.photo?`<button class="btn sm danger" onclick="draft.photo=null;renderLedger()">移除</button>`:''}
+    ${renderTimeBox()}
+    <button class="btn mt ledger-submit-btn" style="width:100%" onclick="addTx()">記上一筆</button>
+    <button type="button" class="dream-history-btn" onclick="openHistoryModal()">查看歷史記帳紀錄</button>
+    ${isLedgerDebugEnabled()?`<button type="button" class="ledger-debug-btn" onclick="debugFreeCoins()">🛠️ 開發測試：免費領 100 硬幣</button>`:''}`;
+}
+/* ===== 圓夢浮島：多目標存錢工具 ===== */
+let goalEditing=false; // false | 'new' | goalId
+let goalFormDraft={amt:'',days:''};
+let dreamProgressDebug={}; // 開發用：goalId → 0-100 測試水位
+function resetGoalFormDraft(g){
+  goalFormDraft.amt=g&&g.target?String(g.target):'';
+  goalFormDraft.days=g&&g.days?String(g.days):'';
+}
+function getSavingGoals(){migrateSavingGoals();return S.savingGoals||[];}
+function computeGoalStats(g){
+  if(!g||!g.target)return null;
+  const start=new Date(g.start||Date.now());
+  const now=new Date();
+  const totalDays=Math.max(1,g.days||30);
+  const elapsed=Math.max(0,Math.floor((now-start)/86400000));
+  const remainDays=Math.max(1,totalDays-elapsed);
+  let inc=0,exp=0;
+  S.tx.forEach(t=>{const d=new Date(t.ts);if(d>=start){if(t.type==='income')inc+=t.amount;else exp+=t.amount;}});
+  const saved=Math.max(0,inc-exp);
+  const remainTarget=Math.max(0,g.target-saved);
+  const progress=Math.max(0,Math.min(1,saved/g.target));
+  const dailySave=remainTarget/remainDays;
+  return {id:g.id,goal:g,saved,remainTarget,progress,dailySave,remainDays,totalDays,elapsed};
+}
+function recalcDreamBudget(){
+  const goals=getSavingGoals().filter(g=>g&&g.target);
+  const now=new Date();
+  const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const dailyBudget=Math.max(1,S.budget)/daysInMonth;
+  const goalRows=goals.map(g=>computeGoalStats(g)).filter(Boolean);
+  const totalDailySave=goalRows.reduce((s,x)=>s+x.dailySave,0);
+  const baseDailySafe=Math.max(0,dailyBudget-totalDailySave);
+  const SPREAD=3;
+  const ykey=new Date(now.getTime()-86400000).toISOString().slice(0,10);
+  let ySpent=0;S.tx.forEach(t=>{if(t.type==='expense'&&t.ts.slice(0,10)===ykey)ySpent+=t.amount;});
+  const yOver=Math.max(0,ySpent-baseDailySafe);
+  const cutPerDay=yOver>0?Math.round(yOver/SPREAD):0;
+  const dailySafe=Math.max(0,Math.round(baseDailySafe-cutPerDay));
+  const today=todayStr();
+  let todaySpent=0;S.tx.forEach(t=>{if(t.type==='expense'&&t.ts.slice(0,10)===today)todaySpent+=t.amount;});
+  const todayLeft=Math.max(0,dailySafe-todaySpent);
+  const daysLeftMonth=Math.max(1,daysInMonth-now.getDate()+1);
+  return {goals:goalRows,totalDailySave,dailyBudget,baseDailySafe,dailySafe,
+    weeklySafe:Math.round(dailySafe*7),monthSafe:Math.round(dailySafe*daysLeftMonth),
+    cutPerDay,yOver,todaySpent,todayLeft,daysLeftMonth,goalCount:goalRows.length};
+}
+function buildingSvg(p){
+  const tiers=[{y:92,w:84},{y:74,w:70},{y:56,w:56},{y:38,w:42},{y:22,w:28}];
+  let el='<rect x="2" y="108" width="96" height="8" rx="2" fill="#6f5238"/>';
+  tiers.forEach((t,i)=>{
+    const th=i/tiers.length, on=p>=th-0.001;
+    const x=(100-t.w)/2;
+    el+=`<rect x="${x}" y="${t.y}" width="${t.w}" height="16" rx="2" fill="${on?'#cf9560':'none'}" stroke="${on?'#7a4a28':'#a99'}" stroke-width="2" stroke-dasharray="${on?'':'3 3'}" opacity="${on?1:.45}"/>`;
+    if(on){el+=`<rect x="${x+7}" y="${t.y+4}" width="6" height="8" fill="#f6e6c6"/><rect x="${x+t.w-13}" y="${t.y+4}" width="6" height="8" fill="#f6e6c6"/>`;}
+  });
+  const done=p>=1;
+  el+=`<rect x="49" y="${done?8:12}" width="2" height="16" fill="${done?'#7a4a28':'#bbb'}"/>`;
+  if(done)el+='<path d="M51 8 L64 12 L51 16 Z" fill="#e05a5a"/>';
+  return `<svg viewBox="0 0 100 120" class="dream-building" xmlns="http://www.w3.org/2000/svg">${el}</svg>`;
+}
+/* 像素液體流動存錢豬：水位映射至豬肚鏤空（% 相對於 lp-clip 容器） */
+const LP_BELLY_MIN=10;   // 0% 進度：底部薄層金色
+const LP_BELLY_MID=58;   // 88% 進度：液面仍在豬脖/耳下，背部留白
+const LP_BELLY_MAX=98;   // 100% 進度：灌滿背部與硬幣區
+function piggyFluidCssHeight(progress){
+  const p=Math.max(0,Math.min(1,progress||0));
+  if(p<=0)return 0;
+  if(p>=1)return LP_BELLY_MAX;
+  if(p<=0.88){
+    const t=p/0.88;
+    return Math.round((LP_BELLY_MIN+t*(LP_BELLY_MID-LP_BELLY_MIN))*10)/10;
+  }
+  const t=(p-0.88)/0.12;
+  return Math.round((LP_BELLY_MID+t*(LP_BELLY_MAX-LP_BELLY_MID))*10)/10;
+}
+function dynamicPiggy(p){
+  p=Math.max(0,Math.min(1,p||0));
+  const done=p>=1;
+  const fluidH=piggyFluidCssHeight(p);
+  return `<div class="liquid-piggy${done?' done':''}">
+      <div class="lp-clip">
+        <div class="lp-fluid" style="height:${fluidH}%">
+          <div class="lp-wave"></div>
+          <i class="lp-bub b1"></i><i class="lp-bub b2"></i><i class="lp-bub b3"></i>
+        </div>
       </div>
-      <input id="photoIn" type="file" accept="image/*" style="display:none" onchange="onPhoto(event)">
-    </div>
-    <button class="btn mt" style="width:100%" onclick="addTx()">記上一筆，餵養浮島</button>
-    <div class="spread mt"><b style="font-size:13px">最近紀錄</b><span class="mini">共 ${S.tx.length} 筆</span></div>
-    <div class="card" style="box-shadow:none">${renderTxList(8)}</div>
-    ${isLedgerDebugEnabled()?`<button type="button" class="ledger-debug-btn" onclick="debugFreeCoins()">🛠️ 開發測試：免費領 100 硬幣</button>`:''}
+      <div class="lp-shell"></div>
     </div>`;
+}
+function dreamGoalDisplayProgress(g,st){
+  if(isDevMode()&&dreamProgressDebug[g.id]!=null)return dreamProgressDebug[g.id]/100;
+  return st.progress;
+}
+function renderPiggyDebugSlider(goalId,pct){
+  return `<div class="dream-piggy-debug">
+    <div class="dream-piggy-debug-head">
+      <span>🛠️ 開發調試：拖動測試豬豬水位</span>
+      <span class="dream-piggy-debug-val">${pct}%</span>
+    </div>
+    <input type="range" class="dream-piggy-debug-range" min="0" max="100" value="${pct}"
+      oninput="setDreamProgressDebug(${goalId},+this.value)">
+  </div>`;
+}
+function setDreamProgressDebug(goalId,pct){
+  const v=Math.max(0,Math.min(100,Math.round(+pct||0)));
+  dreamProgressDebug[goalId]=v;
+  const card=document.querySelector(`.dream-card[data-goal-id="${goalId}"]`);
+  if(!card){if(curTab==='ledger'&&ledgerSub==='dream')renderLedger();return;}
+  const p=v/100;
+  const fluid=card.querySelector('.lp-fluid');
+  const piggy=card.querySelector('.liquid-piggy');
+  const pctEl=card.querySelector('.dream-pct');
+  const dbgVal=card.querySelector('.dream-piggy-debug-val');
+  const range=card.querySelector('.dream-piggy-debug-range');
+  if(fluid)fluid.style.height=piggyFluidCssHeight(p)+'%';
+  if(piggy)piggy.classList.toggle('done',p>=1);
+  if(pctEl)pctEl.innerHTML=`${v}<span>%</span>`;
+  if(dbgVal)dbgVal.textContent=v+'%';
+  if(range&&+range.value!==v)range.value=String(v);
+}
+function renderDreamGoalForm(g){
+  const isEdit=g&&g.id;
+  return `<div class="dream-empty">
+      <div class="dream-hero">🏗️</div>
+      <p class="hint" style="text-align:center;margin:6px 0 14px">${isEdit?'調整圓夢目標，儲存後立即重算預算。':'設定圓夢目標，每天記帳就能看著它一磚一瓦蓋起來！'}</p>
+      <label class="fld">目標名稱</label>
+      <input id="goalName" type="text" placeholder="例：DJI Osmo Pocket 4" maxlength="24" value="${g?esc(g.name||''):''}">
+      <label class="fld">目標金額</label>
+      <input id="goalAmt" type="text" readonly inputmode="none" class="numpad-field" placeholder="20000" value="${goalFormDraft.amt||''}" onclick="openGoalAmtNumpad()" aria-label="目標金額">
+      <label class="fld">預計達成天數</label>
+      <input id="goalDays" type="text" readonly inputmode="none" class="numpad-field" placeholder="60" value="${goalFormDraft.days||''}" onclick="openGoalDaysNumpad()" aria-label="預計達成天數">
+      <button class="btn mt" style="width:100%" onclick="saveGoal()">${isEdit?'✅ 儲存並重算':'🚀 啟動圓夢計畫'}</button>
+      <button class="btn sm ghost mt" style="width:100%" onclick="cancelGoalEdit()">取消</button>
+    </div>`;
+}
+function renderDreamGoalCard(g,st,budget){
+  const displayP=dreamGoalDisplayProgress(g,st);
+  const pct=Math.round(displayP*100);
+  const multi=budget.goalCount>1;
+  const hint=budget.cutPerDay>0
+    ? `島主！昨天稍微超支了，接下來 3 天每天需少花 $${fmt(budget.cutPerDay)}${multi?`（${budget.goalCount} 個目標合計每日需存 $${fmt(Math.round(budget.totalDailySave))}）`:''}，才能確保「${esc(g.name)}」順利完工！`
+    : (budget.todayLeft>0
+      ? `今天還能安心花 $${fmt(budget.todayLeft)}，穩穩推進「${esc(g.name)}」～${multi?` 全部目標每日需存 $${fmt(Math.round(budget.totalDailySave))}`:''}`
+      : `今天的安全額度用完囉，忍住就是勝利！`);
+  return `
+      <div class="dream-wrap">
+        <div class="dream-top">
+          ${dynamicPiggy(displayP)}
+          <div class="dream-meta">
+            <div class="dream-name">${esc(g.name)}</div>
+            <div class="dream-pct">${pct}<span>%</span></div>
+            <div class="dream-sub">已存 $${fmt(st.saved)} / $${fmt(g.target)}</div>
+            <div class="dream-sub">剩 ${st.remainDays} 天・每日需存 $${fmt(Math.round(st.dailySave))}</div>
+          </div>
+        </div>
+        <div class="dream-safe">
+          <div class="safe-cell"><div class="safe-k">今日安全額</div><div class="safe-v">$${fmt(budget.dailySafe)}</div></div>
+          <div class="safe-cell"><div class="safe-k">本週</div><div class="safe-v">$${fmt(budget.weeklySafe)}</div></div>
+          <div class="safe-cell"><div class="safe-k">本月剩</div><div class="safe-v">$${fmt(budget.monthSafe)}</div></div>
+        </div>
+        <div class="dream-tip ${budget.cutPerDay>0?'warn':''}">${hint}</div>
+        <div class="row" style="gap:8px;margin-top:8px">
+          <button class="btn sm ghost" style="flex:1" onclick="editGoal(${g.id})">調整目標</button>
+          <button class="btn sm danger" style="flex:1" onclick="clearGoal(${g.id})">放棄計畫</button>
+        </div>
+        ${isDevMode()?renderPiggyDebugSlider(g.id,pct):''}
+      </div>`;
+}
+function renderDreamLedger(){
+  const goals=getSavingGoals();
+  if(goalEditing)return renderDreamGoalForm(goalEditing==='new'?null:goals.find(x=>x.id===goalEditing)||null);
+  if(!goals.length){resetGoalFormDraft(null);return renderDreamGoalForm(null);}
+  const budget=recalcDreamBudget();
+  const cards=goals.map(g=>{
+    const st=budget.goals.find(x=>x.id===g.id)||computeGoalStats(g);
+    if(!st)return '';
+    return `<div class="dream-card" data-goal-id="${g.id}">${renderDreamGoalCard(g,st,budget)}</div>`;
+  }).join('');
+  return `
+    <div class="dream-scroll-list">
+      ${cards}
+      <button type="button" class="btn sm ghost dream-add-goal-btn" onclick="startNewGoal()">＋ 新增圓夢目標</button>
+    </div>`;
+}
+function startNewGoal(){goalEditing='new';resetGoalFormDraft(null);renderLedger();}
+function cancelGoalEdit(){
+  goalEditing=false;
+  if(!getSavingGoals().length)resetGoalFormDraft(null);
+  closeFloatingNumpad(true);
+  renderLedger();
+}
+function saveGoal(){
+  const name=($('#goalName')?.value||'').trim()||'我的夢想';
+  const target=Math.abs(parseInt(goalFormDraft.amt||$('#goalAmt')?.value||'0'));
+  const days=Math.max(1,parseInt(goalFormDraft.days||$('#goalDays')?.value||'0')||30);
+  if(!target){toast('請輸入目標金額');return;}
+  const goals=getSavingGoals();
+  if(goalEditing&&goalEditing!=='new'){
+    const idx=goals.findIndex(x=>x.id===goalEditing);
+    if(idx>=0)goals[idx]={...goals[idx],name,target,days};
+  }else{
+    goals.push({id:Date.now(),name,target,days,start:new Date().toISOString()});
+  }
+  S.savingGoals=goals;
+  goalEditing=false;
+  recalcDreamBudget();
+  save();renderLedger();
+  toast('圓夢計畫已更新，預算已重算！🚀');
+}
+function editGoal(id){
+  const g=getSavingGoals().find(x=>x.id===id);
+  goalEditing=id;
+  resetGoalFormDraft(g||null);
+  renderLedger();
+}
+function clearGoal(id){
+  if(!confirm('放棄這個圓夢計畫？（不影響帳本與代幣）'))return;
+  const goals=getSavingGoals().filter(g=>g.id!==id);
+  S.savingGoals=goals;
+  goalEditing=false;
+  recalcDreamBudget();
+  save();renderLedger();
+}
+/* ===== 回憶相片牆 ===== */
+function photoWallZoom(id){
+  const t=S.tx.find(x=>x.id===id); if(!t||(!t.photo&&!t.photoData))return;
+  const ov=$('#photoWall'); if(!ov)return;
+  const src=txPhotoDataSrc(t);
+  if(!src)return;
+  $('#pwZoom')?.remove();
+  const z=document.createElement('div'); z.id='pwZoom'; z.className='pw-zoom';
+  z.onclick=()=>z.remove();
+  z.innerHTML=`<div class="pw-zoom-inner"><img src="${esc(src)}" alt=""><div class="pw-zoom-cap">${t.ts.slice(0,10)}・${esc(t.category)}・$${fmt(t.amount)}${t.note?'・'+esc(t.note):''}</div></div>`;
+  ov.appendChild(z);
+}
+let historyModalOpen=false;
+let historyFilter='all';
+function txInHistoryFilter(t,filter){
+  const d=new Date(t.ts);
+  const now=new Date();
+  if(filter==='day')return t.ts.slice(0,10)===todayStr();
+  if(filter==='week'){
+    const start=new Date(now);
+    start.setHours(0,0,0,0);
+    start.setDate(start.getDate()-6);
+    return d>=start;
+  }
+  if(filter==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+  return true;
+}
+function filterTxForHistory(list,filter){
+  return list.filter(t=>txInHistoryFilter(t,filter));
+}
+function catIconCell(name,fallback){
+  return `<span class="cat-ic-cell">${catIcon(name,fallback)}</span>`;
+}
+function txPhotoDataSrc(item){
+  if(!item)return null;
+  if(item.photoData!=null&&item.photoData!=='')return item.photoData;
+  return photoDisplaySrc(item.photo);
+}
+function txPhotoThumbHtml(photoData){
+  if(photoData==null||photoData===undefined)return '';
+  const src=typeof photoData==='string'?photoData:photoDisplaySrc(photoData);
+  if(!src)return '';
+  return `<span class="tx-photo-thumb-wrap" aria-hidden="true"><img class="tx-photo-thumb" src="${esc(src)}" alt=""></span>`;
+}
+function txTitleLineHtml(t){
+  const cat=esc(t.category);
+  const note=t.note?esc(t.note):'';
+  const shredded=t.shredded?'<span class="mini">🗒️留字</span>':'';
+  if(note)return `${cat} · <span class="tx-note-text">${note}</span>${shredded?' '+shredded:''}`;
+  return `${cat}${shredded?' '+shredded:''}`;
+}
+const TX_NOTE_EXPAND_MIN=10;
+function txNoteExpandable(t){
+  return !!(t.note&&String(t.note).trim().length>TX_NOTE_EXPAND_MIN);
+}
+function txHistoryAmtHtml(t){
+  const sign=t.type==='expense'?'−':'+';
+  const text=`${sign}$${fmt(t.amount)}`;
+  const len=text.length;
+  let sz='';
+  if(len>16)sz=' tx-amt--xxl';
+  else if(len>13)sz=' tx-amt--xl';
+  else if(len>10)sz=' tx-amt--lg';
+  else if(len>8)sz=' tx-amt--md';
+  return `<span class="tx-amt ${t.type==='expense'?'amt-exp':'amt-inc'}${sz}">${text}</span>`;
+}
+function renderTxListItems(items,opts){
+  opts=opts||{};
+  const history=!!opts.history;
+  if(!items.length)return '<p class="hint center">這段時間還沒有紀錄</p>';
+  return items.map(t=>{
+    const c=(CATS[t.type].find(x=>x[1]===t.category)||['✨'])[0];
+    const photoData=txPhotoDataSrc(t);
+    const thumb=photoData?txPhotoThumbHtml(photoData):'';
+    const amt=history?txHistoryAmtHtml(t):`<span class="tx-amt ${t.type==='expense'?'amt-exp':'amt-inc'}">${t.type==='expense'?'−':'+'}$${fmt(t.amount)}</span>`;
+    const expandable=history&&txNoteExpandable(t);
+    const mainClass=`tx-main${expandable?' tx-main--expand':''}`;
+    const mainClick=expandable?` onclick="openTxNotePopover(${t.id})" role="button" tabindex="0" aria-label="查看完整備註"`:'';
+    if(history){
+      return `<div class="tx-item">
+      <div class="tx-left">
+        <div class="tx-ic">${catIconCell(t.category,c)}</div>
+        <div class="${mainClass}"${mainClick}><div class="t">${txTitleLineHtml(t)}</div><div class="s">${formatTxTime(t.ts)}</div></div>
+      </div>
+      <div class="tx-right-rail">
+        <div class="tx-photo-cell">${thumb}</div>
+        <div class="tx-amt-cell">${amt}</div>
+      </div>
+    </div>`;
+    }
+    return `<div class="tx-item">
+      <div class="tx-left">
+        <div class="tx-ic">${catIconCell(t.category,c)}</div>
+        <div class="${mainClass}"${mainClick}><div class="t">${txTitleLineHtml(t)}</div><div class="s">${formatTxTime(t.ts)}</div></div>
+      </div>
+      <div class="tx-right">${thumb}${amt}</div>
+    </div>`;
+  }).join('');
+}
+function openTxNotePopover(txId){
+  const t=S.tx.find(x=>x.id===txId);
+  if(!t||!t.note)return;
+  const body=$('#txNotePopoverBody'),ov=$('#txNotePopover');
+  if(!body||!ov)return;
+  body.textContent=t.note;
+  ov.style.display='flex';
+  ov.setAttribute('aria-hidden','false');
+}
+function closeTxNotePopover(){
+  const ov=$('#txNotePopover');
+  if(ov){ov.style.display='none';ov.setAttribute('aria-hidden','true');}
+}
+function renderHistoryModalList(){
+  const body=$('#historyModalBody');
+  if(!body)return;
+  body.innerHTML=renderTxListItems(filterTxForHistory(S.tx,historyFilter),{history:true});
+}
+function setHistoryFilter(f){
+  historyFilter=f;
+  document.querySelectorAll('.history-tab').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
+  renderHistoryModalList();
+}
+function openHistoryModal(){
+  const ov=$('#historyModal');
+  if(!ov)return;
+  historyFilter='all';
+  document.querySelectorAll('.history-tab').forEach(b=>b.classList.toggle('on',b.dataset.f==='all'));
+  renderHistoryModalList();
+  ov.style.display='flex';
+  ov.setAttribute('aria-hidden','false');
+  historyModalOpen=true;
+}
+function closeHistoryModal(){
+  closeTxNotePopover();
+  const ov=$('#historyModal');
+  if(ov){ov.style.display='none';ov.setAttribute('aria-hidden','true');}
+  historyModalOpen=false;
 }
 function debugFreeCoins(){
   if(!isLedgerDebugEnabled())return;
@@ -3587,25 +4448,433 @@ function debugFreeCoins(){
   renderHUD();
   if(curTab==='ledger')renderLedger();
 }
+function debugResetPhotoCooldown(){
+  if(!isLedgerDebugEnabled())return;
+  S.lastPhotoCrit=0;
+  S.dailyBookkeepingCount=0;
+  S.lastBookkeepingDate=todayStr();
+  save();
+  clearTimeBoxCdTimer();
+  syncTimeBoxRowButton();
+  toast('開發：相機冷卻與每日配額已重置');
+}
 function setType(t){draft.type=t;draft.cat=CATS[t][0][1];renderLedger();}
 function setCat(c){draft.cat=c;renderLedger();}
-function onPhoto(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{const img=new Image();img.onload=()=>{
-    // 前端壓縮 + 像素濾鏡（縮到 64px 再放大呈現）
-    const c=document.createElement('canvas');const s=64;c.width=s;c.height=s;
-    const x=c.getContext('2d');x.imageSmoothingEnabled=false;
-    const r2=Math.min(img.width,img.height);
-    x.drawImage(img,(img.width-r2)/2,(img.height-r2)/2,r2,r2,0,0,s,s);
-    draft.photo=c.toDataURL('image/jpeg',0.6);renderLedger();
-  };img.src=ev.target.result;};
-  r.readAsDataURL(f);
+
+/* ===== 浮島生活剪影・懸浮相機視窗 ===== */
+const PHOTO_CRIT_CD_MS=600000;
+let timeBoxModalOpen=false;
+let timeBoxPending=null;
+let timeBoxStream=null;
+let timeBoxFacing='environment';
+let timeBoxCdTimer=null;
+let cameraIconDataUrl=null;
+function cameraIconSrc(){
+  return(typeof CAMERA_IMG_SRC!=='undefined'?encodeURI(CAMERA_IMG_SRC):encodeURI('ui source/camera.png'));
+}
+function isCameraKeyPixel(r,g,b){
+  if(r<40&&g<40&&b<40)return true;
+  if(g<=200||b<=200)return false;
+  if(r<50)return true;
+  return r<130&&(g-r)>100&&(b-r)>100;
+}
+function trimCameraContentBounds(data,sw,sh){
+  let minX=sw,maxX=-1,minY=sh,maxY=-1;
+  for(let y=0;y<sh;y++){
+    for(let x=0;x<sw;x++){
+      const i=(y*sw+x)*4;
+      if(data[i+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
+    }
+  }
+  return maxX<minX?null:{minX,maxX,minY,maxY};
+}
+function processCameraIcon(img){
+  const sw=img.width,sh=img.height;
+  const src=document.createElement('canvas');
+  src.width=sw;src.height=sh;
+  const sctx=src.getContext('2d',{willReadFrequently:true});
+  sctx.clearRect(0,0,sw,sh);
+  sctx.drawImage(img,0,0);
+  const id=sctx.getImageData(0,0,sw,sh),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    if(isCameraKeyPixel(d[i],d[i+1],d[i+2]))d[i+3]=0;
+  }
+  sctx.putImageData(id,0,0);
+  const bounds=trimCameraContentBounds(d,sw,sh);
+  if(!bounds)return src.toDataURL('image/png');
+  const{minX,maxX,minY,maxY}=bounds;
+  const cropW=maxX-minX+1,cropH=maxY-minY+1;
+  const OUT=32;
+  const scale=Math.min(OUT/cropW,OUT/cropH);
+  const dw=Math.max(1,Math.round(cropW*scale)),dh=Math.max(1,Math.round(cropH*scale));
+  const ox=Math.floor((OUT-dw)/2),oy=Math.floor((OUT-dh)/2);
+  const out=document.createElement('canvas');
+  out.width=OUT;out.height=OUT;
+  const octx=out.getContext('2d');
+  octx.clearRect(0,0,OUT,OUT);
+  octx.imageSmoothingEnabled=false;
+  octx.drawImage(src,minX,minY,cropW,cropH,ox,oy,dw,dh);
+  return out.toDataURL('image/png');
+}
+function loadCameraIcon(){
+  if(cameraIconDataUrl)return;
+  const img=new Image();
+  img.onload=()=>{
+    cameraIconDataUrl=processCameraIcon(img);
+    document.querySelectorAll('.tbox-title-ic,#albumFabIc').forEach(el=>{el.src=cameraIconDataUrl;});
+  };
+  img.onerror=()=>console.warn('相機圖示載入失敗');
+  img.src=cameraIconSrc();
+}
+function tboxTitleIconHtml(){
+  const src=cameraIconDataUrl||'';
+  return `<span class="tbox-title-ic-wrap" aria-hidden="true"><img class="tbox-title-ic"${src?` src="${src}"`:''} width="32" height="32" alt=""></span>`;
+}
+loadCameraIcon();
+function photoCritRemainMs(){return Math.max(0,PHOTO_CRIT_CD_MS-(Date.now()-(S.lastPhotoCrit||0)));}
+function photoCritOnCooldown(){return photoCritRemainMs()>0;}
+function formatPhotoCritCd(){
+  const sec=Math.ceil(photoCritRemainMs()/1000);
+  const m=Math.floor(sec/60),s=String(sec%60).padStart(2,'0');
+  return `${String(m).padStart(2,'0')}:${s}`;
+}
+function tboxDevResetBtnHtml(){
+  if(!isLedgerDebugEnabled()||!photoCritOnCooldown())return '';
+  return `<button type="button" class="tbox-dev-reset-btn" onclick="debugResetPhotoCooldown()">[ 解除冷卻 ]</button>`;
+}
+function tboxActionSlotHtml(){
+  if(photoCritOnCooldown()){
+    return `<span class="tbox-action-slot"><span class="tbox-cooldown-badge" aria-live="polite">冷卻 ${formatPhotoCritCd()}</span></span>`;
+  }
+  const label=draft.photo?'查看照片':'開啟鏡頭';
+  return `<span class="tbox-action-slot"><button type="button" class="tbox-open-btn" onclick="openTimeBoxModal()" aria-haspopup="dialog">${label}</button></span>`;
+}
+function tboxRightCtrlsHtml(){
+  return `<span class="tbox-right-ctrls">${tboxDevResetBtnHtml()}${tboxActionSlotHtml()}</span>`;
+}
+function syncTimeBoxDevResetBtn(){
+  const wrap=document.querySelector('.tbox-right-ctrls');
+  if(!wrap)return;
+  const existing=wrap.querySelector('.tbox-dev-reset-btn');
+  const shouldShow=isLedgerDebugEnabled()&&photoCritOnCooldown();
+  if(shouldShow&&!existing){
+    const slot=wrap.querySelector('.tbox-action-slot');
+    const html='<button type="button" class="tbox-dev-reset-btn" onclick="debugResetPhotoCooldown()">[ 解除冷卻 ]</button>';
+    if(slot)slot.insertAdjacentHTML('beforebegin',html);
+    else wrap.insertAdjacentHTML('afterbegin',html);
+  }else if(!shouldShow&&existing){
+    existing.remove();
+  }
+}
+function syncTimeBoxActionSlot(){
+  const wrap=document.querySelector('.tbox-right-ctrls');
+  if(!wrap)return;
+  const onCD=photoCritOnCooldown();
+  const slot=wrap.querySelector('.tbox-action-slot');
+  if(onCD){
+    const badge=wrap.querySelector('.tbox-cooldown-badge');
+    if(badge)badge.textContent=`冷卻 ${formatPhotoCritCd()}`;
+    else{
+      const dev=wrap.querySelector('.tbox-dev-reset-btn');
+      const devHtml=dev?dev.outerHTML:tboxDevResetBtnHtml();
+      wrap.innerHTML=`${devHtml}<span class="tbox-action-slot"><span class="tbox-cooldown-badge" aria-live="polite">冷卻 ${formatPhotoCritCd()}</span></span>`;
+    }
+  }else{
+    const btn=wrap.querySelector('.tbox-open-btn');
+    const label=draft.photo?'查看照片':'開啟鏡頭';
+    if(btn)btn.textContent=label;
+    else wrap.innerHTML=`${tboxDevResetBtnHtml()}<span class="tbox-action-slot"><button type="button" class="tbox-open-btn" onclick="openTimeBoxModal()" aria-haspopup="dialog">${label}</button></span>`;
+  }
+}
+function syncTimeBoxRowButton(){
+  const box=$('#timeBox');
+  const onCD=photoCritOnCooldown();
+  if(box)box.classList.toggle('is-cooldown',onCD);
+  syncTimeBoxActionSlot();
+  syncTimeBoxDevResetBtn();
+}
+function renderTimeBox(){
+  const onCD=photoCritOnCooldown();
+  return `<div class="tbox ${onCD?'is-cooldown':''}" id="timeBox">
+    <div class="tbox-bar">
+      <span class="tbox-title-wrap">${tboxTitleIconHtml()}<span class="tbox-title-text">浮島生活剪影</span></span>
+      ${tboxRightCtrlsHtml()}
+    </div>
+  </div>`;
+}
+function timeBoxCaptureAsset(){
+  return timeBoxPending||draft.photo||null;
+}
+function timeBoxInCaptureState(){
+  return !!timeBoxCaptureAsset();
+}
+function renderTimeBoxModalFooter(){
+  const foot=$('#tboxCamFooter');if(!foot)return;
+  if(timeBoxInCaptureState()){
+    foot.innerHTML=`<div class="tbox-cam-actions">
+      <button type="button" class="tbox-cam-btn tbox-cam-retake" onclick="retakeTimeBoxPhoto()">[ 重拍 ]</button>
+      <button type="button" class="tbox-cam-btn tbox-cam-confirm" onclick="confirmTimeBoxPhoto()">[ 確認 ]</button>
+    </div>`;
+  }else{
+    foot.innerHTML=`<button type="button" class="tbox-shutter" onclick="captureTimeBoxPhoto()" aria-label="拍照"></button>`;
+  }
+}
+function syncTimeBoxModalUI(){
+  const modal=$('#timeBoxModal'),vp=$('#tboxCamViewport');
+  if(!modal||!timeBoxModalOpen)return;
+  modal.style.display='flex';
+  modal.setAttribute('aria-hidden','false');
+  const captured=timeBoxInCaptureState();
+  if(vp)vp.classList.toggle('has-capture',captured);
+  renderTimeBoxModalFooter();
+  const c=$('#tboxCanvas');
+  if(captured&&c)displayTimeBoxPhoto(c,timeBoxCaptureAsset());
+  else if(c){c.width=0;c.height=0;}
+  if(!captured&&!timeBoxStream)startTimeBoxCamera();
+}
+function openTimeBoxModal(){
+  if(photoCritOnCooldown())return;
+  timeBoxModalOpen=true;
+  if(draft.photo&&!timeBoxPending)timeBoxPending=draft.photo;
+  syncTimeBoxModalUI();
+}
+function closeTimeBoxModal(discardPending=true){
+  if(discardPending&&timeBoxPending&&timeBoxPending!==draft.photo)releasePhotoAsset(timeBoxPending);
+  timeBoxPending=null;
+  stopTimeBoxCamera();
+  const modal=$('#timeBoxModal'),vp=$('#tboxCamViewport'),c=$('#tboxCanvas');
+  if(modal){modal.style.display='none';modal.setAttribute('aria-hidden','true');}
+  if(vp)vp.classList.remove('has-capture');
+  if(c){c.width=0;c.height=0;}
+  const foot=$('#tboxCamFooter');if(foot)foot.innerHTML='';
+  timeBoxModalOpen=false;
+  syncTimeBoxRowButton();
+}
+function stopTimeBoxCamera(){
+  if(timeBoxStream){timeBoxStream.getTracks().forEach(t=>t.stop());timeBoxStream=null;}
+  const v=$('#tboxVideo');if(v)v.srcObject=null;
+}
+function clearTimeBoxCdTimer(){
+  if(timeBoxCdTimer){clearInterval(timeBoxCdTimer);timeBoxCdTimer=null;}
+}
+function startTimeBoxCdTimer(){
+  clearTimeBoxCdTimer();
+  timeBoxCdTimer=setInterval(()=>{
+    if(!photoCritOnCooldown()){clearTimeBoxCdTimer();renderLedger();return;}
+    syncTimeBoxRowButton();
+  },1000);
+}
+async function startTimeBoxCamera(){
+  if(photoCritOnCooldown())return;
+  if(timeBoxInCaptureState())return;
+  stopTimeBoxCamera();
+  if(!navigator.mediaDevices?.getUserMedia){toast('此裝置不支援相機');closeTimeBoxModal(true);return;}
+  try{
+    const constraints={video:{facingMode:timeBoxFacing,width:{ideal:1280},height:{ideal:720}},audio:false};
+    timeBoxStream=await navigator.mediaDevices.getUserMedia(constraints);
+    const v=$('#tboxVideo');if(!v)return;
+    v.srcObject=timeBoxStream;
+    await v.play();
+  }catch(e){
+    toast('無法開啟相機');
+    closeTimeBoxModal(true);
+  }
+}
+function tboxDpr(){return Math.min(window.devicePixelRatio||1,3);}
+const PHOTO_EXPORT_MAX=800;
+const PHOTO_WEBP_QUALITY=0.75;
+const photoBlobRegistry=new Map();
+function supportsWebpExport(){
+  if(supportsWebpExport._ok!==undefined)return supportsWebpExport._ok;
+  try{
+    const c=document.createElement('canvas');c.width=c.height=1;
+    supportsWebpExport._ok=c.toDataURL('image/webp').startsWith('data:image/webp');
+  }catch(_){supportsWebpExport._ok=false;}
+  return supportsWebpExport._ok;
+}
+function fitPhotoExportSize(w,h,max=PHOTO_EXPORT_MAX){
+  if(w<=max&&h<=max)return {w,h};
+  const s=Math.min(max/w,max/h);
+  return {w:Math.round(w*s),h:Math.round(h*s)};
+}
+function canvasToPhotoBlob(canvas){
+  const mime=supportsWebpExport()?'image/webp':'image/jpeg';
+  const quality=supportsWebpExport()?PHOTO_WEBP_QUALITY:0.82;
+  return new Promise((resolve,reject)=>{
+    canvas.toBlob(b=>b?resolve(b):reject(new Error('encode failed')),mime,quality);
+  });
+}
+function createPhotoAsset(blob,w,h){
+  const id='photo_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  const asset={
+    id,mime:blob.type||(supportsWebpExport()?'image/webp':'image/jpeg'),
+    width:w,height:h,bytes:blob.size,uploadStatus:'pending',
+    storageKey:null,remoteUrl:null,previewUrl:URL.createObjectURL(blob),_blob:blob
+  };
+  photoBlobRegistry.set(id,blob);
+  return asset;
+}
+function releasePhotoAsset(asset){
+  if(!asset||typeof asset==='string')return;
+  if(asset.previewUrl?.startsWith('blob:'))URL.revokeObjectURL(asset.previewUrl);
+  photoBlobRegistry.delete(asset.id);
+  asset._blob=null;
+}
+function photoDisplaySrc(photo){
+  if(!photo)return null;
+  if(typeof photo==='string')return photo;
+  return photo.remoteUrl||photo.previewUrl||null;
+}
+async function assetToPhotoData(asset){
+  if(!asset)return null;
+  if(typeof asset==='string'){
+    if(asset.startsWith('data:')||asset.startsWith('http://')||asset.startsWith('https://')||asset.startsWith('blob:'))return asset;
+    return null;
+  }
+  if(asset.remoteUrl)return asset.remoteUrl;
+  const blob=asset._blob||photoBlobRegistry.get(asset.id);
+  if(blob){
+    return new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=()=>reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+  }
+  return asset.previewUrl||null;
+}
+function serializePhotoAsset(asset){
+  if(!asset)return null;
+  if(typeof asset==='string')return asset;
+  return {
+    id:asset.id,mime:asset.mime,width:asset.width,height:asset.height,bytes:asset.bytes,
+    uploadStatus:asset.uploadStatus||'pending',storageKey:asset.storageKey||null,remoteUrl:asset.remoteUrl||null
+  };
+}
+async function tryUploadPhotoAsset(asset){
+  if(!asset||typeof asset==='string')return asset;
+  const blob=asset._blob||photoBlobRegistry.get(asset.id);
+  if(!blob)return asset;
+  const token=localStorage.getItem(AUTH_LS);
+  if(!token)return asset;
+  try{
+    const presignRes=await fetch('/api/photos/presign',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+      body:JSON.stringify({id:asset.id,mime:asset.mime,bytes:asset.bytes})
+    });
+    if(!presignRes.ok)return asset;
+    const presign=await presignRes.json();
+    if(!presign.configured||!presign.uploadUrl){
+      asset.uploadStatus=presign.mode==='deferred'?'pending':'pending';
+      return asset;
+    }
+    const putRes=await fetch(presign.uploadUrl,{method:'PUT',body:blob,headers:{'Content-Type':asset.mime}});
+    if(!putRes.ok)return asset;
+    releasePhotoAsset(asset);
+    asset.storageKey=presign.storageKey;
+    asset.remoteUrl=presign.publicUrl;
+    asset.uploadStatus='uploaded';
+    asset._blob=null;
+    return asset;
+  }catch(e){
+    console.warn('[photo] upload deferred:',e);
+    return asset;
+  }
+}
+async function finalizePhotoAsset(asset){
+  if(!asset)return null;
+  if(typeof asset==='string')return asset;
+  const uploaded=await tryUploadPhotoAsset(asset);
+  return serializePhotoAsset(uploaded);
+}
+async function captureTimeBoxFrame(video){
+  const vw=video.videoWidth,vh=video.videoHeight;
+  if(!vw||!vh)return null;
+  const {w,h}=fitPhotoExportSize(vw,vh);
+  const off=document.createElement('canvas');
+  off.width=w;off.height=h;
+  const ctx=off.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+  ctx.drawImage(video,0,0,w,h);
+  try{
+    const blob=await canvasToPhotoBlob(off);
+    return createPhotoAsset(blob,w,h);
+  }catch(_){return null;}
+}
+function paintTimeBoxPreview(canvas,imgSource){
+  const vp=canvas?.parentElement;if(!vp||!imgSource)return;
+  const cssW=vp.clientWidth,cssH=vp.clientHeight;
+  if(!cssW||!cssH)return;
+  const dpr=tboxDpr();
+  canvas.width=Math.round(cssW*dpr);
+  canvas.height=Math.round(cssH*dpr);
+  canvas.style.width=cssW+'px';
+  canvas.style.height=cssH+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.imageSmoothingEnabled=true;
+  const sw=imgSource.videoWidth||imgSource.naturalWidth||imgSource.width;
+  const sh=imgSource.videoHeight||imgSource.naturalHeight||imgSource.height;
+  if(!sw||!sh)return;
+  const scale=Math.max(cssW/sw,cssH/sh);
+  const dw=sw*scale*dpr,dh=sh*scale*dpr;
+  const dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
+  ctx.drawImage(imgSource,dx,dy,dw,dh);
+}
+function displayTimeBoxPhoto(canvas,src){
+  const url=typeof src==='string'?src:photoDisplaySrc(src);
+  if(!url)return;
+  const img=new Image();
+  img.onload=()=>paintTimeBoxPreview(canvas,img);
+  img.src=url;
+}
+async function captureTimeBoxPhoto(){
+  if(photoCritOnCooldown()||timeBoxInCaptureState())return;
+  const v=$('#tboxVideo'),c=$('#tboxCanvas');
+  if(!v||!c||!timeBoxStream||!v.videoWidth)return;
+  const asset=await captureTimeBoxFrame(v);
+  if(!asset)return;
+  if(timeBoxPending&&timeBoxPending!==draft.photo)releasePhotoAsset(timeBoxPending);
+  timeBoxPending=asset;
+  stopTimeBoxCamera();
+  displayTimeBoxPhoto(c,asset);
+  syncTimeBoxModalUI();
+}
+function retakeTimeBoxPhoto(){
+  if(timeBoxPending===draft.photo){
+    releasePhotoAsset(draft.photo);
+    draft.photo=null;
+  }else if(timeBoxPending){
+    releasePhotoAsset(timeBoxPending);
+  }
+  timeBoxPending=null;
+  const vp=$('#tboxCamViewport'),c=$('#tboxCanvas');
+  if(vp)vp.classList.remove('has-capture');
+  if(c){c.width=0;c.height=0;}
+  syncTimeBoxRowButton();
+  renderTimeBoxModalFooter();
+  startTimeBoxCamera();
+}
+function confirmTimeBoxPhoto(){
+  const asset=timeBoxCaptureAsset();
+  if(!asset)return;
+  if(draft.photo&&draft.photo!==asset)releasePhotoAsset(draft.photo);
+  draft.photo=asset;
+  timeBoxPending=null;
+  closeTimeBoxModal(false);
+  syncTimeBoxRowButton();
+}
+function bootTimeBox(){
+  loadCameraIcon();
+  clearTimeBoxCdTimer();
+  syncTimeBoxRowButton();
+  if(photoCritOnCooldown())startTimeBoxCdTimer();
 }
 // 記帳核心：可由表單或聊天呼叫
 const LEDGER_COIN_REWARD=100;
 const LEDGER_COIN_DAILY_CAP=8;
-function resetLedgerCoinDailyIfNeeded(){
+function resetPhotoRewardDailyIfNeeded(){
   const today=todayStr();
   if(S.lastBookkeepingDate!==today){
     S.dailyBookkeepingCount=0;
@@ -3614,8 +4883,8 @@ function resetLedgerCoinDailyIfNeeded(){
   }
   return false;
 }
-function grantLedgerCoinReward(){
-  resetLedgerCoinDailyIfNeeded();
+function grantPhotoReward(){
+  resetPhotoRewardDailyIfNeeded();
   if(S.dailyBookkeepingCount>=LEDGER_COIN_DAILY_CAP){
     return {coinGain:0,coinCapped:true,rewardGranted:false};
   }
@@ -3623,20 +4892,24 @@ function grantLedgerCoinReward(){
   S.wallet.coins+=LEDGER_COIN_REWARD;
   return {coinGain:LEDGER_COIN_REWARD,coinCapped:false,rewardGranted:true};
 }
-function formatLedgerRewardToast(r){
-  if(r.coinCapped)return `已記帳（今日獎勵已滿 ${LEDGER_COIN_DAILY_CAP} 筆）`;
-  return `+${r.coinGain}${coinIc(true)}  +${r.expGain}EXP${r.crit?'  ⚡暴擊':''}`;
+function formatLedgerRewardToast(r,hasPhoto){
+  if(hasPhoto&&r.coinCapped)return `已記帳（今日剪影獎勵已滿 ${LEDGER_COIN_DAILY_CAP} 次）`;
+  if(r.rewardGranted)return `+${r.coinGain}${coinIc(true)}  +${r.expGain}EXP${r.crit?'  ⚡暴擊':''}`;
+  return '已記帳';
 }
-function recordTx({type,amount,category,note='',hasPhoto=false,photo=null}){
+function recordTx({type,amount,category,note='',hasPhoto=false,photo=null,photoData=null}){
   type=(type==='income')?'income':'expense';
   const amt=Math.abs(parseInt(amount||0));
   if(!amt)return null;
   const cat=(CATS[type].find(c=>c[1]===category))?category:'其他';
+  const resolvedPhotoData=photoData!=null&&photoData!==''?photoData:null;
+  const photoReward=(hasPhoto||resolvedPhotoData)?grantPhotoReward():{coinGain:0,coinCapped:false,rewardGranted:false};
   const onCD=Date.now()-S.lastPhotoCrit<600000;
-  const crit=hasPhoto&&!onCD;
-  const {coinGain,coinCapped,rewardGranted}=grantLedgerCoinReward();
-  const expGain=rewardGranted?((crit?10:5)+(type==='income'?3:0)):0;
-  S.tx.unshift({id:Date.now(),ts:new Date().toISOString(),type,category:cat,amount:amt,note:note||'',hasPhoto,photo});
+  const crit=(hasPhoto||resolvedPhotoData)&&photoReward.rewardGranted&&!onCD;
+  const expGain=photoReward.rewardGranted?((crit?10:5)+(type==='income'?3:0)):0;
+  S.tx.unshift({id:Date.now(),ts:new Date().toISOString(),type,category:cat,amount:amt,note:note||'',
+    hasPhoto:!!(hasPhoto||resolvedPhotoData),photo,photoData:resolvedPhotoData,
+    coinGain:photoReward.coinGain,expGain,crit,rewardGranted:photoReward.rewardGranted,coinCapped:photoReward.coinCapped});
   trimPhotos();
   if(expGain>0)gainExp(expGain);
   if(crit)S.lastPhotoCrit=Date.now();
@@ -3647,15 +4920,31 @@ function recordTx({type,amount,category,note='',hasPhoto=false,photo=null}){
   updateStreak();
   if(typeof touchPetActivity==='function')touchPetActivity();
   if(isSleeping())wakeFromSleep();
-  return {coinGain,coinCapped,expGain,crit,amt,type,cat};
+  return {coinGain:photoReward.coinGain,coinCapped:photoReward.coinCapped,rewardGranted:photoReward.rewardGranted,expGain,crit,amt,type,cat};
 }
 function addTx(){
-  const amt=Math.abs(parseInt($('#amt').value||'0'));
+  const amt=Math.abs(parseInt(draft.amt||$('#amt')?.value||'0'));
   if(!amt){toast('請輸入金額');return;}
-  const r=recordTx({type:draft.type,amount:amt,category:draft.cat,note:$('#note').value.trim(),hasPhoto:!!draft.photo,photo:draft.photo});
+  void addTxAsync(amt);
+}
+async function addTxAsync(amt){
+  let photoData=null;
+  let photoMeta=null;
+  if(draft.photo){
+    photoData=await assetToPhotoData(draft.photo);
+    photoMeta=await finalizePhotoAsset(draft.photo);
+    if(!photoData&&photoMeta){
+      photoData=typeof photoMeta==='string'?photoMeta:(photoMeta.remoteUrl||null);
+    }
+  }
+  const r=recordTx({type:draft.type,amount:amt,category:draft.cat,note:$('#note').value.trim(),
+    hasPhoto:!!photoData,photo:photoMeta,photoData});
+  releasePhotoAsset(draft.photo);
   draft.photo=null;
-  say(r.crit&&r.expGain>0?'📸 相片暴擊！額外經驗與心情加成～':recordLine(r));
-  toast(formatLedgerRewardToast(r));
+  closeTimeBoxModal(true);
+  draft.amt='';
+  say(r.crit&&r.expGain>0?'相片暴擊！額外經驗與心情加成～':recordLine(r));
+  toast(formatLedgerRewardToast(r,!!photoData));
   renderAll();hop();switchTab('ledger');
 }
 // 有動作（記帳/收入/超支）時的即時對應台詞
@@ -3667,21 +4956,15 @@ function recordLine(r){
   return petMoodDialogue()||pick(['記好了！乖乖記帳最棒～','+1 筆，浮島又亮了一點✨','收到，這筆幫你記上囉！']);
 }
 function trimPhotos(){
-  const withPhoto=S.tx.filter(t=>t.photo);
+  const withPhoto=S.tx.filter(t=>t.photo||t.photoData);
   if(withPhoto.length>S.photoCap){
-    withPhoto.slice(S.photoCap).forEach(t=>{t.photo=null;t.shredded=true;});
+    withPhoto.slice(S.photoCap).forEach(t=>{t.photo=null;t.photoData=null;t.shredded=true;});
   }
 }
 function renderTxList(n){
   if(!S.tx.length)return '<p class="hint center">還沒有紀錄，記下第一筆吧！</p>';
-  return S.tx.slice(0,n).map(t=>{
-    const c=(CATS[t.type].find(x=>x[1]===t.category)||['✨'])[0];
-    return `<div class="tx-item">
-      <div class="tx-ic">${c}</div>
-      <div class="tx-main"><div class="t">${t.category}${t.note?' · '+t.note:''} ${t.photo?'<span class="tag">📸</span>':t.shredded?'<span class="mini">🗒️留字</span>':''}</div><div class="s">${formatTxTime(t.ts)}</div></div>
-      <div class="tx-amt ${t.type==='expense'?'amt-exp':'amt-inc'}">${t.type==='expense'?'−':'+'}$${fmt(t.amount)}</div>
-    </div>`;
-  }).join('');
+  const list=Number.isFinite(n)?S.tx.slice(0,n):S.tx;
+  return renderTxListItems(list);
 }
 function updateStreak(){
   const t=todayStr();
@@ -4208,24 +5491,150 @@ function warCostCoinHtml(){
   const src=coinImgSrc();
   return src?`<img class="money-ic war-cost-ic" src="${src}" alt="代幣">`:'';
 }
-let warNumpadOpen=false;
-function pixelNumpadHtml(){
+let floatNumpadCtx=null;
+/* FloatingNumpadModal — 通用懸浮數字鍵盤
+ * openNumpadModal({ title, value, fieldId?, kind?, max?, onChange, onConfirm, onClose?, onCancel?, onCap? })
+ */
+function initFloatingNumpad(){
+  const ov=$('#floatNumpad');
+  if(!ov||ov.dataset.bound)return;
+  ov.dataset.bound='1';
+  ov.addEventListener('click',e=>{if(e.target===ov)closeFloatingNumpad(true);});
+  const grid=$('#floatNumpadKeys');
+  if(!grid)return;
   const keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
-  return keys.map(k=>{
+  grid.innerHTML=keys.map(k=>{
     const cls=k==='⌫'?'px-np-key px-np-del':k==='✓'?'px-np-key px-np-ok':'px-np-key';
-    const act=k==='⌫'?'onWarNumpadBack()':k==='✓'?'onWarNumpadConfirm()':`onWarNumpadDigit('${k}')`;
+    const act=k==='⌫'?'onFloatNumpadBack()':k==='✓'?'onFloatNumpadConfirm()':`onFloatNumpadDigit('${k}')`;
     return `<button type="button" class="${cls}" onclick="${act}">${k}</button>`;
   }).join('');
 }
-function syncWarNumpadVis(){
-  const np=$('#warNumpad'),wrap=$('#warCountWrap');
-  if(np)np.style.display=warNumpadOpen?'grid':'none';
-  if(wrap)wrap.classList.toggle('open',warNumpadOpen);
+function syncFloatNumpadPreview(){
+  const prev=$('#floatNumpadPreview');
+  if(!prev||!floatNumpadCtx)return;
+  const t=floatNumpadCtx.buffer;
+  prev.textContent=t===''?'0':t;
+  prev.classList.toggle('empty',t==='');
 }
-function toggleWarNumpad(){
-  warNumpadOpen=!warNumpadOpen;
-  if(warNumpadOpen&&warDraft.countInput==null)warDraft.countInput=String(warDraft.count);
-  syncWarNumpadVis();
+function syncFloatNumpadChrome(){
+  document.querySelectorAll('.numpad-field.open').forEach(el=>el.classList.remove('open'));
+  if(floatNumpadCtx?.fieldId){
+    const el=$(floatNumpadCtx.fieldId);
+    if(el)el.classList.add('open');
+  }
+  const wrap=$('#warCountWrap');
+  if(wrap)wrap.classList.toggle('open',!!(floatNumpadCtx&&floatNumpadCtx.kind==='war'));
+}
+function openNumpadModal(opts){
+  if(floatNumpadCtx&&opts.fieldId&&floatNumpadCtx.fieldId===opts.fieldId)return;
+  const ctx={...opts};
+  if(opts.onClose&&!opts.onCancel)ctx.onCancel=opts.onClose;
+  openFloatingNumpad(ctx);
+}
+function openFloatingNumpad(ctx){
+  initFloatingNumpad();
+  floatNumpadCtx={buffer:String(ctx.value??''),...ctx};
+  const title=$('#floatNumpadTitle');
+  if(title)title.textContent=ctx.title||'輸入數字';
+  const ov=$('#floatNumpad');
+  if(ov){ov.style.display='flex';ov.setAttribute('aria-hidden','false');}
+  syncFloatNumpadPreview();
+  syncFloatNumpadChrome();
+}
+function closeFloatingNumpad(cancelled){
+  if(!floatNumpadCtx)return;
+  const raw=floatNumpadCtx.buffer;
+  if(cancelled){
+    if(floatNumpadCtx.onClose)floatNumpadCtx.onClose(raw,true);
+    else if(floatNumpadCtx.onCancel)floatNumpadCtx.onCancel(raw);
+  }
+  floatNumpadCtx=null;
+  const ov=$('#floatNumpad');
+  if(ov){ov.style.display='none';ov.setAttribute('aria-hidden','true');}
+  syncFloatNumpadChrome();
+}
+function floatNumpadApplyBuffer(raw){
+  if(!floatNumpadCtx)return;
+  floatNumpadCtx.buffer=raw;
+  syncFloatNumpadPreview();
+  if(floatNumpadCtx.onChange)floatNumpadCtx.onChange(raw);
+}
+function onFloatNumpadDigit(d){
+  if(!floatNumpadCtx)return;
+  let raw=floatNumpadCtx.buffer;
+  if(raw===''||raw==='0')raw=d;
+  else raw+=d;
+  if(raw.length>1)raw=String(parseInt(raw,10));
+  if(floatNumpadCtx.max!=null){
+    const typed=+raw;
+    if(Number.isFinite(typed)&&typed>floatNumpadCtx.max){
+      raw=String(floatNumpadCtx.max);
+      if(floatNumpadCtx.onCap)floatNumpadCtx.onCap();
+    }
+  }
+  floatNumpadApplyBuffer(raw);
+}
+function onFloatNumpadBack(){
+  if(!floatNumpadCtx)return;
+  floatNumpadApplyBuffer(floatNumpadCtx.buffer.slice(0,-1));
+}
+function onFloatNumpadConfirm(){
+  if(!floatNumpadCtx)return;
+  const raw=floatNumpadCtx.buffer;
+  if(floatNumpadCtx.onConfirm)floatNumpadCtx.onConfirm(raw);
+  if(floatNumpadCtx.onClose)floatNumpadCtx.onClose(raw,false);
+  closeFloatingNumpad(false);
+}
+function openLedgerNumpad(){
+  openNumpadModal({
+    kind:'ledger',
+    fieldId:'#amt',
+    value:draft.amt||'',
+    title:'輸入金額',
+    onChange(raw){
+      draft.amt=raw;
+      const el=$('#amt');
+      if(el)el.value=raw;
+    },
+    onConfirm(raw){
+      draft.amt=raw;
+      const el=$('#amt');
+      if(el)el.value=raw;
+    }
+  });
+}
+function openGoalAmtNumpad(){
+  openNumpadModal({
+    kind:'goalAmt',
+    fieldId:'#goalAmt',
+    value:goalFormDraft.amt||'',
+    title:'輸入目標金額',
+    onChange(raw){
+      goalFormDraft.amt=raw;
+      const el=$('#goalAmt');if(el)el.value=raw;
+    },
+    onConfirm(raw){
+      goalFormDraft.amt=raw;
+      const el=$('#goalAmt');if(el)el.value=raw;
+    }
+  });
+}
+function openGoalDaysNumpad(){
+  openNumpadModal({
+    kind:'goalDays',
+    fieldId:'#goalDays',
+    value:goalFormDraft.days||'',
+    title:'輸入預計天數',
+    onChange(raw){
+      goalFormDraft.days=raw;
+      const el=$('#goalDays');if(el)el.value=raw;
+    },
+    onConfirm(raw){
+      const days=Math.max(1,parseInt(raw||'0')||1);
+      goalFormDraft.days=String(days);
+      const el=$('#goalDays');if(el)el.value=goalFormDraft.days;
+    }
+  });
 }
 function warNumpadCapWarn(){
   ['#warDeployCap','#warDeployCost'].forEach(sel=>{
@@ -4236,36 +5645,33 @@ function warNumpadCapWarn(){
   });
   if(navigator.vibrate)try{navigator.vibrate(40);}catch(e){}
 }
-function onWarNumpadDigit(d){
-  let raw=warDraft.countInput!=null?warDraft.countInput:'';
-  if(raw===''||raw==='0')raw=d;
-  else raw+=d;
-  if(raw.length>1)raw=String(parseInt(raw,10));
-  warDraft.countInput=raw;
-  const typed=+raw,max=warCountMax();
-  if(Number.isFinite(typed)&&typed>max){
-    warDraft.countInput=String(max);
-    toast(`代幣不足，已設為最多 ${max} 兵`);
-    warNumpadCapWarn();
-  }
-  updateWarDeployUi();
-}
-function onWarNumpadBack(){
-  let raw=warDraft.countInput!=null?warDraft.countInput:String(warDraft.count);
-  raw=raw.slice(0,-1);
-  warDraft.countInput=raw;
-  updateWarDeployUi();
-}
-function onWarNumpadConfirm(){
-  const raw=warDraft.countInput;
-  const resolved=resolveWarCount(raw??warDraft.count,true);
-  if(raw===''||+raw<1)toast('兵力至少 1 兵');
-  else if(raw&&+raw>warMaxAffordCount())toast(`代幣不足，已設為最多 ${resolved} 兵`);
-  warDraft.count=resolved;
-  warDraft.countInput=null;
-  warNumpadOpen=false;
-  syncWarNumpadVis();
-  updateWarDeployUi();
+function openWarNumpad(){
+  openNumpadModal({
+    kind:'war',
+    value:warDraft.countInput!=null?warDraft.countInput:String(warDraft.count),
+    title:'派遣兵力',
+    max:warCountMax(),
+    onCap(){
+      toast(`代幣不足，已設為最多 ${warCountMax()} 兵`);
+      warNumpadCapWarn();
+    },
+    onChange(raw){
+      warDraft.countInput=raw;
+      updateWarDeployUi();
+    },
+    onConfirm(raw){
+      const resolved=resolveWarCount(raw===''?1:raw,true);
+      if(raw===''||+raw<1)toast('兵力至少 1 兵');
+      else if(raw&&+raw>warMaxAffordCount())toast(`代幣不足，已設為最多 ${resolved} 兵`);
+      warDraft.count=resolved;
+      warDraft.countInput=null;
+      updateWarDeployUi();
+    },
+    onCancel(){
+      warDraft.countInput=null;
+      updateWarDeployUi();
+    }
+  });
 }
 function clampWarDraftCount(v){
   return resolveWarCount(v,true);
@@ -4285,7 +5691,6 @@ function updateWarDeployUi(){
     if(t===''){disp.innerHTML='<span class="war-count-empty">輸入兵力</span>';}
     else disp.textContent=t;
   }
-  syncWarNumpadVis();
   if(cap){
     const coinMax=warMaxAffordCount();
     if(coinMax<WAR_COUNT_HARD_MAX){
@@ -4295,12 +5700,20 @@ function updateWarDeployUi(){
   }
 }
 function commitWarCountFromInput(){
+  if(floatNumpadCtx?.kind==='war'){
+    const raw=floatNumpadCtx.buffer;
+    const resolved=resolveWarCount(raw===''?1:raw,true);
+    warDraft.count=resolved;
+    warDraft.countInput=null;
+    closeFloatingNumpad(false);
+    const disp=$('#warCountTxt');
+    if(disp)disp.textContent=String(resolved);
+    return resolved;
+  }
   const raw=warDraft.countInput!=null?warDraft.countInput:String(warDraft.count);
   const resolved=resolveWarCount(raw===''?1:raw,true);
   warDraft.count=resolved;
   warDraft.countInput=null;
-  warNumpadOpen=false;
-  syncWarNumpadVis();
   const disp=$('#warCountTxt');
   if(disp)disp.textContent=String(resolved);
   return resolved;
@@ -4467,7 +5880,7 @@ function refreshWarKlineIfOpen(){
 let warDraft={unit:'long',code:'MOON',count:3,countInput:null};
 function renderWar(){
   maybeAdvanceMarket();
-  warNumpadOpen=false;
+  if(floatNumpadCtx?.kind==='war')closeFloatingNumpad(true);
   if(warDraft.countInput==null)warDraft.count=clampWarDraftCount(warDraft.count);
   const m=S.market, u=WUNIT(warDraft.unit);
   if(!m.stocks[warDraft.code])warDraft.code='MOON';
@@ -4503,14 +5916,13 @@ function renderWar(){
     <label class="fld" id="warDeployLbl">派遣兵力：<span id="warDeployCount">${warUiCount()}</span> 兵（花費 <span id="warDeployCost">${fmt(u.cost*warUiCount())}${warCostCoinHtml()}</span>）</label>
     <div class="war-deploy-row">
       <div class="war-count-wrap" id="warCountWrap">
-        <button type="button" class="war-count-display" id="warCountDisplay" onclick="toggleWarNumpad()" aria-label="輸入派遣兵力">
+        <button type="button" class="war-count-display" id="warCountDisplay" onclick="openWarNumpad()" aria-label="輸入派遣兵力">
           <span id="warCountTxt">${warCountDisplayText()||'<span class="war-count-empty">輸入兵力</span>'}</span>
         </button>
         <span class="war-count-unit">兵</span>
       </div>
       <button type="button" class="btn sec war-kline-btn" onclick="openWarKlineModal()">📊<span class="war-kline-lb"> K線</span></button>
     </div>
-    <div class="pixel-numpad" id="warNumpad" style="display:none">${pixelNumpadHtml()}</div>
     <p class="mini war-deploy-cap" id="warDeployCap"></p>
     <button class="btn mt" id="warDeployBtn" style="width:100%" onclick="deploy()">招募 ${warIconHtml(u.id,true)} ${u.nm} × ${warUiCount()} 出征 · ${selV.n}！</button>
     <div class="spread mt"><b style="font-size:13px">🏰 前線軍團</b><span class="mini">召回可換回代幣</span></div>
@@ -4664,7 +6076,7 @@ function renderStats(){
       <div class="card" style="box-shadow:none">
         ${cats.length?cats.map(([c,val])=>{
           const em=(CATS.expense.find(x=>x[1]===c)||['✨'])[0];
-          return `<div class="barrow"><div class="lab"><span>${em} ${c}</span><span>$${fmt(val)} (${Math.round(val/exp*100)}%)</span></div><div class="track"><i style="width:${val/max*100}%"></i></div></div>`;
+          return `<div class="barrow"><div class="lab"><span>${catIcon(c,em)} ${c}</span><span>$${fmt(val)} (${Math.round(val/exp*100)}%)</span></div><div class="track"><i style="width:${val/max*100}%"></i></div></div>`;
         }).join(''):'<p class="hint center">本月尚無支出</p>'}
       </div>
       <div class="spread mt"><b style="font-size:13px">⚔️ 戰役日誌</b><span class="mini">近 6 場</span></div>
@@ -4744,8 +6156,10 @@ async function sendChat(){
   pushChat('pet',clean||reply);
   if(tx){
     const reward=tx.coinCapped
-      ?`（今日獎勵已滿 ${LEDGER_COIN_DAILY_CAP} 筆）`
-      :`獎勵 +${tx.coinGain}${coinIc(true)} +${tx.expGain}EXP${tx.crit?' ⚡':''}`;
+      ?`（今日剪影獎勵已滿 ${LEDGER_COIN_DAILY_CAP} 次）`
+      :tx.rewardGranted
+        ?`獎勵 +${tx.coinGain}${coinIc(true)} +${tx.expGain}EXP${tx.crit?' ⚡':''}`
+        :'';
     pushChat('sys',`📒 已記帳：${tx.type==='income'?'收入':'支出'}・${tx.cat} ${tx.type==='income'?'+':'−'}$${fmt(tx.amt)}　${reward}`,true);
   }
   renderChatHistory();
@@ -4791,7 +6205,7 @@ function petSystemPrompt(){
   `- 不要出戲、不要長篇大論、不要用條列。\n`+
   `【記帳能力】當主人在對話中表達要記一筆收入或支出（例如「剛買飲料花了30」「今天領薪水5萬」），你要：\n`+
   `1) 先用一句話俏皮確認；2) 並在整段回覆的「最後一行」附上一段機器指令，格式嚴格為：<<LOG {"type":"expense或income","amount":數字,"category":"分類","note":"簡短備註"}>>。\n`+
-  `分類只能從這些擇一 — 支出：飲食、交通、購物、居住、娛樂、醫療、學習、其他；收入：薪資、獎金、投資、其他。amount 必須是純數字（不含符號）。\n`+
+  `分類只能從這些擇一 — 支出：飲食、交通、購物、居住、娛樂、醫療、學習、其他；收入：薪資、投資、零用錢、其他。amount 必須是純數字（不含符號）。\n`+
   `只有在主人「明確要記帳」時才輸出 <<LOG ...>>；一般聊天、詢問、抱怨都不要輸出。若金額不明確就先反問，不要亂記。\n`+
   `目前主人狀態：本月支出 $${exp} / 預算 $${S.budget}，本月收入 $${inc}，連續記帳 ${S.streak} 天；你的狀態—飽食 ${p.hunger}、心情 ${p.happiness}、健康 ${p.health}。`;
 }
@@ -4859,8 +6273,19 @@ function setThemeMode(mode){
   if(curTab==='settings')renderSettings();
 }
 function editBudget(){
-  const v=prompt('每月預算（元）：',S.budget);
-  if(v&&+v>0){S.budget=+v;toast('預算已更新');renderAll();if(curTab==='settings')renderSettings();if(financeDashOpen)renderFinanceDash();}
+  openNumpadModal({
+    kind:'budget',
+    value:String(S.budget||''),
+    title:'輸入每月預算',
+    onConfirm(raw){
+      const v=Math.abs(parseInt(raw||'0'));
+      if(!v){toast('請輸入有效預算');return;}
+      S.budget=v;
+      toast('預算已更新');
+      renderAll();
+      if(financeDashOpen)renderFinanceDash();
+    }
+  });
 }
 function renamePet(){
   const v=prompt('寵物名字：',S.pet.name);
@@ -5374,6 +6799,15 @@ function updateChatFab(){
   const onHome=(curTab==='home') &&
     (typeof SceneCarousel==='undefined' || SCENES[SceneCarousel.i]==='home');
   fab.classList.toggle('show', !!onHome && S.pet.stage>=2);
+  updateAlbumFab();
+}
+/* 相簿 FAB 只在主島場景顯示 */
+function updateAlbumFab(){
+  const fab=$('#albumFab'); if(!fab)return;
+  const onHomeScene=curTab==='home' &&
+    (typeof SceneCarousel==='undefined' || SCENES[SceneCarousel.i]==='home');
+  fab.classList.toggle('show', !!onHomeScene);
+  if(!onHomeScene&&photoWallOpen)closePhotoWall();
 }
 function initScenes(){
   SceneCarousel.init();
@@ -5381,7 +6815,9 @@ function initScenes(){
   updateFoodFab();
   if(typeof renderMiniPets==='function')renderMiniPets();
   syncFoodInvHint();
+  initFloatingNumpad();
   $('#foodInv')?.addEventListener('click',e=>{if(e.target.id==='foodInv')closeFoodInventory();});
+  $('#historyModal')?.addEventListener('click',e=>{if(e.target.id==='historyModal')closeHistoryModal();});
   $('#warKline')?.addEventListener('click',e=>{if(e.target.id==='warKline')closeWarKlineModal();});
   $('#warKlineScroll')?.addEventListener('scroll',()=>{
     const el=$('#warKlineScroll');
@@ -5404,6 +6840,7 @@ document.querySelectorAll('.tab').forEach(b=>{
 const _gearIc=$('#gearIc');if(_gearIc){const s=settingsIconSrc();if(s)_gearIc.src=s;}
 const _hudShopIc=$('#hudShopIc');if(_hudShopIc&&typeof NAV_ICON!=='undefined'&&NAV_ICON.shop)_hudShopIc.src=NAV_ICON.shop;
 const _chatFabIc=$('#chatFabIc');if(_chatFabIc){const s=playChatIconSrc();if(s)_chatFabIc.src=s;}
+const _albumFabIc=$('#albumFabIc');if(_albumFabIc){const s=cameraIconDataUrl||cameraIconSrc();if(s)_albumFabIc.src=s;}
 setSheetTitle(curTab);
 document.querySelectorAll('#pet,.scene-pet').forEach(p=>{p.onclick=e=>{e.stopPropagation();playWithPet();};});
 scheduleHomeObject(2500); // 開場 2.5 秒後在浮島放第一個互動物件
@@ -5412,6 +6849,9 @@ if(MONEY_IMG.coin)$('#coinIc').src=MONEY_IMG.coin;
 else if(typeof COIN_IMG_SRC!=='undefined')$('#coinIc').src=encodeURI(COIN_IMG_SRC);
 if(MONEY_IMG.gem)$('#gemIc').src=MONEY_IMG.gem;
 if(ISLAND_IMG)$('#isleImg').src=ISLAND_IMG;
+if(typeof EXPENSE_ICON_SRC!=='undefined')document.documentElement.style.setProperty('--cat-sheet',`url("${EXPENSE_ICON_SRC}")`);
+if(typeof PIGGY_MASK_IMG!=='undefined')document.documentElement.style.setProperty('--piggy-mask',`url("${PIGGY_MASK_IMG}")`);
+if(typeof PIGGY_SHELL_IMG!=='undefined')document.documentElement.style.setProperty('--piggy-shell',`url("${PIGGY_SHELL_IMG}")`);
 makeRain();
 rollDay();
 let _gameBooted=false;

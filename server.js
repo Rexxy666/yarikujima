@@ -43,6 +43,7 @@ app.get('/api/config', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/photos', require('./routes/photos'));
 
 // Gemini 代理端點
 app.post('/api/chat', (req, res) => {
