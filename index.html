@@ -1553,6 +1553,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
    本遊戲為虛擬模擬，不構成任何投資建議。
    ============================================================ */
 const LS='gamefi_island_ledger_v1';
+const PHOTO_NUKE_LS='gamefi_photo_nuke_v2';
 const HOMEBTN_IMG={"play": "data:image/png;base64,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", "chat": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEkAAABICAMAAACN8ShLAAAAkFBMVEXQpo8oNGT56tPDkXlfQ1EYKGmkWkTw1LyDMhxyTFJgXWhQPFFMRGM/Pz9ZPEmgTzQ6NlUzRXJjMWN/Pz99MB1APVozM5kAAP85QGRVVaqZM2aRSEj/AAD/f3///wD35cwAAACWSTKjVDqLU0ucUjq2fWbkxKv+8dmCTUm7hGyvdF2KOSMsM1mqVVWmZ08kM2Ym4N0eAAAAMHRSTlP/Sv//rB7+///wB6dlBOH8oCAFBP9oBQFHAwUHAQIB/wD+/v79/////P///0sD/zFICE99AAADpUlEQVR42sWYi3ajKhSGEQJGzKSXuZzLzDmCIIpWfP+3mw3a1HSqibhmzd/Vaqp++dl7cxOJV9EhiCZDQpOgIRnmotTfMv5ertDL82g8cP75pJotysJfdei/f6ZzEihXstyqhzK/9sT/Tw75WcbonOf5wOmbp4wp+DerKutVjXo9fih/l4NntFaP4nkkccGzptRSdqgutqhG3pUus5P4z5M4p7krgaQ7UuANIFwEkixZRr9xgbj4O2uYRKkxJi22yT9jUFkqdRI9+md4VGUpES7iVKcaknhOOBqyBtoqN4ZobkxrLZvsBb00DztJDGL8oF5Qokq5PW0zmRD2ZiRpW6GlMMBPsfotxlomy8mTW74NvWoNVl1I7WLJoE52QbJdaf9tkq89V7XOtdAxCE7jSQiSavFkDk6jSdCvmCMT1LFuD6mzl+DU5LiDRI7V26ddJDR/eCep+g2kmuyL+BWJ7MrdHyNVv5VkHYIuQua5I9g4u7117ggkSeZlagHNIkid92SvSNARXQyJfERiOMoTue4tFaRALXsalj3V5MuVp0CK8eRJ1/0Ox5IwdDU8G9IDKTbizk6TCrLOe5IuLuKodVMfhii5FkWSoKShSVIz5ZxjCsBFbdZIS7kzhiiEsSFHP1kfW5PWyFljtlcB+DnCZFkjDZZgtvOnXVvHjCpQ0ErN5hak3NLwc2NU8avIo0tTHJSmFTSzjRvpMLadX9tqpf1iS3bt0nx+x3znOR4SjtLW8SuMFFRYCbn3Z3h9zBzWVj3BmZXrN9xLwsHTPaTklidMwFO9k4QssZbA7oSF3QxaIyXruevCujZkz1fBjlVPN9+A7SDNVr7r6987Il4vfviI1JS3yuWmZp58KccKm7QNpKdDxiA5qIjdlhl4WmcHin6IR/awZy/ld0B+i45o/5LBAp6YIJS+5c3cJ7+FzfL+2e/NKbRvrD/tR9nXKN6jULTsTOm0Nz8dYANbhjHoUjN2HJu0Hi/8IvjWcBF2wbA3n94XfBJPjLGwPZ8WTKnBlRzvYyxc+1XT17BSUXF588D5AZSfdTmRoED8nef8sKI8CE6e+PV7FSF8ac1JKhcbNJH6vuf9CUjIj7kFlFrJshPv/+3vkHj3roeKQKoLq52WZXM4CRHhKcR9JPlxG9KbUfH8Vzwp1LqVEKNzwj/Fe/qqpISFCeS8yRLBRTwpUVMtOmjaRkfvPUHufdFCsLc6eucpazKQAkfbQVeVSUH+7SPtI0DiJ5/3a7iLwLnNAAAAAElFTkSuQmCC"};
 /* 12 生肖寵物精靈圖（切割去背後內嵌） */
 const ANIMALS=[
@@ -1833,6 +1834,38 @@ function purgeAllGuestLocalData(){
   localStorage.removeItem(LS);
   localStorage.removeItem(TAB_LS);
   try{sessionStorage.clear();}catch(e){}
+}
+function stripPhotosFromStateObj(d){
+  if(!d||!Array.isArray(d.tx))return false;
+  let changed=false;
+  d.tx=d.tx.map(t=>{
+    if(!t||typeof t!=='object')return t;
+    if(!t.photo&&!t.photoData&&!t.hasPhoto)return t;
+    changed=true;
+    const n={...t};
+    delete n.photo;
+    delete n.photoData;
+    n.hasPhoto=false;
+    return n;
+  });
+  if(changed)d._savedAt=Date.now();
+  return changed;
+}
+function nukeAllLocalPhotosOnce(){
+  if(localStorage.getItem(PHOTO_NUKE_LS)==='1')return;
+  try{
+    Object.keys(localStorage).forEach(k=>{
+      if(k!==LS&&!k.startsWith(LS+'::'))return;
+      try{
+        const raw=localStorage.getItem(k);
+        if(!raw)return;
+        const d=JSON.parse(raw);
+        if(stripPhotosFromStateObj(d))localStorage.setItem(k,JSON.stringify(d));
+      }catch(e){}
+    });
+    stripPhotosFromStateObj(S);
+  }catch(e){console.warn('[photo-nuke]',e);}
+  localStorage.setItem(PHOTO_NUKE_LS,'1');
 }
 function ownerKeyForGoogle(googleId){
   return googleId?('g:'+String(googleId)):null;
@@ -2295,6 +2328,7 @@ const PERSONA={
 
 /* ============ 狀態 ============ */
 let S=bootLoadState();
+nukeAllLocalPhotosOnce();
 migrateSavingGoals();
 if(S.pet&&S.pet.named==null)S.pet.named=!!S.onboarded;
 if(S.dailyBookkeepingCount==null)S.dailyBookkeepingCount=0;

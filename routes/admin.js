@@ -18,7 +18,8 @@ router.post('/purge-all-photos', async (req, res) => {
     }
 
     const dryRun = req.query.dryRun === '1' || req.query.dry_run === '1';
-    const result = await purgeAllTransactionPhotos(db, { dryRun });
+    const aggressive = req.query.aggressive !== '0';
+    const result = await purgeAllTransactionPhotos(db, { dryRun, aggressive });
 
     console.log(
       `[admin] purge-all-photos${dryRun ? ' (dry-run)' : ''}: ` +
