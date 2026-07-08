@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 
     const decoded = verifyAppJwt(token);
     const user = (await db.findByEmail(decoded.email)) || (await db.findByGoogleId(decoded.sub));
-    if (!user) return res.status(404).json({ error: '找不到使用者', photos: [] });
+    if (!user) return res.json({ ok: true, ownerId: null, photos: [] });
 
     const photos = extractUserPhotoTransactions(user);
     return res.json({ ok: true, ownerId: user.googleId, photos });

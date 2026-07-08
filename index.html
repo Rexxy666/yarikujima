@@ -4183,21 +4183,54 @@ function renderPhotoWallCard(t){
   </figure>`;
 }
 let photoWallOpen=false;
+function photoWallEmptyHtml(){
+  return '<p class="hint" style="text-align:center;padding:26px 12px;line-height:1.65">📸 這裡還空空如也，快去拍張照片記錄你的島嶼生活吧！</p>';
+}
+function txHasDisplayablePhoto(t){
+  if(!t)return false;
+  const src=txPhotoDataSrc(t);
+  return typeof src==='string'&&src.length>0;
+}
+function filterDisplayablePhotoTx(list){
+  return(Array.isArray(list)?list:[]).filter(txHasDisplayablePhoto);
+}
 async function fetchOwnerPhotoTransactions(){
   const isGuest=isGuestSessionActive();
   if(isGuest){
     const gid=getGuestOwnerKey();
     if(!gid||S._ownerKey!==gid)return [];
-    return(Array.isArray(S.tx)?S.tx:[]).filter(t=>t&&(t.photo||txPhotoDataSrc(t)));
+    return filterDisplayablePhotoTx(Array.isArray(S.tx)?S.tx:[]);
   }
   if(!S.auth?.googleId)return [];
   const token=localStorage.getItem(AUTH_LS);
   if(!token)return [];
-  const res=await fetch('/api/photos',{headers:{Authorization:'Bearer '+token}});
-  if(res.status===401||res.status===403)return [];
-  if(!res.ok)throw new Error('photos fetch failed:'+res.status);
-  const data=await res.json();
-  return Array.isArray(data.photos)?data.photos:[];
+  let res;
+  try{
+    res=await fetch('/api/photos',{headers:{Authorization:'Bearer '+token}});
+  }catch(err){
+    console.warn('[photoWall] network error:',err);
+    throw err;
+  }
+  let data={photos:[]};
+  try{data=await res.json();}catch(e){data={photos:[]};}
+  const photos=Array.isArray(data.photos)?data.photos:[];
+  if(res.status===401||res.status===403){
+    if(S.auth?.googleId){
+      console.warn('[photoWall] session expired while loading photos');
+      localStorage.removeItem(AUTH_LS);
+      closePhotoWall();
+      showAuthGate();
+      toast('登入已過期，請重新登入');
+    }
+    return [];
+  }
+  if(res.status===404||photos.length===0)return filterDisplayablePhotoTx(photos);
+  if(!res.ok){
+    console.warn('[photoWall] API error:',res.status,data?.error||'');
+    if(res.status>=500)throw new Error('photos fetch failed:'+res.status);
+    return filterDisplayablePhotoTx(photos);
+  }
+  return filterDisplayablePhotoTx(photos);
 }
 function openPhotoWall(){
   void openPhotoWallAsync();
@@ -4213,19 +4246,22 @@ async function openPhotoWallAsync(){
     photoWallOpen=true;
     const photos=await fetchOwnerPhotoTransactions();
     if(!photos.length){
-      body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
+      body.innerHTML=photoWallEmptyHtml();
     }else{
       const groups=groupTxPhotosByDate(photos);
-      body.innerHTML=groups.map(g=>`<section class="pw-day-group">
+      const html=groups.map(g=>`<section class="pw-day-group">
         <h3 class="pw-day-title">${esc(formatPhotoWallDateTitle(g.ds))}</h3>
         <div class="pw-grid">${(g.items||[]).map(renderPhotoWallCard).join('')}</div>
-      </section>`).join('')||'<p class="hint" style="text-align:center;padding:26px 8px">還沒有浮島照片～<br>記帳時用「浮島生活剪影」留下第一張吧！</p>';
+      </section>`).join('');
+      body.innerHTML=html||photoWallEmptyHtml();
     }
   }catch(err){
     console.error('[photoWall] open failed:',err);
     const body=$('#photoWallBody');
-    if(body)body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">相簿載入失敗，請稍後再試</p>';
-    toast('相簿暫時無法開啟，請稍後再試');
+    if(body)body.innerHTML=photoWallEmptyHtml();
+    if(err?.message&&/failed:5\d\d/.test(err.message)){
+      toast('相簿暫時無法連線，請稍後再試');
+    }
   }
 }
 function closePhotoWall(){
