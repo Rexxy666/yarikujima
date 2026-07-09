@@ -1227,7 +1227,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .war-count-unit{font-size:12px;font-weight:800;color:#5a4a6a;flex:none}
 .war-cost-ic{height:1em;width:auto;vertical-align:-.15em;margin-left:3px}
 /* 共用懸浮像素 Numpad */
-.float-numpad-overlay{position:absolute;inset:0;z-index:29;background:rgba(0,0,0,.4);
+.float-numpad-overlay{position:absolute;inset:0;z-index:60;background:rgba(0,0,0,.4);
   display:none;align-items:center;justify-content:center;padding:16px;
   -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .float-numpad-panel{width:min(220px,84vw);background:rgba(255,248,236,.98);
@@ -5034,7 +5034,7 @@ function renderTxEditForm(){
         <button type="button" class="txedit-type-btn ${d.type==='income'?'on':''}" onclick="setEditTxType('income')">收入</button>
       </div>
       <label class="fld">金額</label>
-      <input id="editTxAmt" inputmode="numeric" value="${esc(d.amount)}" oninput="if(editTxDraft)editTxDraft.amount=this.value.replace(/[^0-9]/g,'')">
+      <input id="editTxAmt" type="text" readonly inputmode="none" class="numpad-field" value="${esc(d.amount)}" onclick="openEditTxNumpad()" aria-label="金額" placeholder="0">
       <label class="fld">分類</label>
       <div class="chips txedit-cats">${chips}</div>
       <label class="fld">備註</label>
@@ -5058,6 +5058,17 @@ function setEditTxCat(c){
   if(!editTxDraft)return;
   editTxDraft.category=c;
   showOverlay(renderTxEditForm());
+}
+function openEditTxNumpad(){
+  if(!editTxDraft)return;
+  openNumpadModal({
+    kind:'editTx',
+    fieldId:'#editTxAmt',
+    value:editTxDraft.amount||'',
+    title:'輸入金額',
+    onChange(raw){editTxDraft.amount=raw;const el=$('#editTxAmt');if(el)el.value=raw;},
+    onConfirm(raw){editTxDraft.amount=raw;const el=$('#editTxAmt');if(el)el.value=raw;}
+  });
 }
 function closeTxEdit(){editTxDraft=null;closeOverlay();}
 function saveTxEdit(){
