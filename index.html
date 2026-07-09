@@ -345,7 +345,8 @@ img.ic.gem{margin-right:5px}
   display:none; flex-direction:column; overflow:hidden;
   overscroll-behavior:contain; touch-action:pan-y;
 }
-#app.tab-home #sheet{display:none}
+#app.tab-app #rain{display:none}
+#app.tab-app #skyDecor .cloud{opacity:0;pointer-events:none}
 /* 功能 Tab：滿版頁面（遮住浮島場景） */
 #app.tab-app #scene{display:none}
 #app.tab-app #speech{display:none}
@@ -559,6 +560,8 @@ img.ic.gem{margin-right:5px}
 .pw-head b{font-size:14px;font-weight:900;color:#2c2c3a;line-height:1}
 .pw-x{background:#fff;border:2px solid var(--line);border-radius:8px;width:28px;height:28px;
   font-size:14px;cursor:pointer;flex:none;line-height:1;padding:0;color:#3a2c2c}
+#photoWall .pw-body .hint,
+#app[data-sky="dark"] #photoWall .pw-body .hint{color:#333}
 .pw-body{flex:1;min-height:0;overflow-y:auto;padding:12px 12px 14px;-webkit-overflow-scrolling:touch;
   scrollbar-width:thin;scrollbar-color:rgba(58,44,44,.28) transparent}
 .pw-day-group{margin-bottom:18px}
@@ -695,7 +698,145 @@ img.ic.gem{margin-right:5px}
 .war-page .market-bar{margin-bottom:10px}
 .war-page .fld{margin-top:14px}
 .shop-page .hint{line-height:1.55;margin-bottom:12px}
-.stats-panel.page-panel{padding-top:2px}
+.stats-panel.page-panel{padding-top:0;flex:1;min-height:0;display:flex;flex-direction:column}
+/* ── 財務統計頁（軟玻璃卡，與其他分頁一致）── */
+/* 標題沿用共用 #sheetHead，版面與捲動沿用 .tab-app 預設 */
+.fin-stats-page{display:flex;flex-direction:column;gap:0;width:100%;max-width:480px;margin:0 auto}
+.fin-stats-glass{
+  display:flex;flex-direction:column;gap:14px;
+  background:transparent;border:none;box-shadow:none;padding:0}
+/* 軟玻璃卡：對齊 .card / .kpi */
+.fin-stats-pixel-panel{
+  position:relative;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);border-radius:18px;
+  -webkit-backdrop-filter:blur(14px) saturate(1.1);
+  backdrop-filter:blur(14px) saturate(1.1);
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  color:rgba(255,255,255,.95)}
+#app[data-sky="light"] .fin-stats-pixel-panel{
+  background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.45);
+  box-shadow:0 8px 20px rgba(30,20,55,.09);color:#2B2233}
+.fin-stats-kpi-stack{display:flex;flex-direction:column;gap:12px;width:100%;margin-top:2px}
+.fin-stats-kpi-row{
+  display:flex;flex-direction:row;justify-content:space-between;align-items:stretch;
+  gap:12px;width:100%}
+.fin-stats-kpi-row--top .fin-stats-kpi-card{flex:1 1 0;min-width:0;width:50%}
+.fin-stats-kpi-card{
+  padding:14px 12px;min-height:78px;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.fin-stats-kpi-label{
+  font-size:11px;font-weight:800;color:rgba(255,255,255,.62);
+  margin-bottom:6px;letter-spacing:.02em;line-height:1.2;width:100%}
+#app[data-sky="light"] .fin-stats-kpi-label{color:#9a90a6}
+.fin-stats-kpi-val{
+  font-size:clamp(20px,6vw,26px);font-weight:900;line-height:1.1;
+  letter-spacing:-.02em;width:100%;max-width:100%;white-space:nowrap}
+.fin-stats-kpi-val.save{color:rgba(255,255,255,.95)}
+#app[data-sky="light"] .fin-stats-kpi-val.save{color:#2B2233}
+.fin-stats-kpi-val.inc{
+  color:#FFD86B;font-size:clamp(11px,3.8vw,22px);letter-spacing:-.04em}
+#app[data-sky="light"] .fin-stats-kpi-val.inc{color:#B8860B}
+/* ── 甜甜圈（浮於背景，不加卡框）+ 垂直圖例 ── */
+.fin-stats-core{
+  display:flex;flex-direction:column;align-items:center;width:100%;gap:14px}
+.fin-stats-pie-frame{
+  position:relative;width:100%;
+  display:flex;align-items:center;justify-content:center;padding:6px 0 2px}
+.fin-stats-pie-svg{
+  display:block;width:min(64vw,236px);height:auto;
+  max-width:236px;margin:0 auto;aspect-ratio:1;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.28));overflow:visible}
+/* 甜甜圈中央總額 */
+.fin-stats-donut-center{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;pointer-events:none;text-align:center;width:42%;max-width:150px}
+.fin-stats-donut-center .dc-label{
+  font-size:10px;font-weight:800;letter-spacing:.04em;
+  color:rgba(255,255,255,.72);white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.55)}
+.fin-stats-donut-center .dc-amt{
+  font-size:clamp(18px,6.4vw,26px);font-weight:900;letter-spacing:-.02em;
+  line-height:1.04;color:#fff;white-space:nowrap;
+  text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.fin-stats-donut-center.is-cat .dc-amt{
+  border-bottom:3px solid var(--dc-accent,#FFD86B);padding-bottom:2px}
+.fin-stats-donut-center .dc-sub{
+  font-size:12px;font-weight:900;line-height:1.2;color:#FFD86B;
+  text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.fin-stats-donut-center .dc-sub:empty{display:none}
+#app[data-sky="light"] .fin-stats-donut-center .dc-amt{color:#2B2233;text-shadow:0 1px 3px rgba(255,255,255,.65)}
+#app[data-sky="light"] .fin-stats-donut-center .dc-label{color:rgba(43,34,51,.7);text-shadow:0 1px 2px rgba(255,255,255,.6)}
+.fin-stats-pie-slice{
+  cursor:pointer;shape-rendering:geometricPrecision;transform:translate(0,0);
+  transition:transform .24s cubic-bezier(.34,1.28,.64,1),filter .16s ease}
+.fin-stats-pie-slice path{
+  stroke:rgba(15,20,40,.55);stroke-width:2;stroke-linejoin:round;pointer-events:none}
+.fin-stats-pie-slice:hover{filter:brightness(1.05)}
+.fin-stats-pie-slice.on{
+  transform:translate(var(--explode-x,0),var(--explode-y,0));filter:brightness(1.08)}
+.fin-stats-pie-slice.on path{stroke-width:2.5}
+.fin-stats-pie-empty{
+  width:100%;min-height:150px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-align:center;padding:8px;box-sizing:border-box}
+.fin-stats-legend-wrap{width:100%;display:flex;flex-direction:column}
+.fin-stats-legend{display:flex;flex-direction:column;gap:10px;width:100%;margin:0}
+.fin-stats-legend-empty{
+  display:flex;align-items:center;justify-content:center;
+  padding:18px 10px;font-size:13px;font-weight:800;color:rgba(255,255,255,.6);text-align:center}
+.fin-stats-legend-row{
+  position:relative;
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+  gap:10px;min-height:58px;padding:11px 12px 11px 16px;border-radius:16px;min-width:0;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);
+  -webkit-backdrop-filter:blur(14px) saturate(1.1);
+  backdrop-filter:blur(14px) saturate(1.1);
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  cursor:pointer;text-align:left;box-sizing:border-box;overflow:hidden;
+  transition:transform .1s ease,box-shadow .12s ease,border-color .14s;
+  -webkit-tap-highlight-color:transparent}
+#app[data-sky="light"] .fin-stats-legend-row{
+  background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.45);
+  box-shadow:0 8px 20px rgba(30,20,55,.08)}
+.fin-stats-legend-row::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:var(--row-color,transparent)}
+.fin-stats-legend-row:active{transform:scale(.985)}
+.fin-stats-legend-row.lead{border-color:rgba(255,216,107,.5)}
+.fin-stats-legend-row.on{
+  border-color:var(--coin,#FFD43F);
+  box-shadow:0 0 0 2px rgba(255,212,63,.45),0 8px 20px rgba(0,0,0,.1)}
+.fin-stats-legend-row.warn .fin-stats-legend-name span,
+.fin-stats-legend-row.warn .fin-stats-legend-pct,
+.fin-stats-legend-row.warn .fin-stats-legend-amt{color:#FF8A80}
+.fin-stats-legend-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto}
+.fin-stats-legend-swatch{
+  width:14px;height:14px;border-radius:4px;flex:none;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.4)}
+.fin-stats-legend-name{display:flex;align-items:center;gap:8px;min-width:0}
+.fin-stats-legend-name .cat-ic{width:26px;height:26px;flex:none}
+.fin-stats-legend-name span{
+  font-size:14.5px;font-weight:800;color:rgba(255,255,255,.95);
+  line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app[data-sky="light"] .fin-stats-legend-name span{color:#2B2233}
+.fin-stats-legend-right{
+  display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
+  gap:2px;flex:0 0 auto;text-align:right}
+.fin-stats-legend-pct{
+  font-size:14px;font-weight:800;color:rgba(255,255,255,.66);
+  line-height:1.1;white-space:nowrap}
+#app[data-sky="light"] .fin-stats-legend-pct{color:#8a7a9a}
+.fin-stats-legend-amt{
+  font-size:17px;font-weight:900;color:#fff;
+  line-height:1.1;white-space:nowrap;letter-spacing:-.02em}
+#app[data-sky="light"] .fin-stats-legend-amt{color:#2B2233}
+.fin-stats-legend-chev{
+  flex:none;width:16px;font-size:18px;font-weight:900;line-height:1;
+  color:rgba(255,255,255,.4);text-align:center}
+#app[data-sky="light"] .fin-stats-legend-chev{color:rgba(43,34,51,.35)}
 /* 設定分頁：與其他功能頁相同固定標題 + 可滾動內容 */
 #app.tab-settings #sheet{background:transparent;pointer-events:none;display:flex;flex-direction:column;min-height:0}
 #app.tab-settings #sheetBody{
@@ -829,10 +970,11 @@ img.ic.gem{margin-right:5px}
 .finance-card-close svg{width:11px;height:11px;display:block}
 .finance-card-close svg path{stroke:#000;stroke-width:2.5;stroke-linecap:round}
 .finance-panel .btn.big{margin-bottom:0}
-#sheetHead{display:flex;align-items:center;justify-content:space-between;flex:none;position:relative;
+#sheetHead{display:flex;align-items:center;justify-content:center;flex:none;position:relative;
   padding:14px 18px 10px;background:transparent;border:none}
 .sheet-head-actions{display:flex;align-items:center;gap:8px;flex:none}
-.sheet-title{display:flex;align-items:center;gap:7px;min-width:0}
+#sheetHead #sheetRight{position:absolute;right:16px;bottom:10px}
+.sheet-title{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;text-align:center}
 .sheet-title-ic{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;flex:none}
 #sheetHead b{font-size:16px;font-weight:900;letter-spacing:.3px;line-height:1}
 #sheetBody{overflow-y:auto;padding:6px 14px 16px;flex:1;min-height:0;
@@ -846,12 +988,12 @@ img.ic.gem{margin-right:5px}
   bottom:max(var(--float-mb),env(safe-area-inset-bottom,0px));
   left:var(--float-mx);right:var(--float-mx);
   z-index:20;display:flex;align-items:stretch;
-  background:rgba(255,253,249,.82);
-  -webkit-backdrop-filter:blur(18px) saturate(1.15);
-  backdrop-filter:blur(18px) saturate(1.15);
-  border:1px solid rgba(255,255,255,.55);
-  border-radius:22px;
-  box-shadow:0 4px 20px rgba(0,0,0,.08),0 10px 32px rgba(18,12,36,.16),inset 0 1px 0 rgba(255,255,255,.7);
+  background:rgba(255,255,255,.78);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  backdrop-filter:blur(16px) saturate(1.2);
+  border:1px solid rgba(255,255,255,.52);
+  border-radius:999px;
+  box-shadow:0 4px 20px rgba(0,0,0,.08),0 8px 28px rgba(18,12,36,.14),inset 0 1px 0 rgba(255,255,255,.72);
   padding:6px 4px;
 }
 .tab{position:relative;flex:1;background:none;color:#9A90A6;padding:4px 2px;font-size:10px;font-weight:800;
@@ -967,10 +1109,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .home-panel-compact .hbar{height:8px}
 .home-panel-compact .hero-cap{margin-top:5px;font-size:10.5px;line-height:1.35}
 .home-panel-compact .btn.big{margin-bottom:0;height:40px;font-size:14px}
-.stats-panel{display:flex;flex-direction:column;gap:0}
-.stats-panel .hero-card{margin-bottom:10px;padding:12px 14px 10px;border-radius:18px}
-.stats-panel .hero-value{margin:2px 0 8px;font-size:28px}
-.stats-panel .chips-row{margin-bottom:12px;gap:6px}
 .home-panel{display:flex;flex-direction:column;gap:0;padding-top:2px}
 .home-panel .hero-card{margin-bottom:10px;padding:13px 14px 11px;border-radius:18px}
 .home-panel .hero-value{margin:2px 0 8px;font-size:30px}
@@ -1245,6 +1383,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .chatWrap .chatIn input::placeholder,.chatIn input::placeholder{
   color:#888!important;-webkit-text-fill-color:#888!important;opacity:1}
 .chatSend{background:var(--gold);border:3px solid var(--line);border-radius:50%;width:44px;height:44px;flex:none;font-size:18px;font-weight:900;box-shadow:0 3px 0 var(--wood2)}
+.chatSend:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.15);box-shadow:0 1px 0 var(--wood2);transform:none}
 
 /* ===== 登入閘門（像素街機風） ===== */
 .auth-gate{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
@@ -1412,8 +1551,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
   <!-- 底部導覽 -->
   <div id="nav">
     <button class="tab active" data-tab="home"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">首頁</span></button>
-    <button class="tab" data-tab="ledger"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">記帳</span></button>
     <button class="tab" data-tab="war"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">聖戰</span></button>
+    <button class="tab" data-tab="ledger"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">記帳</span></button>
     <button class="tab" data-tab="stats"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">統計</span></button>
     <button class="tab tab-settings" data-tab="settings" aria-label="設定">
       <span class="tab-ic"><img class="em" alt=""></span>
@@ -1467,7 +1606,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
     <div class="pw-panel" role="dialog" aria-labelledby="photoWallTitle">
       <div class="pw-head">
         <div class="pw-head-title">
-          <img id="photoWallTitleIc" class="sheet-title-ic" src="" alt="" aria-hidden="true">
           <b id="photoWallTitle">浮島相簿</b>
         </div>
         <button type="button" class="pw-x" onclick="closePhotoWall()" aria-label="關閉">✕</button>
@@ -1914,6 +2052,24 @@ function bootLoadState(){
   return fresh();
 }
 let _authSyncT=0,_googleClientId='',_bootGameCore=null,_enableBetaDebug=true;
+let API_BASE='';
+function apiUrl(path){
+  const p=path.startsWith('/')?path:'/'+path;
+  return API_BASE+p;
+}
+async function resolveApiBase(){
+  const tryHealth=async(base)=>{
+    try{
+      const r=await fetch(base+'/api/health',{method:'GET'});
+      return r.ok;
+    }catch(e){return false;}
+  };
+  if(await tryHealth('')){API_BASE='';return;}
+  if(location.hostname==='localhost'||location.hostname==='127.0.0.1'){
+    const fallback=`http://${location.hostname}:8787`;
+    if(location.port!=='8787'&&await tryHealth(fallback))API_BASE=fallback;
+  }
+}
 
 function isAuthDev(){
   return location.hostname==='localhost'||location.hostname==='127.0.0.1';
@@ -2091,7 +2247,7 @@ function finishGoogleLogin(data){
 }
 
 async function postGoogleToken(idToken){
-  const res=await fetch('/api/auth/google',{
+  const res=await fetch(apiUrl('/api/auth/google'),{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({id_token:idToken})
   });
@@ -2167,7 +2323,7 @@ function initGoogleAuth(clientId){
 async function restoreAuthSession(token,attempt=0){
   const maxAttempts=3;
   try{
-    const res=await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+token}});
+    const res=await fetch(apiUrl('/api/auth/me'),{headers:{Authorization:'Bearer '+token}});
     if(res.status===401||res.status===403||res.status===404){
       console.warn('[auth] session invalid:',res.status);
       return {ok:false,invalid:true};
@@ -2205,7 +2361,7 @@ function waitForGsi(){
 
 async function initAuth(){
   let cfg={};
-  try{cfg=await fetch('/api/config').then(r=>r.json());}catch(e){}
+  try{cfg=await fetch(apiUrl('/api/config')).then(r=>r.json());}catch(e){}
   _googleClientId=cfg.googleClientId||'';
   _enableBetaDebug=cfg.enableBetaDebug!==false;
 
@@ -2251,7 +2407,7 @@ async function syncAuthState(){
   if(!S.auth?.googleId)return false;
   try{
     await hydrateTxPhotosForCloudSync();
-    const res=await fetch('/api/auth/sync',{
+    const res=await fetch(apiUrl('/api/auth/sync'),{
       method:'POST',
       headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
       body:JSON.stringify({
@@ -2335,8 +2491,8 @@ if(S.dailyBookkeepingCount==null)S.dailyBookkeepingCount=0;
 if(S.lastBookkeepingDate==null)S.lastBookkeepingDate=null;
 {const _ledgerToday=todayStr();
  if(S.lastBookkeepingDate!==_ledgerToday){S.dailyBookkeepingCount=0;S.lastBookkeepingDate=_ledgerToday;}}
-S.gemini=S.gemini||{key:'',model:'gemini-flash-latest'};
-if(!S.gemini.model)S.gemini.model='gemini-flash-latest';
+S.gemini=S.gemini||{key:'',model:'gemini-3.5-flash'};
+if(!S.gemini.model)S.gemini.model='gemini-3.5-flash';
 S.chat=S.chat||[];
 S.theme=S.theme||{mode:'auto'};
 if(!['auto','day','night'].includes(S.theme.mode))S.theme.mode='auto';
@@ -2355,7 +2511,7 @@ function fresh(){
     dailyBookkeepingCount:0, lastBookkeepingDate:null,
     battleLog:[],
     savingGoals:[], // 圓夢存錢目標 [{id,name,target,days,start}]
-    gemini:{key:'',model:'gemini-flash-latest'}, chat:[],
+    gemini:{key:'',model:'gemini-3.5-flash'}, chat:[],
     theme:{mode:'auto'}
   };
 }
@@ -4184,7 +4340,7 @@ function renderPhotoWallCard(t){
 }
 let photoWallOpen=false;
 function photoWallEmptyHtml(){
-  return '<p class="hint" style="text-align:center;padding:26px 12px;line-height:1.65">📸 這裡還空空如也，快去拍張照片記錄你的島嶼生活吧！</p>';
+  return '<p class="hint" style="text-align:center;padding:26px 12px;line-height:1.65">這裡還空空如也，快去拍張照片記錄你的島嶼生活吧！</p>';
 }
 function txHasDisplayablePhoto(t){
   if(!t)return false;
@@ -4194,22 +4350,32 @@ function txHasDisplayablePhoto(t){
 function filterDisplayablePhotoTx(list){
   return(Array.isArray(list)?list:[]).filter(txHasDisplayablePhoto);
 }
+function localPhotoTransactions(){
+  return filterDisplayablePhotoTx(Array.isArray(S.tx)?S.tx:[]);
+}
+function mergePhotoTransactions(localList,remoteList){
+  const byId=new Map();
+  filterDisplayablePhotoTx(remoteList).forEach(t=>{if(t&&t.id!=null)byId.set(t.id,t);});
+  filterDisplayablePhotoTx(localList).forEach(t=>{if(t&&t.id!=null)byId.set(t.id,t);});
+  return[...byId.values()].sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+}
 async function fetchOwnerPhotoTransactions(){
+  const local=localPhotoTransactions();
   const isGuest=isGuestSessionActive();
   if(isGuest){
     const gid=getGuestOwnerKey();
     if(!gid||S._ownerKey!==gid)return [];
-    return filterDisplayablePhotoTx(Array.isArray(S.tx)?S.tx:[]);
+    return local;
   }
-  if(!S.auth?.googleId)return [];
+  if(!S.auth?.googleId)return local;
   const token=localStorage.getItem(AUTH_LS);
-  if(!token)return [];
+  if(!token)return local;
   let res;
   try{
-    res=await fetch('/api/photos',{headers:{Authorization:'Bearer '+token}});
+    res=await fetch(apiUrl('/api/photos'),{headers:{Authorization:'Bearer '+token}});
   }catch(err){
     console.warn('[photoWall] network error:',err);
-    throw err;
+    return local;
   }
   let data={photos:[]};
   try{data=await res.json();}catch(e){data={photos:[]};}
@@ -4224,13 +4390,13 @@ async function fetchOwnerPhotoTransactions(){
     }
     return [];
   }
-  if(res.status===404||photos.length===0)return filterDisplayablePhotoTx(photos);
+  if(res.status===404)return local;
   if(!res.ok){
     console.warn('[photoWall] API error:',res.status,data?.error||'');
-    if(res.status>=500)throw new Error('photos fetch failed:'+res.status);
-    return filterDisplayablePhotoTx(photos);
+    if(res.status>=500)return local;
+    return mergePhotoTransactions(local,photos);
   }
-  return filterDisplayablePhotoTx(photos);
+  return mergePhotoTransactions(local,photos);
 }
 function openPhotoWall(){
   void openPhotoWallAsync();
@@ -4239,7 +4405,6 @@ async function openPhotoWallAsync(){
   try{
     const ov=$('#photoWall'),body=$('#photoWallBody');
     if(!ov||!body)return;
-    syncPhotoWallTitleIcon();
     body.innerHTML='<p class="hint" style="text-align:center;padding:26px 8px">載入相簿中…</p>';
     ov.style.display='flex';
     ov.setAttribute('aria-hidden','false');
@@ -4891,17 +5056,12 @@ function processCameraIcon(img){
   octx.drawImage(src,minX,minY,cropW,cropH,ox,oy,dw,dh);
   return out.toDataURL('image/png');
 }
-function syncPhotoWallTitleIcon(){
-  const ic=$('#photoWallTitleIc');
-  if(!ic)return;
-  ic.src=cameraIconDataUrl||cameraIconSrc();
-}
 function loadCameraIcon(){
   if(cameraIconDataUrl)return;
   const img=new Image();
   img.onload=()=>{
     cameraIconDataUrl=processCameraIcon(img);
-    document.querySelectorAll('.tbox-title-ic,#albumFabIc,#photoWallTitleIc').forEach(el=>{el.src=cameraIconDataUrl;});
+    document.querySelectorAll('.tbox-title-ic,#albumFabIc').forEach(el=>{el.src=cameraIconDataUrl;});
   };
   img.onerror=()=>console.warn('相機圖示載入失敗');
   img.src=cameraIconSrc();
@@ -5182,7 +5342,7 @@ async function tryUploadPhotoAsset(asset){
   const token=localStorage.getItem(AUTH_LS);
   if(!token)return asset;
   try{
-    const presignRes=await fetch('/api/photos/presign',{
+    const presignRes=await fetch(apiUrl('/api/photos/presign'),{
       method:'POST',
       headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
       body:JSON.stringify({id:asset.id,mime:asset.mime,bytes:asset.bytes})
@@ -6478,33 +6638,182 @@ function equip(id){
 }
 
 /* ===== 統計 ===== */
-function renderStats(){
+const STATS_PIE_COLORS={
+  '飲食':'#F5C6A8','交通':'#A8D4F0','購物':'#D4B8F0','居住':'#B8E8C8',
+  '娛樂':'#F0B8C8','醫療':'#F0A8C0','學習':'#A8E0E8','投資':'#F0E8B0','其他':'#C8C8D8'
+};
+let statsHighlightCat=null;
+function statsMonthData(){
   const m=todayStr().slice(0,7);
-  const byCat={};let exp=0,inc=0;
-  S.tx.forEach(t=>{if(t.ts.slice(0,7)!==m)return;if(t.type==='expense'){byCat[t.category]=(byCat[t.category]||0)+t.amount;exp+=t.amount;}else inc+=t.amount;});
+  const byCat={};
+  let exp=0,inc=0;
+  S.tx.forEach(t=>{
+    if(t.ts.slice(0,7)!==m)return;
+    if(t.type==='expense'){byCat[t.category]=(byCat[t.category]||0)+t.amount;exp+=t.amount;}
+    else inc+=t.amount;
+  });
   const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-  const max=cats.length?cats[0][1]:1;
-  const rate=inc>0?Math.round((inc-exp)/inc*100):0;
-  $('#sheetBody').innerHTML=`
-    <div class="stats-panel page-panel">
-      <p class="hint" style="margin-bottom:10px">深度圖表與戰役回顧。日常預算請點首頁下方膠囊開啟<b>帳務主頁</b>。</p>
-      <div class="grid2">
-        <div class="kpi"><b>${rate}%</b><span>本月儲蓄率</span></div>
-        <div class="kpi"><b>${S.tx.filter(t=>t.ts.slice(0,7)===m).length}</b><span>本月筆數</span></div>
-      </div>
-      <div class="spread mt"><b style="font-size:13px">本月支出分類</b><span class="mini">$${fmt(exp)}</span></div>
-      <div class="card" style="box-shadow:none">
-        ${cats.length?cats.map(([c,val])=>{
-          const em=(CATS.expense.find(x=>x[1]===c)||['✨'])[0];
-          return `<div class="barrow"><div class="lab"><span>${catIcon(c,em)} ${c}</span><span>$${fmt(val)} (${Math.round(val/exp*100)}%)</span></div><div class="track"><i style="width:${val/max*100}%"></i></div></div>`;
-        }).join(''):'<p class="hint center">本月尚無支出</p>'}
-      </div>
-      <div class="spread mt"><b style="font-size:13px">⚔️ 戰役日誌</b><span class="mini">近 6 場</span></div>
-      <div class="card" style="box-shadow:none">
-        ${S.battleLog.length?S.battleLog.slice(0,6).map(b=>`<div class="tx-item"><div class="tx-ic">${b.pnl>=0?'🏆':'💥'}</div><div class="tx-main"><div class="t">${b.unit} · ${b.ticker}</div><div class="s">${new Date(b.ts).toLocaleDateString()}・對照走勢 ${b.move>0?'+':''}${b.move}%</div></div><div class="tx-amt ${b.pnl>=0?'amt-inc':'amt-exp'}">${b.pnl>=0?'+':''}${fmt(b.pnl)}${coinIc(true)}</div></div>`).join(''):'<p class="hint center">尚無戰役紀錄</p>'}
-      </div>
-      <p class="disclaimer">戰役結算之走勢對照僅供<b>市場教育與策略反思</b>，不代表任何真實標的表現，亦不構成投資建議。</p>
+  const rate=inc>0?Math.max(0,Math.round((inc-exp)/inc*100)):0;
+  const catBudget=Math.max(1,Math.round(S.budget/CATS.expense.length));
+  return{cats,exp,inc,rate,catBudget};
+}
+function statsPieColor(cat){return STATS_PIE_COLORS[cat]||STATS_PIE_COLORS['其他'];}
+function statsPctShare(val,total){
+  if(!val||val<=0||!total||total<=0)return '0.0%';
+  let pct=val/total*100;
+  if(pct>0&&pct<0.05)pct=0.1;
+  return pct.toFixed(1)+'%';
+}
+function buildStatsPieSvg(cats,totalExp,highlightCat){
+  const list=cats.filter(([,v])=>v>0);
+  if(!list.length)return '<div class="fin-stats-pie-empty">尚無支出</div>';
+  const vb=224,cx=112,cy=112,R=102,r0=64,explode=9;
+  // 單一分類 → 完整圓環（避免退化弧線）
+  if(list.length===1){
+    const [cat,val]=list[0];
+    const on=highlightCat===cat;
+    const ring=`M ${cx-R} ${cy} A ${R} ${R} 0 1 0 ${cx+R} ${cy} A ${R} ${R} 0 1 0 ${cx-R} ${cy} Z `+
+               `M ${cx-r0} ${cy} A ${r0} ${r0} 0 1 1 ${cx+r0} ${cy} A ${r0} ${r0} 0 1 1 ${cx-r0} ${cy} Z`;
+    const slice=`<g class="fin-stats-pie-slice${on?' on':''}" data-cat="${esc(cat)}" style="--explode-x:0px;--explode-y:0px"><path fill-rule="evenodd" d="${ring}" fill="${statsPieColor(cat)}"/></g>`;
+    return `<svg class="fin-stats-pie-svg" viewBox="0 0 ${vb} ${vb}" role="img" aria-label="本月支出圓餅圖">${slice}</svg>`;
+  }
+  let angle=-Math.PI/2;
+  const slices=[];
+  list.forEach(([cat,val])=>{
+    const frac=totalExp>0?val/totalExp:0;
+    if(frac<=0)return;
+    const a2=angle+frac*Math.PI*2;
+    const mid=angle+(a2-angle)/2;
+    const large=frac>0.5?1:0;
+    const xo1=(cx+R*Math.cos(angle)).toFixed(2),yo1=(cy+R*Math.sin(angle)).toFixed(2);
+    const xo2=(cx+R*Math.cos(a2)).toFixed(2),yo2=(cy+R*Math.sin(a2)).toFixed(2);
+    const xi2=(cx+r0*Math.cos(a2)).toFixed(2),yi2=(cy+r0*Math.sin(a2)).toFixed(2);
+    const xi1=(cx+r0*Math.cos(angle)).toFixed(2),yi1=(cy+r0*Math.sin(angle)).toFixed(2);
+    const d=`M ${xo1} ${yo1} A ${R} ${R} 0 ${large} 1 ${xo2} ${yo2} L ${xi2} ${yi2} A ${r0} ${r0} 0 ${large} 0 ${xi1} ${yi1} Z`;
+    const on=highlightCat===cat;
+    const ex=(Math.cos(mid)*explode).toFixed(2);
+    const ey=(Math.sin(mid)*explode).toFixed(2);
+    slices.push(`<g class="fin-stats-pie-slice${on?' on':''}" data-cat="${esc(cat)}" style="--explode-x:${ex}px;--explode-y:${ey}px"><path d="${d}" fill="${statsPieColor(cat)}"/></g>`);
+    angle=a2;
+  });
+  return `<svg class="fin-stats-pie-svg" viewBox="0 0 ${vb} ${vb}" role="img" aria-label="本月支出圓餅圖">${slices.join('')}</svg>`;
+}
+function statsListCategories(cats){
+  const byCat=Object.fromEntries(cats);
+  return CATS.expense.map(([,name])=>({name,val:byCat[name]||0}))
+    .sort((a,b)=>b.val-a.val);
+}
+function renderStatsLegend(cats,totalExp,catBudget,highlightCat){
+  const items=statsListCategories(cats).filter(({val})=>val>0);
+  if(!items.length)return '<div class="fin-stats-legend-empty">尚無支出紀錄</div>';
+  return `<div class="fin-stats-legend">${items.map(({name,val},idx)=>{
+    const pct=statsPctShare(val,totalExp);
+    const warn=val>0&&val/catBudget>=.8;
+    const on=highlightCat===name?' on':'';
+    const lead=idx===0?' lead':'';
+    const color=statsPieColor(name);
+    return `<div class="fin-stats-legend-row${lead}${on}${warn?' warn':''}" data-cat="${esc(name)}" data-amt="$${fmt(val)}" data-pct="${pct}" style="--row-color:${color}" role="button" tabindex="0">
+      <span class="fin-stats-legend-left">
+        <span class="fin-stats-legend-swatch" style="background:${color}"></span>
+        <span class="fin-stats-legend-name">${catIcon(name,'')}<span>${esc(name)}</span></span>
+      </span>
+      <span class="fin-stats-legend-right">
+        <span class="fin-stats-legend-pct">${pct}</span>
+        <span class="fin-stats-legend-amt">$${fmt(val)}</span>
+      </span>
+      <span class="fin-stats-legend-chev" aria-hidden="true">&gt;</span>
     </div>`;
+  }).join('')}</div>`;
+}
+function applyStatsHighlight(cat){
+  statsHighlightCat=cat;
+  document.querySelectorAll('.fin-stats-pie-slice').forEach(el=>{
+    el.classList.toggle('on',!!cat&&el.dataset.cat===cat);
+  });
+  let matched=null;
+  document.querySelectorAll('.fin-stats-legend-row').forEach(el=>{
+    const on=!!cat&&el.dataset.cat===cat;
+    el.classList.toggle('on',on);
+    if(on)matched=el;
+  });
+  const center=document.getElementById('statsDonutCenter');
+  if(center){
+    const lab=center.querySelector('.dc-label');
+    const amt=center.querySelector('.dc-amt');
+    const sub=center.querySelector('.dc-sub');
+    if(cat&&matched){
+      if(lab)lab.textContent=cat;
+      if(amt)amt.textContent=matched.dataset.amt||'';
+      if(sub)sub.textContent=matched.dataset.pct||'';
+      center.classList.add('is-cat');
+      center.style.setProperty('--dc-accent',statsPieColor(cat));
+    }else{
+      if(lab)lab.textContent='本月總支出';
+      if(amt)amt.textContent=center.dataset.total||'';
+      if(sub)sub.textContent='';
+      center.classList.remove('is-cat');
+      center.style.removeProperty('--dc-accent');
+    }
+  }
+}
+function renderStatsCorePanel(cats,exp,catBudget,highlightCat){
+  const hasExp=cats.filter(([,v])=>v>0).length>0;
+  const pieHtml=hasExp?buildStatsPieSvg(cats,exp,highlightCat):'<div class="fin-stats-pie-empty">尚無支出</div>';
+  const centerHtml=hasExp?`<div class="fin-stats-donut-center" id="statsDonutCenter" data-total="$${fmt(exp)}">
+        <div class="dc-label">本月總支出</div>
+        <div class="dc-amt">$${fmt(exp)}</div>
+        <div class="dc-sub"></div>
+      </div>`:'';
+  return `<div class="fin-stats-core">
+    <div class="fin-stats-pie-frame" id="statsPie">${pieHtml}${centerHtml}</div>
+    <div class="fin-stats-legend-wrap">${renderStatsLegend(cats,exp,catBudget,highlightCat)}</div>
+  </div>`;
+}
+function wireStatsInteractions(){
+  document.querySelectorAll('.fin-stats-pie-slice,.fin-stats-legend-row').forEach(el=>{
+    const cat=el.dataset.cat;
+    if(!cat)return;
+    const pick=()=>{applyStatsHighlight(statsHighlightCat===cat?null:cat);};
+    el.onclick=pick;
+    el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}};
+  });
+}
+function fitStatsKpiIncome(){
+  document.querySelectorAll('.fin-stats-kpi-val.inc').forEach(el=>{
+    el.style.fontSize='';
+    const parent=el.parentElement;
+    if(!parent)return;
+    let size=parseFloat(getComputedStyle(el).fontSize)||16;
+    const min=9;
+    while(el.scrollWidth>parent.clientWidth&&size>min){
+      size-=0.5;
+      el.style.fontSize=size+'px';
+    }
+  });
+}
+function renderStats(){
+  const {cats,exp,inc,rate,catBudget}=statsMonthData();
+  $('#sheetRight').textContent='';
+  $('#sheetBody').innerHTML=`
+    <div class="fin-stats-page stats-panel page-panel">
+      <div class="fin-stats-glass">
+        <div class="fin-stats-kpi-stack">
+          <div class="fin-stats-kpi-row fin-stats-kpi-row--top">
+            <div class="fin-stats-kpi-card fin-stats-kpi-card--inc fin-stats-pixel-panel">
+              <div class="fin-stats-kpi-label">本月總收入</div>
+              <div class="fin-stats-kpi-val inc">$${fmt(inc)}</div>
+            </div>
+            <div class="fin-stats-kpi-card fin-stats-kpi-card--save fin-stats-pixel-panel">
+              <div class="fin-stats-kpi-label">本月儲蓄率</div>
+              <div class="fin-stats-kpi-val save">${rate}%</div>
+            </div>
+          </div>
+        </div>
+        ${renderStatsCorePanel(cats,exp,catBudget,statsHighlightCat)}
+      </div>
+    </div>`;
+  wireStatsInteractions();
+  requestAnimationFrame(fitStatsKpiIncome);
 }
 
 /* ===== 每日衰減（模擬電子雞）===== */
@@ -6543,8 +6852,8 @@ function openChat(){
     </div>
     <div class="chatBody" id="chatBody"></div>
     <div class="chatIn">
-      <input id="chatText" placeholder="跟牠說點什麼…" onkeydown="if(event.key==='Enter')sendChat()" maxlength="200">
-      <button class="chatSend" onclick="sendChat()">➤</button>
+      <input id="chatText" placeholder="跟牠說點什麼…" onkeydown="if(event.key==='Enter'){event.preventDefault();sendChat();}" maxlength="200">
+      <button type="button" id="chatSendBtn" class="chatSend" onclick="sendChat()" aria-label="傳送訊息">➤</button>
     </div>
   </div>`);
   if(!S.chat.length){pushChat('pet', pick(['嗨～我在浮島上等你好久囉！今天過得如何呀？','你來啦！有什麼想跟我聊的嗎？','浮島今天天氣不錯，想聊聊你的錢包近況嗎？']));}
@@ -6560,18 +6869,33 @@ function renderChatHistory(){
 }
 function pushChat(r,t,html){S.chat.push({r,t,html:!!html});if(S.chat.length>60)S.chat=S.chat.slice(-60);save();}
 function clearChat(){ if(!S.chat.length)return closeOverlay(); if(confirm('清空與寵物的對話紀錄？（不影響帳本與代幣）')){S.chat=[];save();openChat();} }
+let chatSending=false;
+function setChatInputBusy(busy){
+  const inp=$('#chatText'),btn=$('#chatSendBtn');
+  if(inp)inp.disabled=busy;
+  if(btn)btn.disabled=busy;
+}
 async function sendChat(){
-  const inp=$('#chatText');if(!inp)return;
+  if(chatSending)return;
+  const inp=$('#chatText');if(!inp||inp.disabled)return;
   const text=inp.value.trim();if(!text)return;
-  inp.value='';inp.disabled=true;
+  chatSending=true;
+  setChatInputBusy(true);
+  inp.value='';
   pushChat('me',text);renderChatHistory();
   const b=$('#chatBody');
   const typing=document.createElement('div');typing.className='bub pet typing';typing.innerHTML='<i>●</i><i>●</i><i>●</i>';
   b.appendChild(typing);b.scrollTop=b.scrollHeight;
   let reply;
-  try{ reply=await getPetReply(text); }
-  catch(e){ reply=pick(LINES.idle)+'（守護靈連線失敗，先用心電感應回你 😅）'; }
-  typing.remove();
+  try{
+    reply=await getPetReply(text);
+  }catch(e){
+    reply=pick(LINES.idle)+'（守護靈連線失敗，先用心電感應回你 😅）';
+  }finally{
+    typing.remove();
+    chatSending=false;
+    setChatInputBusy(false);
+  }
   const {clean,tx}=applyChatLog(reply);
   pushChat('pet',clean||reply);
   if(tx){
@@ -6583,7 +6907,7 @@ async function sendChat(){
     pushChat('sys',`📒 已記帳：${tx.type==='income'?'收入':'支出'}・${tx.cat} ${tx.type==='income'?'+':'−'}$${fmt(tx.amt)}　${reward}`,true);
   }
   renderChatHistory();
-  inp.disabled=false;inp.focus();
+  inp.focus();
   S.pet.happiness=clamp(S.pet.happiness+2);
   if(tx)hop();
   renderAll(); // 更新餘額/統計/寵物
@@ -6630,19 +6954,25 @@ function petSystemPrompt(){
   `目前主人狀態：本月支出 $${exp} / 預算 $${S.budget}，本月收入 $${inc}，連續記帳 ${S.streak} 天；你的狀態—飽食 ${p.hunger}、心情 ${p.happiness}、健康 ${p.health}。`;
 }
 // 前端只呼叫本機後端 /api/chat；金鑰放在後端 .env，不會出現在前端
-const API_BASE='';
 async function callGemini(text){
   // 只送最近 10 則「純對話」給模型（排除記帳收據等系統訊息），控制 token 成本
   const history=S.chat.filter(m=>m.r==='pet'||m.r==='me').slice(-10).map(m=>({role:m.r==='pet'?'model':'user',parts:[{text:m.t}]}));
   const body={
     systemInstruction:{parts:[{text:petSystemPrompt()}]},
     contents:[...history,{role:'user',parts:[{text}]}],
-    generationConfig:{temperature:0.9,maxOutputTokens:1024,topP:0.95,thinkingConfig:{thinkingBudget:0}}
+    generationConfig:{temperature:0.9,maxOutputTokens:1024,topP:0.95}
   };
-  const res=await fetch(API_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const res=await fetch(apiUrl('/api/chat'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.error){
-    const msg=data.error?.message||('HTTP '+res.status);
+    if(res.status===405){
+      return '（守護靈還沒連上線 💤）請用「啟動遊戲.command」或 npm start 啟動 Node 後端（勿用靜態檔案伺服器開啟）';
+    }
+    const errMsg=String(data.error?.message||'');
+    if(res.status===503||/high demand|unavailable|try again/i.test(errMsg)){
+      return '（守護靈暫時忙碌中 💤）伺服器已自動重試，請稍候再傳一次訊息～';
+    }
+    const msg=errMsg||('HTTP '+res.status);
     return `（守護靈還沒連上線 💤）${msg}`;
   }
   const t=data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join('')||'';
@@ -7269,7 +7599,6 @@ const _gearIc=$('#gearIc');if(_gearIc){const s=settingsIconSrc();if(s)_gearIc.sr
 const _hudShopIc=$('#hudShopIc');if(_hudShopIc&&typeof NAV_ICON!=='undefined'&&NAV_ICON.shop)_hudShopIc.src=NAV_ICON.shop;
 const _chatFabIc=$('#chatFabIc');if(_chatFabIc){const s=playChatIconSrc();if(s)_chatFabIc.src=s;}
 const _albumFabIc=$('#albumFabIc');if(_albumFabIc){const s=cameraIconDataUrl||cameraIconSrc();if(s)_albumFabIc.src=s;}
-syncPhotoWallTitleIcon();
 setSheetTitle(curTab);
 document.querySelectorAll('#pet,.scene-pet').forEach(p=>{p.onclick=e=>{e.stopPropagation();playWithPet();};});
 scheduleHomeObject(2500); // 開場 2.5 秒後在浮島放第一個互動物件
@@ -7313,6 +7642,7 @@ _bootGameCore=function bootGameCore(){
   scheduleChatter();
 };
 (async function bootGame(){
+  await resolveApiBase();
   const resuming=!!(localStorage.getItem(AUTH_LS)||localStorage.getItem(GUEST_LS)==='1');
   if(resuming)showAuthBootLoading();
   try{
