@@ -649,8 +649,49 @@ img.ic.gem{margin-right:5px}
 #historyModal .history-modal-body .tx-main--expand{cursor:pointer;-webkit-tap-highlight-color:transparent}
 #historyModal .history-modal-body .tx-main--expand:active .t{opacity:.75}
 #historyModal .history-modal-body .tx-right-rail{
-  grid-column:2;display:flex;align-items:center;gap:8px;flex-shrink:0;
-  width:150px;min-width:150px;max-width:150px;padding-right:2px;box-sizing:border-box}
+  grid-column:2;display:flex;align-items:center;gap:7px;flex-shrink:0;
+  width:176px;min-width:176px;max-width:176px;padding-right:2px;box-sizing:border-box}
+#historyModal .history-modal-body .tx-edit-btn{
+  flex:none;width:30px;height:30px;border-radius:8px;
+  background:#fff;border:2px solid var(--line);box-shadow:2px 2px 0 rgba(15,23,42,.55);
+  font-size:14px;line-height:1;cursor:pointer;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .06s ease,box-shadow .06s ease;-webkit-tap-highlight-color:transparent}
+#historyModal .history-modal-body .tx-edit-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.55)}
+/* 修改記帳表單（浮在 overlay 上） */
+.txedit-wrap{width:100%;max-width:360px;background:#fffdf7;color:#1a1a1a;
+  border:3px solid var(--line);border-radius:16px;box-shadow:5px 6px 0 rgba(0,0,0,.4);
+  display:flex;flex-direction:column;overflow:hidden;max-height:86vh}
+.txedit-head{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 14px;border-bottom:3px solid var(--line);background:#fff8ec}
+.txedit-head b{font-size:15px;font-weight:900;color:#2c2c3a}
+.txedit-body{padding:12px 14px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.txedit-body .fld{display:block;margin:12px 0 5px;font-size:12px;font-weight:800;color:#5a4a6a}
+.txedit-body input{width:100%;box-sizing:border-box;border:3px solid var(--line);border-radius:8px;
+  padding:11px 12px;font-size:15px;font-weight:700;font-family:var(--font);
+  color:#1a1a1a!important;background:#fff!important;-webkit-text-fill-color:#1a1a1a!important}
+#editTxAmt{font-size:20px;font-weight:900;letter-spacing:.02em}
+.txedit-type{display:flex;gap:8px}
+.txedit-type-btn{flex:1;padding:10px;border:3px solid var(--line);border-radius:8px;
+  background:rgba(0,0,0,.06);color:#4a4a5a;font-family:var(--font);font-weight:900;font-size:14px;cursor:pointer;
+  transition:transform .06s ease,box-shadow .06s ease}
+.txedit-type-btn.on{background:#fff;color:#000;box-shadow:2px 2px 0 rgba(15,23,42,.8)}
+.txedit-type-btn:active{transform:translate(1px,1px)}
+.txedit-cats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 2px}
+.txedit-cats .chip{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;
+  padding:9px 6px;border-radius:12px;font-size:12.5px;font-weight:800;box-sizing:border-box}
+.txedit-cats .chip>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txedit-cats .chip .cat-ic{width:22px;height:22px;flex:none}
+.txedit-cats .chip .cat-ic-em{font-size:16px;line-height:1}
+.txedit-actions{display:flex;gap:10px;margin-top:18px}
+.txedit-del{flex:0 0 auto;min-width:84px;padding:13px 14px;border:3px solid #dc2626;border-radius:10px;
+  background:rgba(254,202,202,.5);color:#dc2626;font-family:var(--font);font-weight:900;font-size:14px;cursor:pointer;
+  box-shadow:3px 3px 0 rgba(15,23,42,.7);transition:transform .06s ease,box-shadow .06s ease}
+.txedit-del:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.7)}
+.txedit-save{flex:1;padding:13px 14px;border:3px solid var(--line);border-radius:10px;
+  background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:15px;cursor:pointer;
+  box-shadow:3px 3px 0 rgba(15,23,42,.7);transition:transform .06s ease,box-shadow .06s ease}
+.txedit-save:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.7)}
 #historyModal .history-modal-body .tx-photo-cell{
   display:flex;align-items:center;justify-content:center;flex:none;flex-shrink:0;
   width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px}
@@ -1376,11 +1417,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .bub.typing{color:#9a8a7a;font-weight:700}
 .bub.typing i{animation:blink 1s infinite}.bub.typing i:nth-child(2){animation-delay:.2s}.bub.typing i:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
-.chatIn{display:flex;gap:8px;padding:10px;border-top:3px solid #000;background:var(--panel2)}
-.chatIn input{flex:1;border-radius:20px;border:3px solid var(--line);padding:10px 14px;font-size:14px;font-weight:600}
-.chatWrap .chatIn input,.chatIn input{
+.chatIn{display:flex;align-items:flex-end;gap:8px;padding:10px;border-top:3px solid #000;background:var(--panel2)}
+.chatIn input,.chatIn textarea{flex:1;min-width:0;border-radius:20px;border:3px solid var(--line);padding:10px 14px;font-size:14px;font-weight:600;box-sizing:border-box}
+.chatIn textarea{
+  resize:none;font-family:var(--font);line-height:1.4;
+  min-height:44px;max-height:110px;overflow-y:auto;display:block;
+  -webkit-overflow-scrolling:touch}
+.chatWrap .chatIn input,.chatIn input,
+.chatWrap .chatIn textarea,.chatIn textarea{
   color:#1a1a1a!important;background:#fffdf7!important;-webkit-text-fill-color:#1a1a1a!important}
-.chatWrap .chatIn input::placeholder,.chatIn input::placeholder{
+.chatWrap .chatIn input::placeholder,.chatIn input::placeholder,
+.chatWrap .chatIn textarea::placeholder,.chatIn textarea::placeholder{
   color:#888!important;-webkit-text-fill-color:#888!important;opacity:1}
 .chatSend{background:var(--gold);border:3px solid var(--line);border-radius:50%;width:44px;height:44px;flex:none;font-size:18px;font-weight:900;box-shadow:0 3px 0 var(--wood2)}
 .chatSend:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.15);box-shadow:0 1px 0 var(--wood2);transform:none}
@@ -4929,6 +4976,7 @@ function renderTxListItems(items,opts){
       <div class="tx-right-rail">
         <div class="tx-photo-cell">${thumb}</div>
         <div class="tx-amt-cell">${amt}</div>
+        <button type="button" class="tx-edit-btn" onclick="event.stopPropagation();openTxEdit(${t.id})" aria-label="修改這筆" title="修改">✏️</button>
       </div>
     </div>`;
     }
@@ -4963,6 +5011,84 @@ function setHistoryFilter(f){
   historyFilter=f;
   document.querySelectorAll('.history-tab').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
   renderHistoryModalList();
+}
+/* ===== 修改／刪除既有記帳（只改內容，不重發獎勵） ===== */
+let editTxDraft=null;
+function openTxEdit(id){
+  const t=(Array.isArray(S.tx)?S.tx:[]).find(x=>x.id===id);
+  if(!t)return;
+  editTxDraft={id:t.id,type:t.type==='income'?'income':'expense',category:t.category,amount:String(t.amount),note:t.note||''};
+  showOverlay(renderTxEditForm());
+  setTimeout(()=>{const a=$('#editTxAmt');a&&a.focus();},60);
+}
+function renderTxEditForm(){
+  const d=editTxDraft;if(!d)return '';
+  const cds=CATS[d.type]||CATS.expense;
+  if(!cds.some(c=>c[1]===d.category))d.category=cds[0][1];
+  const chips=cds.map(c=>`<button type="button" class="chip cat-chip ${d.category===c[1]?'on':''}" onclick="setEditTxCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${esc(c[1])}</span></button>`).join('');
+  return `<div class="txedit-wrap">
+    <div class="txedit-head"><b>修改這筆紀錄</b><button type="button" class="chatX" onclick="closeTxEdit()" aria-label="關閉">✕</button></div>
+    <div class="txedit-body">
+      <div class="txedit-type">
+        <button type="button" class="txedit-type-btn ${d.type==='expense'?'on':''}" onclick="setEditTxType('expense')">支出</button>
+        <button type="button" class="txedit-type-btn ${d.type==='income'?'on':''}" onclick="setEditTxType('income')">收入</button>
+      </div>
+      <label class="fld">金額</label>
+      <input id="editTxAmt" inputmode="numeric" value="${esc(d.amount)}" oninput="if(editTxDraft)editTxDraft.amount=this.value.replace(/[^0-9]/g,'')">
+      <label class="fld">分類</label>
+      <div class="chips txedit-cats">${chips}</div>
+      <label class="fld">備註</label>
+      <input id="editTxNote" type="text" value="${esc(d.note)}" placeholder="備註…" oninput="if(editTxDraft)editTxDraft.note=this.value">
+      <div class="txedit-actions">
+        <button type="button" class="txedit-del" onclick="deleteTxEdit()">刪除</button>
+        <button type="button" class="txedit-save" onclick="saveTxEdit()">儲存</button>
+      </div>
+    </div>
+  </div>`;
+}
+function setEditTxType(t){
+  if(!editTxDraft)return;
+  editTxDraft.type=t==='income'?'income':'expense';
+  const cds=CATS[editTxDraft.type];
+  if(!cds.some(c=>c[1]===editTxDraft.category))editTxDraft.category=cds[0][1];
+  showOverlay(renderTxEditForm());
+  setTimeout(()=>{const a=$('#editTxAmt');a&&a.focus();},40);
+}
+function setEditTxCat(c){
+  if(!editTxDraft)return;
+  editTxDraft.category=c;
+  showOverlay(renderTxEditForm());
+}
+function closeTxEdit(){editTxDraft=null;closeOverlay();}
+function saveTxEdit(){
+  const d=editTxDraft;if(!d)return;
+  const amt=Math.abs(parseInt(d.amount||'0',10));
+  if(!amt){toast('請輸入金額');return;}
+  const t=(Array.isArray(S.tx)?S.tx:[]).find(x=>x.id===d.id);
+  if(!t){closeTxEdit();return;}
+  t.type=(d.type==='income')?'income':'expense';
+  const cds=CATS[t.type];
+  t.category=cds.some(c=>c[1]===d.category)?d.category:'其他';
+  t.amount=amt;
+  t.note=(d.note||'').trim();
+  save();
+  editTxDraft=null;
+  closeOverlay();
+  renderHistoryModalList();
+  renderAll();
+  toast('已更新這筆紀錄');
+}
+function deleteTxEdit(){
+  const d=editTxDraft;if(!d)return;
+  if(!confirm('確定刪除這筆紀錄？此動作無法復原。'))return;
+  const i=(Array.isArray(S.tx)?S.tx:[]).findIndex(x=>x.id===d.id);
+  if(i>=0)S.tx.splice(i,1);
+  save();
+  editTxDraft=null;
+  closeOverlay();
+  renderHistoryModalList();
+  renderAll();
+  toast('已刪除這筆紀錄');
 }
 function openHistoryModal(){
   const ov=$('#historyModal');
@@ -6852,7 +6978,7 @@ function openChat(){
     </div>
     <div class="chatBody" id="chatBody"></div>
     <div class="chatIn">
-      <input id="chatText" placeholder="跟牠說點什麼…" onkeydown="if(event.key==='Enter'){event.preventDefault();sendChat();}" maxlength="200">
+      <textarea id="chatText" placeholder="跟牠說點什麼…" rows="1" maxlength="200" oninput="chatAutoGrow(this)" onkeydown="chatKeydown(event)"></textarea>
       <button type="button" id="chatSendBtn" class="chatSend" onclick="sendChat()" aria-label="傳送訊息">➤</button>
     </div>
   </div>`);
@@ -6869,6 +6995,18 @@ function renderChatHistory(){
 }
 function pushChat(r,t,html){S.chat.push({r,t,html:!!html});if(S.chat.length>60)S.chat=S.chat.slice(-60);save();}
 function clearChat(){ if(!S.chat.length)return closeOverlay(); if(confirm('清空與寵物的對話紀錄？（不影響帳本與代幣）')){S.chat=[];save();openChat();} }
+function chatKeydown(e){
+  if(e.key!=='Enter')return;
+  if(e.isComposing||e.keyCode===229)return; // 輸入法選字中，Enter 只確認候選字，不送出
+  if(e.shiftKey)return;                       // Shift+Enter 換行
+  e.preventDefault();
+  sendChat();
+}
+function chatAutoGrow(el){
+  if(!el)return;
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,110)+'px';
+}
 let chatSending=false;
 function setChatInputBusy(busy){
   const inp=$('#chatText'),btn=$('#chatSendBtn');
@@ -6882,6 +7020,7 @@ async function sendChat(){
   chatSending=true;
   setChatInputBusy(true);
   inp.value='';
+  chatAutoGrow(inp);
   pushChat('me',text);renderChatHistory();
   const b=$('#chatBody');
   const typing=document.createElement('div');typing.className='bub pet typing';typing.innerHTML='<i>●</i><i>●</i><i>●</i>';

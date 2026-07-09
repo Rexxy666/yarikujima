@@ -34,6 +34,7 @@ function checkIndexHtml() {
 [
   'server.js',
   'lib/auth.js',
+  'lib/database-url.js',
   'lib/db.js',
   'lib/db-file.js',
   'lib/db-pg.js',
