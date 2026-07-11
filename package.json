@@ -13,7 +13,9 @@
     "reset:photos": "node scripts/reset-all-transaction-photos.js",
     "reset:photos:dry-run": "node scripts/reset-all-transaction-photos.js --dry-run",
     "force-clear-photos": "node scripts/force-clear-photos.js --via-api",
-    "force-clear-photos:dry-run": "node scripts/force-clear-photos.js --via-api --dry-run"
+    "force-clear-photos:dry-run": "node scripts/force-clear-photos.js --via-api --dry-run",
+    "force-clear-history": "node scripts/force-clear-history.js --via-api",
+    "force-clear-history:dry-run": "node scripts/force-clear-history.js --via-api --dry-run"
   },
   "dependencies": {
     "dotenv": "^16.6.1",

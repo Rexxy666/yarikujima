@@ -39,8 +39,11 @@ function checkIndexHtml() {
   'lib/db-file.js',
   'lib/db-pg.js',
   'lib/users.js',
+  'lib/purge-photos.js',
+  'lib/purge-history.js',
   'routes/auth.js',
   'routes/photos.js',
+  'routes/admin.js',
 ].forEach(checkJs);
 checkIndexHtml();
 
