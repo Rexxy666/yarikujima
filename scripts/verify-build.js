@@ -44,6 +44,7 @@ function checkIndexHtml() {
   'routes/auth.js',
   'routes/photos.js',
   'routes/admin.js',
+  'lib/feed/feed.routes.js',
 ].forEach(checkJs);
 checkIndexHtml();
 

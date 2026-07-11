@@ -254,6 +254,9 @@ process.env.FRIENDS_DB_PATH =
   process.env.FRIENDS_DB_PATH || path.join(__dirname, 'data', 'friends-db.json');
 app.use('/api/friends', require('./lib/friends/friends.routes'));
 
+// 社群動態牆（好友＋自己可見）
+app.use('/api/feed', require('./lib/feed/feed.routes'));
+
 // 靜態檔
 app.use(express.static(__dirname, { index: 'index.html' }));
 

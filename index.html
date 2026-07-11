@@ -2748,6 +2748,7 @@ function migrateSavingGoals(){
 }
 function exportGameState(){
   const o={_savedAt:Date.now()};
+  if(S._historyWipedAt)o._historyWipedAt=+S._historyWipedAt;
   const txList=Array.isArray(S.tx)?S.tx:[];
   GAME_STATE_KEYS.forEach(k=>{
     if(S[k]===undefined)return;
@@ -2821,21 +2822,50 @@ function mergeGameStateForSync(base,overlay){
   if(!overlay||typeof overlay!=='object')return base;
   if(!base||typeof base!=='object')return overlay;
   const merged={...base,...overlay};
-  if(Array.isArray(base.tx)||Array.isArray(overlay.tx)){
+  const wipedAt=Math.max(+(base._historyWipedAt||0),+(overlay._historyWipedAt||0));
+  if(wipedAt>0)merged._historyWipedAt=wipedAt;
+  // 雲端已洗歷史：未承認 wipe 的一方帶的舊 tx 一律丟棄；雙方都承認後正常合併（允許洗完後新記帳）
+  if(wipedAt>0){
+    const baseAck=+(base._historyWipedAt||0)>=wipedAt;
+    const overAck=+(overlay._historyWipedAt||0)>=wipedAt;
+    const baseTx=baseAck&&Array.isArray(base.tx)?base.tx:[];
+    const overTx=overAck&&Array.isArray(overlay.tx)?overlay.tx:[];
+    if(!baseAck&&!overAck)merged.tx=[];
+    else if(!baseAck)merged.tx=overTx;
+    else if(!overAck)merged.tx=baseTx;
+    else merged.tx=mergeTxPhotoRowsForSync(baseTx,overTx);
+  }else if(Array.isArray(base.tx)||Array.isArray(overlay.tx)){
     merged.tx=mergeTxPhotoRowsForSync(base.tx,overlay.tx);
   }
   merged._savedAt=Math.max(+(base._savedAt||0),+(overlay._savedAt||0))||Date.now();
   return merged;
 }
+function applyHistoryWipeFromRemote(remote){
+  if(!remote||typeof remote!=='object')return;
+  const remoteWipe=+(remote._historyWipedAt||0);
+  if(!remoteWipe)return;
+  const localWipe=+(S._historyWipedAt||0);
+  if(remoteWipe>localWipe){
+    // 本機還是洗之前的存檔 → 清空舊帳本／相簿，並承認 wipe，避免再 sync 回去
+    S.tx=[];
+    S._historyWipedAt=remoteWipe;
+    if(remote._savedAt)S._savedAt=Math.max(+(S._savedAt||0),+remote._savedAt);
+  }else{
+    S._historyWipedAt=Math.max(localWipe,remoteWipe);
+  }
+}
 function importGameState(g){
   if(!g||typeof g!=='object')return;
+  applyHistoryWipeFromRemote(g);
   GAME_STATE_KEYS.forEach(k=>{
     if(g[k]===undefined)return;
+    if(k==='tx'&&+(S._historyWipedAt||0)>0&&+(g._historyWipedAt||0)>0&&+(g._historyWipedAt||0)<+(S._historyWipedAt||0))return;
     if(k==='pet'&&S.pet&&g.pet&&typeof g.pet==='object')S.pet={...S.pet,...g.pet};
     else if(k==='wallet'&&g.wallet)S.wallet={...S.wallet,...g.wallet};
     else if(k==='cosmetics'&&g.cosmetics)S.cosmetics={...S.cosmetics,...g.cosmetics};
     else S[k]=g[k];
   });
+  if(g._historyWipedAt)S._historyWipedAt=Math.max(+(S._historyWipedAt||0),+g._historyWipedAt);
   if(g._savedAt)S._savedAt=g._savedAt;
   migrateSavingGoals();
 }
@@ -7192,79 +7222,172 @@ function feedTime(ts){
   if(day<7)return day+' 天前';
   return `${d.getMonth()+1}/${d.getDate()}`;
 }
+let feedCloudPosts=null;
+let feedCloudLoading=false;
+function feedCloudEnabled(){return !!localStorage.getItem(AUTH_LS)&&localStorage.getItem(GUEST_LS)!=='1';}
+async function feedApi(method,path,body){
+  const token=localStorage.getItem(AUTH_LS);
+  if(!token||localStorage.getItem(GUEST_LS)==='1')throw new Error('__NOAUTH__');
+  const res=await fetch(apiUrl('/api/feed'+path),{
+    method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:body!=null?JSON.stringify(body):undefined});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(data.error||('請求失敗 '+res.status));
+  return data;
+}
+async function loadCloudFeed(force){
+  if(!feedCloudEnabled()){feedCloudPosts=null;return null;}
+  if(feedCloudLoading&&!force)return feedCloudPosts;
+  feedCloudLoading=true;
+  try{
+    const data=await feedApi('GET','/');
+    feedCloudPosts=Array.isArray(data.posts)?data.posts:[];
+    return feedCloudPosts;
+  }catch(e){
+    console.warn('[feed]',e);
+    if(e.message!=='__NOAUTH__')toast(e.message||'動態牆載入失敗');
+    return feedCloudPosts;
+  }finally{
+    feedCloudLoading=false;
+  }
+}
 function seedSocialIfEmpty(){
   const s=ensureSocial();
   if(s.posts.length)return;
   s.posts.push({id:Date.now(),ts:new Date().toISOString(),kind:'system',author:'浮島公告',
-    text:'歡迎來到浮島社群！在這裡分享你的存錢成就、聖戰戰績。加好友、和好友一起看動態與分帳的功能即將登場 🏝️',
+    text:'歡迎來到浮島社群！登入 Google 後，你與好友的動態會同步到雲端，彼此都能看到。',
     likeCount:0,liked:false,replies:[]});
   save();
 }
 function feedGrow(el){if(!el)return;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
-function postToFeed(){
-  const inp=$('#feedCompose');const t=(inp?.value||'').trim();
-  if(!t)return;
-  const s=ensureSocial();
-  s.posts.unshift({id:Date.now(),ts:new Date().toISOString(),kind:'user',author:S.pet.name||'我',
-    text:t,likeCount:0,liked:false,replies:[]});
-  save();renderFeed();
-}
-function shareAchievement(){
-  const s=ensureSocial();
+function achievementText(){
   const m=todayStr().slice(0,7);let exp=0,inc=0;
   S.tx.forEach(t=>{if(t.ts.slice(0,7)===m){t.type==='income'?inc+=t.amount:exp+=t.amount;}});
   const rate=inc>0?Math.max(0,Math.round((inc-exp)/inc*100)):0;
-  const text=`📊 本月存錢率 ${rate}%，連續記帳 ${S.streak||0} 天，Lv.${S.level||1}！${S.pet.name||'我的守護靈'}陪我一起變有錢 🐾`;
-  s.posts.unshift({id:Date.now(),ts:new Date().toISOString(),kind:'achievement',author:S.pet.name||'我',
-    text,likeCount:0,liked:false,replies:[]});
+  return `📊 本月存錢率 ${rate}%，連續記帳 ${S.streak||0} 天，Lv.${S.level||1}！${S.pet.name||'我的守護靈'}陪我一起變有錢 🐾`;
+}
+async function postToFeed(){
+  const inp=$('#feedCompose');const t=(inp?.value||'').trim();
+  if(!t)return;
+  if(feedCloudEnabled()){
+    try{
+      await feedApi('POST','/posts',{text:t,author:S.pet.name||'我',kind:'user'});
+      if(inp)inp.value='';
+      await loadCloudFeed(true);
+      renderFeed();
+      toast('已發佈');
+    }catch(e){toast(e.message||'發佈失敗');}
+    return;
+  }
+  const s=ensureSocial();
+  s.posts.unshift({id:Date.now(),ts:new Date().toISOString(),kind:'user',author:S.pet.name||'我',
+    text:t,likeCount:0,liked:false,replies:[],mine:true});
+  if(inp)inp.value='';
   save();renderFeed();
 }
-function toggleFeedLike(id){
-  const s=ensureSocial();const p=s.posts.find(x=>x.id===id);if(!p)return;
+async function shareAchievement(){
+  const text=achievementText();
+  if(feedCloudEnabled()){
+    try{
+      await feedApi('POST','/posts',{text,author:S.pet.name||'我',kind:'achievement'});
+      await loadCloudFeed(true);
+      renderFeed();
+      toast('已分享成就');
+    }catch(e){toast(e.message||'分享失敗');}
+    return;
+  }
+  const s=ensureSocial();
+  s.posts.unshift({id:Date.now(),ts:new Date().toISOString(),kind:'achievement',author:S.pet.name||'我',
+    text,likeCount:0,liked:false,replies:[],mine:true});
+  save();renderFeed();
+}
+async function toggleFeedLike(id){
+  if(feedCloudEnabled()){
+    try{
+      await feedApi('POST','/posts/'+encodeURIComponent(id)+'/like');
+      await loadCloudFeed(true);
+      renderFeed();
+    }catch(e){toast(e.message||'按讚失敗');}
+    return;
+  }
+  const s=ensureSocial();const p=s.posts.find(x=>String(x.id)===String(id));if(!p)return;
   p.liked=!p.liked;p.likeCount=(p.likeCount||0)+(p.liked?1:-1);if(p.likeCount<0)p.likeCount=0;
   save();renderFeed();
 }
-function replyFeed(id){
+async function replyFeed(id){
   const inp=document.getElementById('feedReply_'+id);const t=(inp?.value||'').trim();if(!t)return;
-  const s=ensureSocial();const p=s.posts.find(x=>x.id===id);if(!p)return;
+  if(feedCloudEnabled()){
+    try{
+      await feedApi('POST','/posts/'+encodeURIComponent(id)+'/replies',{text:t,author:S.pet.name||'我'});
+      await loadCloudFeed(true);
+      renderFeed();
+    }catch(e){toast(e.message||'回覆失敗');}
+    return;
+  }
+  const s=ensureSocial();const p=s.posts.find(x=>String(x.id)===String(id));if(!p)return;
   p.replies=p.replies||[];
   p.replies.push({id:Date.now(),ts:new Date().toISOString(),author:S.pet.name||'我',text:t});
   save();renderFeed();
 }
-function deleteFeedPost(id){
+async function deleteFeedPost(id){
   if(!confirm('刪除這則動態？'))return;
-  const s=ensureSocial();const i=s.posts.findIndex(x=>x.id===id);
+  if(feedCloudEnabled()){
+    try{
+      await feedApi('DELETE','/posts/'+encodeURIComponent(id));
+      await loadCloudFeed(true);
+      renderFeed();
+    }catch(e){toast(e.message||'刪除失敗');}
+    return;
+  }
+  const s=ensureSocial();const i=s.posts.findIndex(x=>String(x.id)===String(id));
   if(i>=0)s.posts.splice(i,1);save();renderFeed();
 }
 function renderFeedPost(p){
+  const pid=JSON.stringify(String(p.id));
   const badge=p.kind==='achievement'?'<span class="feed-badge">🏆 成就</span>'
     :p.kind==='system'?'<span class="feed-badge sys">📣 公告</span>':'';
   const replies=(p.replies||[]).map(r=>`<div class="feed-reply"><b>${esc(r.author)}</b> ${esc(r.text)}</div>`).join('');
   const av=p.kind==='system'?'<span class="feed-av-em">📣</span>':petAvatarHtml();
+  const canDelete=p.kind!=='system'&&(!feedCloudEnabled()||!!p.mine);
+  const del=canDelete?`<button type="button" class="feed-del" onclick='deleteFeedPost(${pid})' aria-label="刪除">🗑️</button>`:'';
   return `<div class="feed-post card">
     <div class="feed-post-head">
       <div class="feed-av">${av}</div>
       <div class="feed-post-who"><span class="feed-author">${esc(p.author)}</span><span class="feed-time">${feedTime(p.ts)}</span></div>
       ${badge}
-      ${p.kind!=='system'?`<button type="button" class="feed-del" onclick="deleteFeedPost(${p.id})" aria-label="刪除">🗑️</button>`:''}
+      ${del}
     </div>
     <div class="feed-text">${esc(p.text)}</div>
     <div class="feed-actions">
-      <button type="button" class="feed-act like ${p.liked?'on':''}" onclick="toggleFeedLike(${p.id})">❤ ${p.likeCount||0}</button>
+      <button type="button" class="feed-act like ${p.liked?'on':''}" onclick='toggleFeedLike(${pid})'>❤ ${p.likeCount||0}</button>
       <span class="feed-act count">💬 ${(p.replies||[]).length}</span>
     </div>
     ${replies?`<div class="feed-replies">${replies}</div>`:''}
     <div class="feed-reply-box">
-      <input id="feedReply_${p.id}" class="feed-reply-input" type="text" placeholder="回覆…" maxlength="140" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();replyFeed(${p.id});}">
-      <button type="button" class="feed-reply-btn" onclick="replyFeed(${p.id})">回</button>
+      <input id="feedReply_${esc(String(p.id))}" class="feed-reply-input" type="text" placeholder="回覆…" maxlength="140" onkeydown='if(event.key==="Enter"&&!event.isComposing){event.preventDefault();replyFeed(${pid});}'>
+      <button type="button" class="feed-reply-btn" onclick='replyFeed(${pid})'>回</button>
     </div>
   </div>`;
 }
 function renderFeed(){
-  seedSocialIfEmpty();
-  const s=ensureSocial();
   const sr=$('#sheetRight');if(sr)sr.textContent='';
-  const posts=s.posts.map(renderFeedPost).join('')||'<div class="feed-empty">還沒有動態，發第一則吧！</div>';
+  const cloud=feedCloudEnabled();
+  let postsHtml;
+  if(cloud){
+    if(feedCloudPosts==null){
+      postsHtml='<div class="feed-empty">載入動態中…</div>';
+      void loadCloudFeed(true).then(()=>{if(curTab==='social'&&socialSub==='feed')renderFeed();});
+    }else{
+      postsHtml=feedCloudPosts.map(renderFeedPost).join('')||'<div class="feed-empty">還沒有動態。發文後，好友也能在動態牆看到你！</div>';
+    }
+  }else{
+    seedSocialIfEmpty();
+    const s=ensureSocial();
+    postsHtml=s.posts.map(renderFeedPost).join('')||'<div class="feed-empty">還沒有動態，發第一則吧！</div>';
+  }
+  const foot=cloud
+    ?'🏝️ 動態牆會顯示你與好友的貼文（需雙方互為好友）。'
+    :'🔒 訪客模式僅本機可見。登入 Google 後，好友才能看到你的動態。';
   $('#sheetBody').innerHTML=`
     ${socialSubtabBar('feed')}
     <div class="page-panel feed-page">
@@ -7282,8 +7405,8 @@ function renderFeed(){
           <button type="button" class="feed-post" onclick="postToFeed()">發佈</button>
         </div>
       </div>
-      <div class="feed-list">${posts}</div>
-      <div class="feed-foot">🔒 目前是你自己的動態牆。加好友、和好友一起看動態＋分帳的功能即將登場。</div>
+      <div class="feed-list">${postsHtml}</div>
+      <div class="feed-foot">${foot}</div>
     </div>`;
 }
 /* ===== 好友系統（需登入，走 /api/friends）===== */
