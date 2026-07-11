@@ -345,6 +345,7 @@ img.ic.gem{margin-right:5px}
   display:none; flex-direction:column; overflow:hidden;
   overscroll-behavior:contain; touch-action:pan-y;
 }
+#app.tab-home #sheet{display:none}
 #app.tab-app #rain{display:none}
 #app.tab-app #skyDecor .cloud{opacity:0;pointer-events:none}
 /* 功能 Tab：滿版頁面（遮住浮島場景） */
@@ -1582,11 +1583,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .chatSend:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.15);box-shadow:0 1px 0 var(--wood2);transform:none}
 
 /* ===== 登入閘門（像素街機風） ===== */
-.auth-gate{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+.auth-gate{position:absolute;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
   padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));
   background:linear-gradient(180deg,rgba(20,16,36,.72) 0%,rgba(36,26,48,.88) 100%)}
 .auth-gate.show{display:flex}
-.auth-boot-loading{position:absolute;inset:0;z-index:55;display:flex;flex-direction:column;align-items:center;justify-content:center;
+#app.auth-open #topChrome,#app.auth-open #nav{pointer-events:none}
+.auth-boot-loading{position:absolute;inset:0;z-index:110;display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:linear-gradient(165deg,#1a2744 0%,#0f172a 55%,#162032 100%);color:#e2e8f0;gap:14px}
 .auth-boot-loading[hidden]{display:none!important}
 .auth-boot-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#fbbf24;border-radius:50%;animation:authSpin .75s linear infinite}
@@ -1615,9 +1617,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 .pixel-btn-google{background:#FFD256}
 .pixel-btn-guest{background:#fff;font-size:13px}
 .pixel-btn-google .g-ic{width:22px;height:22px;flex:none;display:block}
+.auth-google-wrap{position:relative;width:100%}
+.auth-google-wrap .pixel-btn-google{width:100%;position:relative;z-index:0}
+.gsi-btn-host{position:absolute;inset:0;z-index:2;opacity:0.02;overflow:hidden;cursor:pointer}
+.gsi-btn-host > div{width:100%!important;height:100%!important;min-height:52px}
+.gsi-btn-host iframe{width:100%!important;height:100%!important;min-height:52px;border:0}
 .auth-user-err{margin:14px 0 0;min-height:1.2em;font-size:12px;font-weight:800;color:var(--bad)}
 .auth-dev-hint{margin:10px 0 0;font-size:9px;font-weight:700;color:#94a3b8;letter-spacing:.04em}
-#gsiHidden{position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none}
+#gsiHidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);opacity:0;pointer-events:none}
 .pet-spine-canvas{width:120px;height:220px;display:block;image-rendering:pixelated;pointer-events:none}
 .pet-spine-active .pet-spine-canvas{filter:drop-shadow(0 6px 8px rgba(0,0,0,.22))}
 </style>
@@ -1763,10 +1770,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
       <h1 id="authTitle">⚔️ 股市小兵聖戰</h1>
       <p class="auth-sub">登入 Google 雲端同步代幣、K 線戰績與生肖守護靈，<br>或選擇以訪客身份直接登入試玩。</p>
       <div class="auth-actions">
-        <button type="button" class="pixel-btn pixel-btn-google" id="authGoogleBtn" onclick="onPixelGoogleClick()">
-          <svg class="g-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22 12c0-.68-.06-1.37-.17-2H12v3.74h5.52c-.24 1.26-.96 2.33-2.04 3.05v2.52h3.3C21.04 17.48 22 14.96 22 12z"/><path fill="#34A853" d="M12 23c2.76 0 5.08-.91 6.77-2.47l-3.3-2.52c-.91.61-2.07.97-3.47.97-2.67 0-4.93-1.78-5.74-4.18H1.13v2.6C2.79 20.53 7.09 23 12 23z"/><path fill="#FBBC05" d="M6.26 14.8c-.22-.61-.35-1.26-.35-1.94 0-.68.13-1.33.35-1.94V8.32H1.13C.41 9.77 0 11.35 0 13c0 1.65.41 3.23 1.13 4.68l5.13-3.88z"/><path fill="#EA4335" d="M12 4.77c1.5 0 2.84.52 3.9 1.53l2.92-2.92C17.07 1.66 14.76 0 12 0 7.09 0 2.79 2.47 1.13 6.32l5.13 3.88C7.07 7.55 9.33 5.77 12 4.77z"/></svg>
-          <span>Google 帳戶登入</span>
-        </button>
+        <div class="auth-google-wrap">
+          <button type="button" class="pixel-btn pixel-btn-google" id="authGoogleBtn" onclick="onPixelGoogleClick()">
+            <svg class="g-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22 12c0-.68-.06-1.37-.17-2H12v3.74h5.52c-.24 1.26-.96 2.33-2.04 3.05v2.52h3.3C21.04 17.48 22 14.96 22 12z"/><path fill="#34A853" d="M12 23c2.76 0 5.08-.91 6.77-2.47l-3.3-2.52c-.91.61-2.07.97-3.47.97-2.67 0-4.93-1.78-5.74-4.18H1.13v2.6C2.79 20.53 7.09 23 12 23z"/><path fill="#FBBC05" d="M6.26 14.8c-.22-.61-.35-1.26-.35-1.94 0-.68.13-1.33.35-1.94V8.32H1.13C.41 9.77 0 11.35 0 13c0 1.65.41 3.23 1.13 4.68l5.13-3.88z"/><path fill="#EA4335" d="M12 4.77c1.5 0 2.84.52 3.9 1.53l2.92-2.92C17.07 1.66 14.76 0 12 0 7.09 0 2.79 2.47 1.13 6.32l5.13 3.88C7.07 7.55 9.33 5.77 12 4.77z"/></svg>
+            <span>Google 帳戶登入</span>
+          </button>
+          <div id="gsiBtnHost" class="gsi-btn-host" aria-hidden="true"></div>
+        </div>
         <button type="button" class="pixel-btn pixel-btn-guest" id="authGuestBtn" onclick="onGuestLogin()">
           🎮 先進島上逛逛（訪客試玩）
         </button>
@@ -2281,10 +2291,12 @@ function authDevHint(msg){
 
 function showAuthGate(){
   const g=$('#authGate');if(g){g.classList.add('show');g.setAttribute('aria-hidden','false');}
+  const app=$('#app');if(app)app.classList.add('auth-open');
   const e=$('#authGateErr');if(e)e.textContent='';
 }
 function hideAuthGate(){
   const g=$('#authGate');if(g){g.classList.remove('show');g.setAttribute('aria-hidden','true');}
+  const app=$('#app');if(app)app.classList.remove('auth-open');
 }
 function showAuthBootLoading(){
   const el=$('#authBootLoading');
@@ -2473,6 +2485,10 @@ function onPixelGoogleClick(){
     toast('Google 登入暫時不可用');
     return;
   }
+  // Prefer the real GSI overlay host (receives the actual tap). Fallback for older caches.
+  const host=$('#gsiBtnHost');
+  const hostBtn=host?.querySelector('div[role="button"]');
+  if(hostBtn){hostBtn.click();return;}
   const hidden=$('#gsiHidden');
   const gsiBtn=hidden?.querySelector('div[role="button"]');
   if(gsiBtn){gsiBtn.click();return;}
@@ -2509,6 +2525,12 @@ function initGoogleAuth(clientId){
     ux_mode:'popup',
     context:'signin'
   });
+  const host=$('#gsiBtnHost');
+  if(host){
+    host.innerHTML='';
+    const w=Math.max(280,Math.floor(host.getBoundingClientRect().width||btn?.offsetWidth||280));
+    google.accounts.id.renderButton(host,{theme:'outline',size:'large',type:'standard',width:w,text:'signin_with'});
+  }
   const hidden=$('#gsiHidden');
   if(hidden){
     hidden.innerHTML='';
