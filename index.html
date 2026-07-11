@@ -390,6 +390,9 @@ img.ic.gem{margin-right:5px}
 .ledger-unified-grid>.ledger-tab-btn:nth-of-type(3){grid-column:1;grid-row:2}
 .ledger-unified-grid>.ledger-tab-btn:nth-of-type(4){grid-column:2;grid-row:2}
 .ledger-unified-grid>.ledger-amt-block{grid-column:1/-1}
+.ledger-subtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin-bottom:8px}
+.ledger-amt-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:8px;row-gap:8px;width:100%;box-sizing:border-box}
+.ledger-amt-grid>.ledger-amt-block{grid-column:1/-1}
 .ledger-tab-btn{width:100%;min-width:0;box-sizing:border-box;padding:10px 8px;font-family:var(--font);font-size:13px;font-weight:800;
   text-align:center;border:3px solid transparent;border-radius:8px;cursor:pointer;margin:0;
   background:rgba(0,0,0,.3);color:#fff;-webkit-tap-highlight-color:transparent;
@@ -740,6 +743,152 @@ img.ic.gem{margin-right:5px}
 .war-page .fld{margin-top:14px}
 .shop-page .hint{line-height:1.55;margin-bottom:12px}
 .stats-panel.page-panel{padding-top:0;flex:1;min-height:0;display:flex;flex-direction:column}
+/* ── 社群（動態牆 + 聖戰 子分頁）── */
+.social-subtabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;box-sizing:border-box;margin-bottom:12px}
+.social-subtab{padding:10px 8px;border:3px solid transparent;border-radius:8px;background:rgba(0,0,0,.3);color:#fff;font-family:var(--font);font-weight:800;font-size:13.5px;cursor:pointer;transition:background .15s,transform .08s}
+#app[data-sky="light"] .social-subtab{background:rgba(0,0,0,.08);color:var(--ink)}
+.social-subtab.on{background:#FFD43F;color:#000;border-color:#000;box-shadow:2px 2px 0 #000;transform:translateY(2px)}
+.feed-page{display:flex;flex-direction:column;gap:12px}
+#app[data-sky="dark"] .feed-page{color:rgba(255,255,255,.92)}
+#app[data-sky="light"] .feed-page{color:#2b2233}
+.feed-compose{padding:12px}
+.feed-compose-row{display:flex;gap:10px;align-items:flex-start}
+.feed-av{width:40px;height:40px;flex:none;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35)}
+.feed-av img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.feed-av-em{font-size:22px}
+.feed-input{flex:1;min-width:0;box-sizing:border-box;resize:none;border:2px solid rgba(255,255,255,.28);border-radius:12px;padding:10px 12px;font-family:var(--font);font-size:14px;font-weight:600;line-height:1.4;min-height:44px;max-height:120px;background:rgba(255,255,255,.14);color:var(--ink)}
+#app[data-sky="dark"] .feed-input{color:rgba(255,255,255,.95)}
+#app[data-sky="light"] .feed-input{background:#fffdf7;border-color:var(--line)}
+.feed-compose-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+.feed-share{border:2px solid rgba(255,255,255,.4);border-radius:99px;background:transparent;color:rgba(255,255,255,.9);font-family:var(--font);font-weight:800;font-size:12.5px;padding:7px 12px;cursor:pointer}
+#app[data-sky="light"] .feed-share{color:#5a4a6a;border-color:var(--line)}
+.feed-post{border:2px solid var(--line);border-radius:99px;background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:13px;padding:7px 18px;cursor:pointer;box-shadow:2px 2px 0 rgba(15,23,42,.55)}
+.feed-post:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.55)}
+.feed-list{display:flex;flex-direction:column;gap:10px}
+.feed-post.card{padding:12px}
+.feed-post-head{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.feed-post-who{flex:1;min-width:0;display:flex;flex-direction:column}
+.feed-author{font-size:14px;font-weight:900;line-height:1.15}
+.feed-time{font-size:11px;font-weight:700;opacity:.6}
+.feed-badge{flex:none;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:99px;background:#ffe08a;color:#7a5a10;border:1px solid #c99}
+.feed-badge.sys{background:#cfe4ff;color:#25507f;border-color:#8fb4e0}
+.feed-del{flex:none;width:28px;height:28px;border:none;background:transparent;font-size:14px;cursor:pointer;opacity:.6}
+.feed-text{font-size:14px;font-weight:600;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.feed-actions{display:flex;align-items:center;gap:14px;margin-top:10px}
+.feed-act{border:none;background:transparent;font-family:var(--font);font-weight:800;font-size:13px;cursor:pointer;color:inherit;opacity:.85;padding:0}
+.feed-act.like.on{color:#e0506a;opacity:1}
+.feed-act.count{cursor:default;opacity:.7}
+.feed-replies{margin-top:10px;padding-top:8px;border-top:1px dashed rgba(150,150,170,.4);display:flex;flex-direction:column;gap:6px}
+.feed-reply{font-size:12.5px;font-weight:600;line-height:1.4}
+.feed-reply b{font-weight:900}
+.feed-reply-box{display:flex;gap:6px;margin-top:9px}
+.feed-reply-input{flex:1;min-width:0;box-sizing:border-box;border:2px solid rgba(255,255,255,.28);border-radius:99px;padding:8px 12px;font-family:var(--font);font-size:12.5px;font-weight:600;background:rgba(255,255,255,.14);color:var(--ink)}
+#app[data-sky="dark"] .feed-reply-input{color:rgba(255,255,255,.95)}
+#app[data-sky="light"] .feed-reply-input{background:#fffdf7;border-color:var(--line)}
+.feed-reply-btn{flex:none;border:2px solid var(--line);border-radius:99px;background:rgba(255,255,255,.2);color:inherit;font-family:var(--font);font-weight:900;font-size:12px;padding:0 14px;cursor:pointer}
+#app[data-sky="dark"] .feed-reply-btn{color:rgba(255,255,255,.9)}
+.feed-foot{font-size:11.5px;font-weight:700;opacity:.6;text-align:center;line-height:1.5;padding:6px 10px}
+.feed-empty{padding:24px;text-align:center;font-weight:800;opacity:.7}
+.feed-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 2px}
+.feed-topbar-title{font-size:15px;font-weight:900}
+.feed-friends-btn{border:2px solid var(--line);border-radius:99px;background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:12.5px;padding:7px 14px;cursor:pointer;box-shadow:2px 2px 0 rgba(15,23,42,.55)}
+.feed-friends-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.55)}
+/* 好友面板（浮在 overlay 上，白底卡） */
+.friends-wrap{width:min(360px,92vw)}
+.friends-need-login{padding:22px 10px;text-align:center;font-size:15px;font-weight:800;line-height:1.7;color:#2b2233}
+.friends-need-login .friends-sub{display:block;margin-top:6px;font-size:12.5px;font-weight:700;color:#7a6a8a}
+.friends-code-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border:3px solid var(--line);border-radius:12px;background:#fff8ec;margin-bottom:6px}
+.friends-code-label{font-size:11px;font-weight:800;color:#8a7a5a}
+.friends-code-val{flex:1;font-size:19px;font-weight:900;letter-spacing:.06em;color:#2b2233}
+.friends-copy{flex:none;border:2px solid var(--line);border-radius:99px;background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:12px;padding:7px 14px;cursor:pointer;box-shadow:2px 2px 0 rgba(15,23,42,.55)}
+.friends-out{font-size:12px;font-weight:800;color:#6a6a8a;margin:6px 0 2px}
+.friends-list{display:flex;flex-direction:column;gap:8px}
+.friend-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:#fff}
+.friend-name{min-width:0;display:flex;flex-direction:column;gap:2px;font-size:14px;font-weight:900;color:#2b2233}
+.friend-code{font-size:11px;font-weight:700;color:#9a8aaa;letter-spacing:.04em}
+.friend-acts{display:flex;gap:6px;flex:none}
+.friend-yes{border:2px solid #2d8a45;border-radius:8px;background:#d9f2e0;color:#1f6b34;font-family:var(--font);font-weight:900;font-size:12px;padding:6px 12px;cursor:pointer}
+.friend-no{border:2px solid var(--line);border-radius:8px;background:#fff;color:#7a6a8a;font-family:var(--font);font-weight:900;font-size:12px;padding:6px 12px;cursor:pointer}
+.friend-del{flex:none;border:2px solid #dc2626;border-radius:8px;background:rgba(254,202,202,.5);color:#dc2626;font-family:var(--font);font-weight:900;font-size:12px;padding:6px 12px;cursor:pointer}
+/* ── 分帳（記帳第三子分頁，像素玻璃風）── */
+.split-root{display:flex;flex-direction:column;gap:12px;width:100%}
+#app[data-sky="dark"] .split-root{color:rgba(255,255,255,.92)}
+#app[data-sky="light"] .split-root{color:#2b2233}
+.split-card{padding:14px}
+.split-hint{font-size:12.5px;font-weight:700;opacity:.7;line-height:1.5}
+.split-hint.pad{padding:10px 2px}
+.split-groupbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 0}
+.split-gname{font-size:18px;font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.split-gbtns{display:flex;gap:6px;flex:none}
+.split-gedit{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);font-size:15px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#app[data-sky="light"] .split-gedit{background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.5)}
+.split-sec-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px;font-weight:900;margin-bottom:10px}
+.split-count{display:inline-block;min-width:20px;padding:1px 7px;border-radius:99px;background:var(--gold);color:#4a3410;font-size:12px;font-weight:900;text-align:center}
+.split-mems{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.split-mem{display:inline-flex;align-items:center;gap:6px;padding:7px 8px 7px 12px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);font-size:13px;font-weight:800}
+#app[data-sky="light"] .split-mem{background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.5)}
+.split-mem-x{width:18px;height:18px;border-radius:50%;border:none;background:rgba(0,0,0,.3);color:#fff;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.split-mem-link{font-size:10.5px;font-weight:800;color:#2d7d46;background:rgba(45,138,69,.16);border-radius:99px;padding:1px 6px}
+.split-mem-linkbtn{border:none;background:transparent;font-size:12px;cursor:pointer;padding:0 2px;opacity:.7}
+.split-shared-badge{display:inline-block;font-size:11px;font-weight:800;color:#4a3410;background:var(--gold);border-radius:99px;padding:2px 9px;margin-left:8px;vertical-align:middle}
+.split-addmem{display:flex;gap:8px}
+.split-input{flex:1;min-width:0;box-sizing:border-box;border:3px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--font);font-size:14px;font-weight:700;color:#1a1a1a!important;background:#fffdf7!important;-webkit-text-fill-color:#1a1a1a!important}
+.split-add-btn{flex:none;width:46px;border:3px solid var(--line);border-radius:10px;background:var(--gold);color:#4a3410;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 var(--wood2)}
+.split-add-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--wood2)}
+.split-add-exp{border:2px solid var(--line);border-radius:99px;background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:12.5px;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 rgba(15,23,42,.6)}
+.split-add-exp:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.6)}
+.split-add-exp:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.split-exp-list{display:flex;flex-direction:column}
+.split-exp{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px dashed rgba(150,140,130,.28)}
+.split-exp:last-child{border-bottom:none}
+.split-exp-ic{width:34px;height:34px;flex:none;display:flex;align-items:center;justify-content:center;font-size:19px;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24)}
+#app[data-sky="light"] .split-exp-ic{background:rgba(255,255,255,.7);border-color:rgba(255,255,255,.5)}
+.split-exp-main{flex:1;min-width:0}
+.split-exp-desc{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.split-exp-sub{font-size:11.5px;font-weight:700;opacity:.66;margin-top:1px}
+.split-exp-amt{flex:none;font-size:15px;font-weight:900;letter-spacing:-.02em}
+.split-exp-del{flex:none;width:30px;height:30px;border:none;background:transparent;font-size:15px;cursor:pointer;opacity:.7;padding:0}
+.split-bal-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;font-size:13.5px;font-weight:800}
+.split-bal-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.split-bal{flex:none;font-weight:900}
+.split-bal.pos{color:var(--good)}
+.split-bal.neg{color:var(--bad)}
+.split-bal.zero{opacity:.55}
+.split-settle-title{font-size:12px;font-weight:900;opacity:.7;margin:12px 0 6px}
+.split-settle-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;margin-bottom:6px;border-radius:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-size:13px;font-weight:800}
+#app[data-sky="light"] .split-settle-row{background:rgba(255,255,255,.66);border-color:rgba(255,255,255,.5)}
+.split-settle-amt{flex:none;color:var(--gold);font-weight:900}
+#app[data-sky="light"] .split-settle-amt{color:#b8860b}
+.split-empty{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 16px}
+.split-empty-hero{font-size:40px}
+.split-empty-title{font-size:16px;font-weight:900}
+.split-empty-sub{font-size:12.5px;font-weight:700;opacity:.72;line-height:1.5;margin-bottom:6px}
+.split-primary{width:100%}
+.split-form .split-chips{display:flex;flex-wrap:wrap;gap:7px}
+.txedit-cats .chip,.split-chips .chip{background:#fff!important;border:2px solid var(--line)!important;color:#2b2233!important;-webkit-text-fill-color:#2b2233!important;cursor:pointer}
+.txedit-cats .chip.on,.split-chips .chip.on{background:var(--gold)!important;color:#4a3410!important;-webkit-text-fill-color:#4a3410!important}
+.split-exp-edit{flex:none;width:30px;height:30px;border:none;background:transparent;font-size:14px;cursor:pointer;opacity:.7;padding:0}
+/* 多付款人：各自付多少 */
+.split-pay-detail{margin:8px 0 2px;padding:10px 12px;border:2px dashed var(--line);border-radius:10px;background:#fff8ec}
+.split-pay-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+.split-pay-name{font-size:13.5px;font-weight:800;color:#2b2233;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.split-pay-amt{flex:none;width:118px;text-align:right;font-size:15px!important;font-weight:900!important;padding:8px 10px!important}
+.split-pay-sum{font-size:12px;font-weight:800;margin-top:4px}
+.split-pay-sum.ok{color:#2d8a45}
+.split-pay-sum.bad{color:#c43c3c}
+.split-pay-even{margin-top:8px;padding:6px 12px;border:2px solid var(--line);border-radius:99px;background:#fff;color:#2b2233;font-family:var(--font);font-weight:800;font-size:12px;cursor:pointer}
+.split-secondary{margin-top:4px;background:transparent;border:none;color:#6a6a8a;font-family:var(--font);font-weight:800;font-size:12.5px;text-decoration:underline;cursor:pointer}
+#app[data-sky="dark"] .split-secondary{color:rgba(255,255,255,.7)}
+/* 分帳主題清單 */
+.split-glist{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.split-glist-row{display:flex;align-items:stretch;gap:8px}
+.split-glist-row.active .split-glist-pick{border-color:var(--gold);background:#fff8ec}
+.split-glist-pick{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border:3px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;box-shadow:2px 2px 0 rgba(15,23,42,.5)}
+.split-glist-pick:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.5)}
+.split-glist-name{font-size:14px;font-weight:900;color:#2b2233}
+.split-glist-cur{display:inline-block;font-size:10px;font-weight:900;color:#4a3410;background:var(--gold);border-radius:99px;padding:0 6px;margin-left:4px;vertical-align:middle}
+.split-glist-meta{font-size:11.5px;font-weight:700;color:#8a7a9a}
+.split-glist-del{flex:none;width:40px;border:3px solid #dc2626;border-radius:10px;background:rgba(254,202,202,.5);color:#dc2626;font-size:15px;cursor:pointer}
 /* ── 財務統計頁（軟玻璃卡，與其他分頁一致）── */
 /* 標題沿用共用 #sheetHead，版面與捲動沿用 .tab-app 預設 */
 .fin-stats-page{display:flex;flex-direction:column;gap:0;width:100%;max-width:480px;margin:0 auto}
@@ -1598,7 +1747,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
   <!-- 底部導覽 -->
   <div id="nav">
     <button class="tab active" data-tab="home"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">首頁</span></button>
-    <button class="tab" data-tab="war"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">聖戰</span></button>
+    <button class="tab" data-tab="war"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">社群</span></button>
     <button class="tab" data-tab="ledger"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">記帳</span></button>
     <button class="tab" data-tab="stats"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">統計</span></button>
     <button class="tab tab-settings" data-tab="settings" aria-label="設定">
@@ -4110,8 +4259,8 @@ function monthWeather(){
 }
 
 /* ---- 分頁 ---- */
-const TABS={home:renderHome,ledger:renderLedger,war:renderWar,shop:renderShop,stats:renderStats,settings:renderSettings};
-const TITLES={home:'浮島首頁',ledger:'誠實記帳',war:'股市小兵聖戰',shop:'像素商店',stats:'財務統計',settings:'設定'};
+const TABS={home:renderHome,ledger:renderLedger,war:renderSocial,shop:renderShop,stats:renderStats,settings:renderSettings};
+const TITLES={home:'浮島首頁',ledger:'誠實記帳',war:'社群',shop:'像素商店',stats:'財務統計',settings:'設定'};
 function setSheetTitle(t){
   const ic=$('#sheetTitleIc'),title=$('#sheetTitle');
   if(title)title.textContent=TITLES[t]||'';
@@ -4626,8 +4775,392 @@ function feedPlay(){playWithPet();}
 
 /* ===== 記帳 ===== */
 let draft={type:'expense',cat:'飲食',photo:null,amt:''};
-let ledgerSub='quick'; // 記帳子分頁：'quick' 快速記帳 / 'dream' 圓夢浮島
+let ledgerSub='quick'; // 記帳子分頁：'quick' 快速記帳 / 'dream' 圓夢浮島 / 'split' 分帳
 function setLedgerSub(s){ledgerSub=s;renderLedger();}
+
+/* ===== 分帳（朋友出遊分帳）— 前端串接 /api/split-bill ===== */
+const SPLIT_GROUP_LS='gamefi_split_group_id';
+const SPLIT_CATS=[['food','🍜','餐飲'],['transport','🚗','交通'],['stay','🏨','住宿'],['fun','🎫','娛樂'],['shopping','🛒','購物'],['other','📦','其他']];
+let splitData={group:null,balances:null,settlement:null};
+let splitExpDraft=null;
+function splitCatMeta(c){return SPLIT_CATS.find(x=>x[0]===c)||SPLIT_CATS[SPLIT_CATS.length-1];}
+function splitMemberName(id){const g=splitData.group;const m=g&&g.members.find(x=>x.id===id);return m?m.name:'（已移除）';}
+async function splitApi(method,path,body){
+  const token=localStorage.getItem(AUTH_LS);
+  const headers={'Content-Type':'application/json'};
+  if(token&&localStorage.getItem(GUEST_LS)!=='1')headers['Authorization']='Bearer '+token;
+  const res=await fetch(apiUrl('/api/split-bill'+path),{
+    method,headers,
+    body:body!=null?JSON.stringify(body):undefined});
+  if(res.status===204)return null;
+  const data=await res.json().catch(()=>null);
+  if(!res.ok)throw new Error((data&&data.error)||('HTTP '+res.status));
+  return data;
+}
+function renderSplitBill(){
+  return `<div id="splitRoot" class="split-root"><div class="split-hint pad">載入分帳資料…</div></div>`;
+}
+async function bootSplitBill(){
+  const root=$('#splitRoot');if(!root)return;
+  const gid=localStorage.getItem(SPLIT_GROUP_LS);
+  if(!gid){renderSplitEmpty();return;}
+  root.innerHTML='<div class="split-hint pad">載入分帳資料…</div>';
+  try{
+    const group=await splitApi('GET','/groups/'+gid);
+    const [balances,settlement]=await Promise.all([
+      splitApi('GET','/groups/'+gid+'/balances'),
+      splitApi('GET','/groups/'+gid+'/settlement')]);
+    let friends=[],me=null;
+    if(friendsLoggedIn()){
+      try{[friends,me]=await Promise.all([friendApi('GET','/'),friendApi('GET','/me')]);}catch(_){}
+    }
+    splitData={group,balances,settlement,friends,me};
+    renderSplitGroup();
+  }catch(e){
+    if(/HTTP 404/.test(e.message)){localStorage.removeItem(SPLIT_GROUP_LS);renderSplitEmpty();return;}
+    root.innerHTML=`<div class="card split-card"><div class="split-hint">分帳後端沒連上或發生錯誤：<br>${esc(e.message)}<br><br>（本機請用 npm start 啟動 Node 後端；靜態開啟無法使用分帳）</div></div>`;
+  }
+}
+function renderSplitEmpty(){
+  const root=$('#splitRoot');if(!root)return;
+  root.innerHTML=`<div class="card split-card split-empty">
+    <div class="split-empty-hero">🧾</div>
+    <div class="split-empty-title">還沒有分帳群組</div>
+    <div class="split-empty-sub">建一個出遊／聚餐群組，記下誰付了什麼，自動算出誰該還誰、最少幾筆轉帳。</div>
+    <input id="splitNewName" class="split-input" type="text" placeholder="主題名稱，例：沖繩三日遊" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup();}">
+    <button class="btn split-primary" onclick="createSplitGroup()">建立分帳主題</button>
+    <button type="button" class="split-secondary" onclick="openSplitGroups()">查看既有主題</button>
+  </div>`;
+  setTimeout(()=>{const i=$('#splitNewName');i&&i.focus();},50);
+}
+async function createSplitGroup(){
+  const name=($('#splitNewName')?.value||'').trim()||'我的分帳';
+  try{
+    const g=await splitApi('POST','/groups',{name});
+    localStorage.setItem(SPLIT_GROUP_LS,g.id);
+    bootSplitBill();
+  }catch(e){toast('建立失敗：'+e.message);}
+}
+function splitMemberLinkName(email){
+  if(splitData.me&&email===splitData.me.email)return '你';
+  const f=(splitData.friends||[]).find(x=>x.email===email);
+  return f?f.displayName:String(email).split('@')[0];
+}
+function openSplitShare(){
+  if(!friendsLoggedIn()){toast('邀好友共用要先用 Google 登入');return;}
+  showOverlay(renderSplitShareList());
+}
+function renderSplitShareList(){
+  const g=splitData.group;
+  const shared=Array.isArray(g.sharedWith)?g.sharedWith:[];
+  const friends=splitData.friends||[];
+  const rows=friends.length?friends.map(f=>{
+    const inGroup=shared.includes(f.email);
+    return `<div class="friend-row"><span class="friend-name">${esc(f.displayName)}<span class="friend-code">${esc(f.friendCode)}</span></span>${inGroup?'<span class="split-hint">已加入</span>':`<button type="button" class="friend-yes" onclick="shareSplitWith('${esc(f.email)}')">邀請</button>`}</div>`;
+  }).join(''):'<div class="split-hint">你還沒有好友，先到社群→好友加幾個</div>';
+  const who=shared.length>1?`<div class="friends-out">目前共用：${shared.map(e=>esc(splitMemberLinkName(e))).join('、')}</div>`:'';
+  return `<div class="txedit-wrap friends-wrap"><div class="txedit-head"><b>邀好友共用</b><button type="button" class="chatX" onclick="closeOverlay()" aria-label="關閉">✕</button></div><div class="txedit-body">
+    ${who}
+    <label class="fld">選好友加入「${esc(g.name)}」</label>
+    <div class="friends-list">${rows}</div>
+  </div></div>`;
+}
+async function shareSplitWith(email){
+  try{
+    await splitApi('POST','/groups/'+splitData.group.id+'/share',{email});
+    toast('已邀請共用');
+    await bootSplitBill();
+    showOverlay(renderSplitShareList());
+  }catch(e){toast(e.message);}
+}
+function openMemberLink(mid){showOverlay(renderMemberLinkList(mid));}
+function renderMemberLinkList(mid){
+  const g=splitData.group;
+  const m=g.members.find(x=>x.id===mid);
+  const shared=Array.isArray(g.sharedWith)?g.sharedWith:[];
+  const cur=g.memberLinks&&g.memberLinks[mid];
+  const rows=shared.length?shared.map(e=>`<div class="friend-row"><span class="friend-name">${esc(splitMemberLinkName(e))}<span class="friend-code">${esc(e)}</span></span>${cur===e?'<span class="split-hint">已綁定</span>':`<button type="button" class="friend-yes" onclick="linkMember('${mid}','${esc(e)}')">綁定</button>`}</div>`).join(''):'<div class="split-hint">先邀好友共用這個群組</div>';
+  return `<div class="txedit-wrap friends-wrap"><div class="txedit-head"><b>綁定「${esc(m?m.name:'')}」到帳號</b><button type="button" class="chatX" onclick="closeOverlay()" aria-label="關閉">✕</button></div><div class="txedit-body">
+    <div class="split-hint" style="margin-bottom:8px">綁定後，這位分帳成員就對應到某位共用好友的帳號。</div>
+    <div class="friends-list">${rows}</div>
+    ${cur?`<button type="button" class="split-secondary" style="margin-top:10px" onclick="linkMember('${mid}','')">解除綁定</button>`:''}
+  </div></div>`;
+}
+async function linkMember(mid,email){
+  try{
+    await splitApi('POST','/groups/'+splitData.group.id+'/members/'+mid+'/link',{email:email||null});
+    toast(email?'已綁定':'已解除綁定');
+    await bootSplitBill();closeOverlay();
+  }catch(e){toast(e.message);}
+}
+function renderSplitGroup(){
+  const root=$('#splitRoot');if(!root)return;
+  const g=splitData.group,members=g.members;
+  const shared=Array.isArray(g.sharedWith)&&g.sharedWith.length>1;
+  const canLink=friendsLoggedIn()&&shared;
+  const memChips=members.length
+    ?members.map(m=>{
+      const linkEmail=g.memberLinks&&g.memberLinks[m.id];
+      const badge=linkEmail?`<span class="split-mem-link">🔗${esc(splitMemberLinkName(linkEmail))}</span>`:'';
+      const linkBtn=canLink?`<button type="button" class="split-mem-linkbtn" onclick="openMemberLink('${m.id}')" aria-label="綁定好友">🔗</button>`:'';
+      return `<span class="split-mem">${esc(m.name)}${badge}${linkBtn}<button type="button" class="split-mem-x" onclick="removeSplitMember('${m.id}')" aria-label="移除">×</button></span>`;
+    }).join('')
+    :'<span class="split-hint">還沒有成員，先加幾個人</span>';
+  const exps=g.expenses.slice().reverse();
+  const expRows=exps.length?exps.map(renderSplitExpenseRow).join(''):'<div class="split-hint pad">還沒有分帳支出</div>';
+  const balRows=members.map(m=>{
+    const b=(splitData.balances&&splitData.balances[m.id])||0;
+    const cls=b>0.005?'pos':b<-0.005?'neg':'zero';
+    const txt=b>0.005?`應收 $${fmt(Math.round(b))}`:b<-0.005?`應付 $${fmt(Math.round(-b))}`:'已結清';
+    return `<div class="split-bal-row"><span class="split-bal-name">${esc(m.name)}</span><span class="split-bal ${cls}">${txt}</span></div>`;
+  }).join('')||'<div class="split-hint">—</div>';
+  const settle=splitData.settlement||[];
+  const settleRows=settle.length
+    ?settle.map(t=>`<div class="split-settle-row"><span><b>${esc(splitMemberName(t.from))}</b> → <b>${esc(splitMemberName(t.to))}</b></span><span class="split-settle-amt">$${fmt(Math.round(t.amount))}</span></div>`).join('')
+    :'<div class="split-hint pad">目前都結清了 🎉</div>';
+  root.innerHTML=`
+    <div class="split-groupbar">
+      <span class="split-gname">${esc(g.name)}${shared?`<span class="split-shared-badge">👥 共用 ${g.sharedWith.length}</span>`:''}</span>
+      <span class="split-gbtns">
+        <button type="button" class="split-gedit" onclick="openSplitShare()" title="邀好友共用">👥</button>
+        <button type="button" class="split-gedit" onclick="renameSplitGroup()" title="重新命名">✏️</button>
+        <button type="button" class="split-gedit" onclick="openSplitGroups()" title="切換／管理主題">🗂️</button>
+      </span>
+    </div>
+    <div class="card split-card">
+      <div class="split-sec-head">成員 <span class="split-count">${members.length}</span></div>
+      <div class="split-mems">${memChips}</div>
+      <div class="split-addmem">
+        <input id="splitMemName" class="split-input" type="text" placeholder="成員名字" maxlength="16" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addSplitMember();}">
+        <button type="button" class="split-add-btn" onclick="addSplitMember()">＋</button>
+      </div>
+    </div>
+    <div class="card split-card">
+      <div class="split-sec-head">支出 <button type="button" class="split-add-exp" onclick="openSplitExpense()" ${members.length?'':'disabled'}>＋ 記一筆</button></div>
+      <div class="split-exp-list">${expRows}</div>
+    </div>
+    <div class="card split-card">
+      <div class="split-sec-head">結算</div>
+      <div class="split-bals">${balRows}</div>
+      <div class="split-settle-title">最少轉帳筆數</div>
+      <div class="split-settle">${settleRows}</div>
+    </div>`;
+}
+function renderSplitExpenseRow(e){
+  const cm=splitCatMeta(e.category);
+  const payText=e.paidShares?(Object.keys(e.paidShares).length+' 人付'):(splitMemberName(e.paidBy)+' 付');
+  return `<div class="split-exp">
+    <div class="split-exp-ic">${cm[1]}</div>
+    <div class="split-exp-main">
+      <div class="split-exp-desc">${esc(e.description)}</div>
+      <div class="split-exp-sub">${esc(payText)}・${e.participants.length} 人分</div>
+    </div>
+    <div class="split-exp-amt">$${fmt(Math.round(e.amount))}</div>
+    <button type="button" class="split-exp-edit" onclick="openSplitExpenseById('${e.id}')" aria-label="修改">✏️</button>
+    <button type="button" class="split-exp-del" onclick="deleteSplitExpense('${e.id}')" aria-label="刪除">🗑️</button>
+  </div>`;
+}
+function openSplitExpenseById(id){
+  const e=splitData.group&&splitData.group.expenses.find(x=>x.id===id);
+  if(e)openSplitExpense(e);
+}
+async function addSplitMember(){
+  const inp=$('#splitMemName');const name=(inp?.value||'').trim();
+  if(!name)return;
+  try{await splitApi('POST','/groups/'+splitData.group.id+'/members',{name});await bootSplitBill();}
+  catch(e){toast(e.message);}
+}
+async function removeSplitMember(id){
+  if(!confirm('移除這位成員？'))return;
+  try{await splitApi('DELETE','/groups/'+splitData.group.id+'/members/'+id);await bootSplitBill();}
+  catch(e){toast(e.message);}
+}
+async function renameSplitGroup(){
+  const name=prompt('群組新名稱',splitData.group.name);
+  if(name==null)return;const t=name.trim();if(!t)return;
+  try{await splitApi('PATCH','/groups/'+splitData.group.id,{name:t});await bootSplitBill();}
+  catch(e){toast(e.message);}
+}
+/* 多分帳主題：切換／新增／刪除 */
+async function openSplitGroups(){
+  let groups=[];
+  try{groups=await splitApi('GET','/groups');}
+  catch(e){toast('讀取主題失敗：'+e.message);return;}
+  showOverlay(renderSplitGroupsList(groups));
+}
+function renderSplitGroupsList(groups){
+  const activeId=localStorage.getItem(SPLIT_GROUP_LS);
+  const rows=groups.length?groups.map(g=>`
+    <div class="split-glist-row${g.id===activeId?' active':''}">
+      <button type="button" class="split-glist-pick" onclick="switchSplitGroup('${g.id}')">
+        <span class="split-glist-name">${esc(g.name)}${g.id===activeId?' <span class="split-glist-cur">目前</span>':''}</span>
+        <span class="split-glist-meta">${g.memberCount} 人・${g.expenseCount} 筆</span>
+      </button>
+      <button type="button" class="split-glist-del" onclick="deleteSplitGroup('${g.id}')" aria-label="刪除主題">🗑️</button>
+    </div>`).join(''):'<div class="split-hint pad">還沒有任何分帳主題</div>';
+  return `<div class="txedit-wrap split-glist-wrap">
+    <div class="txedit-head"><b>分帳主題</b><button type="button" class="chatX" onclick="closeOverlay()" aria-label="關閉">✕</button></div>
+    <div class="txedit-body">
+      <div class="split-glist">${rows}</div>
+      <label class="fld">建立新主題</label>
+      <div class="split-addmem">
+        <input id="splitNewName2" class="split-input" type="text" placeholder="主題名稱，例：墾丁團" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup2();}">
+        <button type="button" class="split-add-btn" onclick="createSplitGroup2()">＋</button>
+      </div>
+    </div>
+  </div>`;
+}
+function switchSplitGroup(id){localStorage.setItem(SPLIT_GROUP_LS,id);closeOverlay();bootSplitBill();}
+async function createSplitGroup2(){
+  const name=($('#splitNewName2')?.value||'').trim();
+  if(!name){toast('請輸入主題名稱');return;}
+  try{
+    const g=await splitApi('POST','/groups',{name});
+    localStorage.setItem(SPLIT_GROUP_LS,g.id);
+    closeOverlay();bootSplitBill();
+  }catch(e){toast('建立失敗：'+e.message);}
+}
+async function deleteSplitGroup(id){
+  if(!confirm('刪除這個分帳主題？裡面的成員與支出都會消失，無法復原。'))return;
+  try{
+    await splitApi('DELETE','/groups/'+id);
+    if(localStorage.getItem(SPLIT_GROUP_LS)===id)localStorage.removeItem(SPLIT_GROUP_LS);
+    const groups=await splitApi('GET','/groups');
+    showOverlay(renderSplitGroupsList(groups));
+  }catch(e){toast('刪除失敗：'+e.message);}
+}
+function openSplitExpense(expense){
+  const g=splitData.group;
+  if(!g||!g.members.length){toast('先新增成員');return;}
+  if(expense){
+    const payers=expense.paidShares?Object.keys(expense.paidShares)
+      :(expense.paidBy?[expense.paidBy]:[g.members[0].id]);
+    let shares=null;
+    if(expense.paidShares){shares={};Object.entries(expense.paidShares).forEach(([id,v])=>{shares[id]=String(v);});}
+    splitExpDraft={id:expense.id,description:expense.description,amount:String(expense.amount),
+      category:expense.category,participants:[...expense.participants],payers,paidShares:shares};
+  }else{
+    splitExpDraft={id:null,description:'',amount:'',category:'food',
+      participants:g.members.map(m=>m.id),payers:[g.members[0].id],paidShares:null};
+  }
+  showOverlay(renderSplitExpenseForm());
+  setTimeout(()=>{const d=$('#splitExpDesc');d&&d.focus();},50);
+}
+function syncPaySharesShape(){
+  const d=splitExpDraft;if(!d)return;
+  if(d.payers.length<=1){d.paidShares=null;return;}
+  if(!d.paidShares)d.paidShares={};
+  Object.keys(d.paidShares).forEach(id=>{if(!d.payers.includes(id))delete d.paidShares[id];});
+  d.payers.forEach(id=>{if(d.paidShares[id]==null)d.paidShares[id]='';});
+}
+function splitPayDistribute(){
+  const d=splitExpDraft;if(!d)return;
+  const amt=Math.abs(parseInt(d.amount||'0',10));
+  if(d.payers.length<=1||!amt)return;
+  const n=d.payers.length,base=Math.floor(amt/n);let rem=amt-base*n;
+  d.paidShares={};
+  d.payers.forEach((id,i)=>{d.paidShares[id]=String(base+(i<rem?1:0));});
+}
+function splitPayDistributeAndRender(){splitPayDistribute();showOverlay(renderSplitExpenseForm());}
+function renderSplitExpenseForm(){
+  const d=splitExpDraft;if(!d)return '';
+  const g=splitData.group;
+  const isEdit=!!d.id;
+  const amt=Math.abs(parseInt(d.amount||'0',10));
+  const payChips=g.members.map(m=>`<button type="button" class="chip ${d.payers.includes(m.id)?'on':''}" onclick="toggleSplitPayer('${m.id}')">${esc(m.name)}</button>`).join('');
+  const multi=d.payers.length>1;
+  let payDetail='';
+  if(multi){
+    const rows=d.payers.map(id=>{
+      const m=g.members.find(x=>x.id===id);
+      const v=(d.paidShares&&d.paidShares[id])||'';
+      return `<div class="split-pay-row"><span class="split-pay-name">${esc(m?m.name:'')}</span><input id="splitPay_${id}" class="numpad-field split-pay-amt" type="text" readonly inputmode="none" value="${esc(v)}" placeholder="0" onclick="openSplitPayNumpad('${id}')"></div>`;
+    }).join('');
+    const paid=d.payers.reduce((s,id)=>s+Math.abs(parseInt((d.paidShares&&d.paidShares[id])||'0',10)),0);
+    const remain=amt-paid;
+    payDetail=`<div class="split-pay-detail">${rows}<div class="split-pay-sum ${remain===0?'ok':'bad'}">已填 $${fmt(paid)} / 總額 $${fmt(amt)}${remain===0?' ✓':`（差 $${fmt(Math.abs(remain))}）`}</div><button type="button" class="split-pay-even" onclick="splitPayDistributeAndRender()">平均分配</button></div>`;
+  }
+  const catChips=SPLIT_CATS.map(c=>`<button type="button" class="chip ${d.category===c[0]?'on':''}" onclick="setSplitCat('${c[0]}')">${c[1]} ${c[2]}</button>`).join('');
+  const partChips=g.members.map(m=>`<button type="button" class="chip ${d.participants.includes(m.id)?'on':''}" onclick="toggleSplitPart('${m.id}')">${esc(m.name)}</button>`).join('');
+  const per=(d.participants.length&&amt)?Math.round(amt/d.participants.length):0;
+  return `<div class="txedit-wrap split-form">
+    <div class="txedit-head"><b>${isEdit?'修改分帳':'記一筆分帳'}</b><button type="button" class="chatX" onclick="closeSplitExpense()" aria-label="關閉">✕</button></div>
+    <div class="txedit-body">
+      <label class="fld">項目</label>
+      <input id="splitExpDesc" type="text" value="${esc(d.description)}" placeholder="例：晚餐、計程車" maxlength="30" oninput="if(splitExpDraft)splitExpDraft.description=this.value">
+      <label class="fld">金額</label>
+      <input id="splitExpAmt" type="text" readonly inputmode="none" class="numpad-field" value="${esc(d.amount)}" placeholder="0" onclick="openSplitAmtNumpad()">
+      <label class="fld">誰付的（可複選）</label>
+      <div class="chips split-chips">${payChips}</div>
+      ${payDetail}
+      <label class="fld">分類</label>
+      <div class="chips split-chips">${catChips}</div>
+      <label class="fld">誰要分攤（${d.participants.length} 人，每人約 $${fmt(per)}）</label>
+      <div class="chips split-chips">${partChips}</div>
+      <div class="txedit-actions"><button type="button" class="txedit-save" style="flex:1" onclick="saveSplitExpense()">${isEdit?'儲存修改':'加入分帳'}</button></div>
+    </div>
+  </div>`;
+}
+function toggleSplitPayer(id){
+  const d=splitExpDraft;if(!d)return;
+  const i=d.payers.indexOf(id);
+  if(i>=0){if(d.payers.length>1)d.payers.splice(i,1);}
+  else d.payers.push(id);
+  syncPaySharesShape();
+  if(d.payers.length>1&&Object.values(d.paidShares).every(v=>!v))splitPayDistribute();
+  showOverlay(renderSplitExpenseForm());
+}
+function setSplitCat(c){if(splitExpDraft){splitExpDraft.category=c;showOverlay(renderSplitExpenseForm());}}
+function toggleSplitPart(id){
+  if(!splitExpDraft)return;
+  const a=splitExpDraft.participants,i=a.indexOf(id);
+  if(i>=0)a.splice(i,1);else a.push(id);
+  showOverlay(renderSplitExpenseForm());
+}
+function openSplitAmtNumpad(){
+  if(!splitExpDraft)return;
+  openNumpadModal({
+    kind:'splitAmt',fieldId:'#splitExpAmt',value:splitExpDraft.amount||'',title:'輸入金額',
+    onChange(raw){splitExpDraft.amount=raw;const el=$('#splitExpAmt');if(el)el.value=raw;},
+    onConfirm(raw){splitExpDraft.amount=raw;showOverlay(renderSplitExpenseForm());}
+  });
+}
+function openSplitPayNumpad(id){
+  if(!splitExpDraft||!splitExpDraft.paidShares)return;
+  openNumpadModal({
+    kind:'splitPay',fieldId:'#splitPay_'+id,value:splitExpDraft.paidShares[id]||'',title:'這位付了多少',
+    onChange(raw){if(splitExpDraft.paidShares){splitExpDraft.paidShares[id]=raw;const el=$('#splitPay_'+id);if(el)el.value=raw;}},
+    onConfirm(raw){if(splitExpDraft.paidShares)splitExpDraft.paidShares[id]=raw;showOverlay(renderSplitExpenseForm());}
+  });
+}
+function closeSplitExpense(){splitExpDraft=null;closeOverlay();}
+async function saveSplitExpense(){
+  const d=splitExpDraft;if(!d)return;
+  const amount=Math.abs(parseInt(d.amount||'0',10));
+  if(!d.description.trim()){toast('請輸入項目名稱');return;}
+  if(!amount){toast('請輸入金額');return;}
+  if(!d.payers.length){toast('至少選一位付款人');return;}
+  if(!d.participants.length){toast('至少選一位分攤成員');return;}
+  const body={description:d.description.trim(),amount,category:d.category,splitType:'equal',participants:d.participants};
+  if(d.payers.length>1){
+    const shares={};let sum=0;
+    d.payers.forEach(id=>{const v=Math.abs(parseInt((d.paidShares&&d.paidShares[id])||'0',10));shares[id]=v;sum+=v;});
+    if(sum!==amount){toast(`付款加總 $${fmt(sum)} 要等於總額 $${fmt(amount)}`);return;}
+    body.paidShares=shares;
+  }else{
+    body.paidBy=d.payers[0];
+  }
+  try{
+    if(d.id)await splitApi('PATCH','/groups/'+splitData.group.id+'/expenses/'+d.id,body);
+    else await splitApi('POST','/groups/'+splitData.group.id+'/expenses',body);
+    splitExpDraft=null;closeOverlay();await bootSplitBill();toast(d.id?'已更新分帳':'已加入分帳');
+  }catch(e){toast((d.id?'更新':'加入')+'失敗：'+e.message);}
+}
+async function deleteSplitExpense(id){
+  if(!confirm('刪除這筆分帳支出？'))return;
+  try{await splitApi('DELETE','/groups/'+splitData.group.id+'/expenses/'+id);await bootSplitBill();}
+  catch(e){toast(e.message);}
+}
 function renderLedger(){
   if(floatNumpadCtx)closeFloatingNumpad(true);
   const modalWasOpen=timeBoxModalOpen;
@@ -4639,12 +5172,20 @@ function renderLedger(){
   const quickAmt=ledgerSub==='quick'
     ?`<div class="ledger-amt-block"><label class="fld">金額</label><input id="amt" type="text" readonly inputmode="none" placeholder="0" value="${draft.amt||''}" onclick="openLedgerNumpad()" aria-label="金額" class="numpad-field"></div>`
     :'';
-  const stack=`<div class="ledger-stack"><div class="ledger-unified-grid"><button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='quick'?'on':''}" onclick="setLedgerSub('quick')">快速記帳</button><button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='dream'?'on':''}" onclick="setLedgerSub('dream')">圓夢浮島</button>${quickRows}${quickAmt}</div></div>`;
-  $('#sheetBody').innerHTML=`<div class="page-panel ledger-page">${stack}${ledgerSub==='dream'?renderDreamLedger():renderQuickLedger()}</div>`;
+  const subtabs=`<div class="ledger-subtabs">`+
+    `<button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='quick'?'on':''}" onclick="setLedgerSub('quick')">快速記帳</button>`+
+    `<button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='dream'?'on':''}" onclick="setLedgerSub('dream')">圓夢浮島</button>`+
+    `<button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='split'?'on':''}" onclick="setLedgerSub('split')">分帳</button>`+
+    `</div>`;
+  const quickGrid=ledgerSub==='quick'?`<div class="ledger-amt-grid">${quickRows}${quickAmt}</div>`:'';
+  const stack=`<div class="ledger-stack">${subtabs}${quickGrid}</div>`;
+  const bodyHtml=ledgerSub==='dream'?renderDreamLedger():ledgerSub==='split'?renderSplitBill():renderQuickLedger();
+  $('#sheetBody').innerHTML=`<div class="page-panel ledger-page">${stack}${bodyHtml}</div>`;
   if(ledgerSub==='quick')requestAnimationFrame(()=>{
     bootTimeBox();
     if(modalWasOpen)syncTimeBoxModalUI();
   });
+  if(ledgerSub==='split')requestAnimationFrame(bootSplitBill);
 }
 function renderQuickLedger(){
   const cds=CATS[draft.type];
@@ -6028,9 +6569,9 @@ function marketTick(){
   }else ensureMarketTick();
   if(S.army.some(a=>a.live)){
     tickLiveArmies();
-    if(curTab==='war')updateArmyLiveDom();
+    if(curTab==='war'&&socialSub==='war')updateArmyLiveDom();
   }
-  if(curTab==='war'){
+  if(curTab==='war'&&socialSub==='war'){
     const el=$('#sheetRight');
     if(el)el.textContent=fmtMarketClock();
   }
@@ -6595,6 +7136,208 @@ function refreshWarKlineIfOpen(){
 }
 
 let warDraft={unit:'long',code:'MOON',count:3,countInput:null};
+/* ===== 社群（動態牆 + 聖戰 子分頁）===== */
+let socialSub='feed'; // 'feed' 社群動態 / 'war' 聖戰
+function setSocialSub(s){socialSub=s;renderSocial();}
+function renderSocial(){ if(socialSub==='war'){renderWar();return;} renderFeed(); }
+function socialSubtabBar(active){
+  return `<div class="social-subtabs">
+    <button type="button" class="social-subtab ${active==='feed'?'on':''}" onclick="setSocialSub('feed')">🌐 社群動態</button>
+    <button type="button" class="social-subtab ${active==='war'?'on':''}" onclick="setSocialSub('war')">⚔️ 聖戰</button>
+  </div>`;
+}
+function ensureSocial(){
+  if(!S.social||typeof S.social!=='object')S.social={posts:[]};
+  if(!Array.isArray(S.social.posts))S.social.posts=[];
+  return S.social;
+}
+function petAvatarHtml(){
+  const a=ANIMALS[S.pet.animal]||ANIMALS[0];
+  return PET_IMG[a.k]?`<img src="${PET_IMG[a.k]}" alt="">`:`<span class="feed-av-em">${a.e}</span>`;
+}
+function feedTime(ts){
+  const d=new Date(ts),now=Date.now(),diff=Math.max(0,now-d.getTime());
+  const min=Math.floor(diff/60000);
+  if(min<1)return '剛剛';
+  if(min<60)return min+' 分鐘前';
+  const hr=Math.floor(min/60);
+  if(hr<24)return hr+' 小時前';
+  const day=Math.floor(hr/24);
+  if(day<7)return day+' 天前';
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function seedSocialIfEmpty(){
+  const s=ensureSocial();
+  if(s.posts.length)return;
+  s.posts.push({id:Date.now(),ts:new Date().toISOString(),kind:'system',author:'浮島公告',
+    text:'歡迎來到浮島社群！在這裡分享你的存錢成就、聖戰戰績。加好友、和好友一起看動態與分帳的功能即將登場 🏝️',
+    likeCount:0,liked:false,replies:[]});
+  save();
+}
+function feedGrow(el){if(!el)return;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function postToFeed(){
+  const inp=$('#feedCompose');const t=(inp?.value||'').trim();
+  if(!t)return;
+  const s=ensureSocial();
+  s.posts.unshift({id:Date.now(),ts:new Date().toISOString(),kind:'user',author:S.pet.name||'我',
+    text:t,likeCount:0,liked:false,replies:[]});
+  save();renderFeed();
+}
+function shareAchievement(){
+  const s=ensureSocial();
+  const m=todayStr().slice(0,7);let exp=0,inc=0;
+  S.tx.forEach(t=>{if(t.ts.slice(0,7)===m){t.type==='income'?inc+=t.amount:exp+=t.amount;}});
+  const rate=inc>0?Math.max(0,Math.round((inc-exp)/inc*100)):0;
+  const text=`📊 本月存錢率 ${rate}%，連續記帳 ${S.streak||0} 天，Lv.${S.level||1}！${S.pet.name||'我的守護靈'}陪我一起變有錢 🐾`;
+  s.posts.unshift({id:Date.now(),ts:new Date().toISOString(),kind:'achievement',author:S.pet.name||'我',
+    text,likeCount:0,liked:false,replies:[]});
+  save();renderFeed();
+}
+function toggleFeedLike(id){
+  const s=ensureSocial();const p=s.posts.find(x=>x.id===id);if(!p)return;
+  p.liked=!p.liked;p.likeCount=(p.likeCount||0)+(p.liked?1:-1);if(p.likeCount<0)p.likeCount=0;
+  save();renderFeed();
+}
+function replyFeed(id){
+  const inp=document.getElementById('feedReply_'+id);const t=(inp?.value||'').trim();if(!t)return;
+  const s=ensureSocial();const p=s.posts.find(x=>x.id===id);if(!p)return;
+  p.replies=p.replies||[];
+  p.replies.push({id:Date.now(),ts:new Date().toISOString(),author:S.pet.name||'我',text:t});
+  save();renderFeed();
+}
+function deleteFeedPost(id){
+  if(!confirm('刪除這則動態？'))return;
+  const s=ensureSocial();const i=s.posts.findIndex(x=>x.id===id);
+  if(i>=0)s.posts.splice(i,1);save();renderFeed();
+}
+function renderFeedPost(p){
+  const badge=p.kind==='achievement'?'<span class="feed-badge">🏆 成就</span>'
+    :p.kind==='system'?'<span class="feed-badge sys">📣 公告</span>':'';
+  const replies=(p.replies||[]).map(r=>`<div class="feed-reply"><b>${esc(r.author)}</b> ${esc(r.text)}</div>`).join('');
+  const av=p.kind==='system'?'<span class="feed-av-em">📣</span>':petAvatarHtml();
+  return `<div class="feed-post card">
+    <div class="feed-post-head">
+      <div class="feed-av">${av}</div>
+      <div class="feed-post-who"><span class="feed-author">${esc(p.author)}</span><span class="feed-time">${feedTime(p.ts)}</span></div>
+      ${badge}
+      ${p.kind!=='system'?`<button type="button" class="feed-del" onclick="deleteFeedPost(${p.id})" aria-label="刪除">🗑️</button>`:''}
+    </div>
+    <div class="feed-text">${esc(p.text)}</div>
+    <div class="feed-actions">
+      <button type="button" class="feed-act like ${p.liked?'on':''}" onclick="toggleFeedLike(${p.id})">❤ ${p.likeCount||0}</button>
+      <span class="feed-act count">💬 ${(p.replies||[]).length}</span>
+    </div>
+    ${replies?`<div class="feed-replies">${replies}</div>`:''}
+    <div class="feed-reply-box">
+      <input id="feedReply_${p.id}" class="feed-reply-input" type="text" placeholder="回覆…" maxlength="140" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();replyFeed(${p.id});}">
+      <button type="button" class="feed-reply-btn" onclick="replyFeed(${p.id})">回</button>
+    </div>
+  </div>`;
+}
+function renderFeed(){
+  seedSocialIfEmpty();
+  const s=ensureSocial();
+  const sr=$('#sheetRight');if(sr)sr.textContent='';
+  const posts=s.posts.map(renderFeedPost).join('')||'<div class="feed-empty">還沒有動態，發第一則吧！</div>';
+  $('#sheetBody').innerHTML=`
+    ${socialSubtabBar('feed')}
+    <div class="page-panel feed-page">
+      <div class="feed-topbar">
+        <span class="feed-topbar-title">動態牆</span>
+        <button type="button" class="feed-friends-btn" onclick="openFriends()">👥 好友</button>
+      </div>
+      <div class="feed-compose card">
+        <div class="feed-compose-row">
+          <div class="feed-av">${petAvatarHtml()}</div>
+          <textarea id="feedCompose" class="feed-input" rows="1" placeholder="分享你的浮島近況…" maxlength="280" oninput="feedGrow(this)"></textarea>
+        </div>
+        <div class="feed-compose-actions">
+          <button type="button" class="feed-share" onclick="shareAchievement()">＋ 分享成就</button>
+          <button type="button" class="feed-post" onclick="postToFeed()">發佈</button>
+        </div>
+      </div>
+      <div class="feed-list">${posts}</div>
+      <div class="feed-foot">🔒 目前是你自己的動態牆。加好友、和好友一起看動態＋分帳的功能即將登場。</div>
+    </div>`;
+}
+/* ===== 好友系統（需登入，走 /api/friends）===== */
+let friendsState={me:null,friends:[],incoming:[],outgoing:[]};
+function friendsLoggedIn(){return !!localStorage.getItem(AUTH_LS)&&localStorage.getItem(GUEST_LS)!=='1';}
+async function friendApi(method,path,body){
+  const token=localStorage.getItem(AUTH_LS);
+  if(!token||localStorage.getItem(GUEST_LS)==='1')throw new Error('__NOAUTH__');
+  const res=await fetch(apiUrl('/api/friends'+path),{
+    method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:body!=null?JSON.stringify(body):undefined});
+  if(res.status===204)return null;
+  const data=await res.json().catch(()=>null);
+  if(res.status===401)throw new Error('登入已失效，請重新登入');
+  if(!res.ok)throw new Error((data&&data.error)||('HTTP '+res.status));
+  return data;
+}
+function openFriends(){
+  if(!friendsLoggedIn()){
+    showOverlay(`<div class="txedit-wrap friends-wrap"><div class="txedit-head"><b>好友</b><button type="button" class="chatX" onclick="closeOverlay()" aria-label="關閉">✕</button></div><div class="txedit-body"><div class="friends-need-login">👥<br>加好友需要先用 Google 登入。<br><span class="friends-sub">登入後就能用好友碼互加，之後一起看動態與分帳。</span></div></div></div>`);
+    return;
+  }
+  showOverlay(`<div class="txedit-wrap friends-wrap"><div class="txedit-head"><b>好友</b><button type="button" class="chatX" onclick="closeOverlay()" aria-label="關閉">✕</button></div><div class="txedit-body" id="friendsBody"><div class="split-hint pad">載入中…</div></div></div>`);
+  reloadFriends();
+}
+async function reloadFriends(){
+  try{
+    const me=await friendApi('PATCH','/me',{displayName:S.pet.name||undefined,petAnimal:S.pet.animal});
+    const [friends,reqs]=await Promise.all([friendApi('GET','/'),friendApi('GET','/requests')]);
+    friendsState={me,friends,incoming:reqs.incoming||[],outgoing:reqs.outgoing||[]};
+    renderFriendsBody();
+  }catch(e){
+    const body=$('#friendsBody');
+    if(body)body.innerHTML=`<div class="friends-need-login">😵<br>${e.message==='__NOAUTH__'?'請先登入':esc(e.message)}<br><span class="friends-sub">本機請確認已用 npm start 啟動後端。</span></div>`;
+  }
+}
+function renderFriendsBody(){
+  const body=$('#friendsBody');if(!body)return;
+  const s=friendsState;
+  const inc=s.incoming.length?s.incoming.map(r=>`<div class="friend-row"><span class="friend-name">${esc(r.from.displayName)}<span class="friend-code">${esc(r.from.friendCode)}</span></span><span class="friend-acts"><button type="button" class="friend-yes" onclick="acceptFriend('${r.id}')">接受</button><button type="button" class="friend-no" onclick="declineFriend('${r.id}')">拒絕</button></span></div>`).join(''):'<div class="split-hint">目前沒有待回應的邀請</div>';
+  const list=s.friends.length?s.friends.map(f=>`<div class="friend-row"><span class="friend-name">${esc(f.displayName)}<span class="friend-code">${esc(f.friendCode)}</span></span><button type="button" class="friend-del" onclick="unfriend('${esc(f.email)}')">移除</button></div>`).join(''):'<div class="split-hint">還沒有好友，把你的好友碼分享給朋友吧</div>';
+  const out=s.outgoing.length?`<div class="friends-out">已送出邀請，等待回應：${s.outgoing.map(r=>esc(r.to.displayName)).join('、')}</div>`:'';
+  body.innerHTML=`
+    <div class="friends-code-card">
+      <div class="friends-code-label">我的好友碼</div>
+      <div class="friends-code-val">${esc(s.me.friendCode)}</div>
+      <button type="button" class="friends-copy" onclick="copyFriendCode()">複製</button>
+    </div>
+    <label class="fld">加好友（輸入對方好友碼）</label>
+    <div class="split-addmem">
+      <input id="friendCodeInput" class="split-input" type="text" placeholder="例：PET-AB12CD" maxlength="16" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();sendFriendReq();}">
+      <button type="button" class="split-add-btn" onclick="sendFriendReq()">＋</button>
+    </div>
+    ${out}
+    <label class="fld">待回應的邀請</label>
+    <div class="friends-list">${inc}</div>
+    <label class="fld">我的好友 <span class="split-count">${s.friends.length}</span></label>
+    <div class="friends-list">${list}</div>`;
+}
+function copyFriendCode(){
+  const c=friendsState.me&&friendsState.me.friendCode||'';
+  if(!c)return;
+  if(navigator.clipboard){navigator.clipboard.writeText(c).then(()=>toast('已複製好友碼')).catch(()=>toast(c));}
+  else toast(c);
+}
+async function sendFriendReq(){
+  const inp=$('#friendCodeInput');const code=(inp?.value||'').trim();
+  if(!code){toast('請輸入好友碼');return;}
+  try{
+    const r=await friendApi('POST','/requests',{friendCode:code});
+    toast(r&&r.autoAccepted?'已成為好友！':'已送出邀請');
+    await reloadFriends();
+  }catch(e){toast(e.message==='__NOAUTH__'?'請先登入':e.message);}
+}
+async function acceptFriend(id){try{await friendApi('POST','/requests/'+id+'/accept');await reloadFriends();}catch(e){toast(e.message);}}
+async function declineFriend(id){try{await friendApi('POST','/requests/'+id+'/decline');await reloadFriends();}catch(e){toast(e.message);}}
+async function unfriend(email){
+  if(!confirm('移除這位好友？'))return;
+  try{await friendApi('DELETE','/'+encodeURIComponent(email));await reloadFriends();}catch(e){toast(e.message);}
+}
 function renderWar(){
   maybeAdvanceMarket();
   if(floatNumpadCtx?.kind==='war')closeFloatingNumpad(true);
@@ -6621,6 +7364,7 @@ function renderWar(){
   }).join('');
   const newsLine=sel.news?`<div class="hint" style="margin:2px 2px 6px;color:${sel.news.dir==='bull'?'#2a6':'#a33'}">📰 ${selV.n}：「${sel.news.txt}」</div>`:'';
   $('#sheetBody').innerHTML=`
+    ${socialSubtabBar('war')}
     <div class="page-panel war-page">
     <div class="market-bar"><span>🌐 大盤指數 ${m.M.toFixed(0)}</span>
       <span class="${m.rM>=0?'mv-up':'mv-dn'}">${m.rM>=0?'▲':'▼'} ${(m.rM*100).toFixed(2)}%</span></div>

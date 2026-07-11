@@ -243,6 +243,17 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// 分帳功能（朋友出遊分帳）— 掛在靜態檔之前
+process.env.SPLIT_BILL_DB_PATH =
+  process.env.SPLIT_BILL_DB_PATH || path.join(__dirname, 'data', 'split-bill-db.json');
+const splitBillRoutes = require('./lib/split-bill/splitBill.routes');
+app.use('/api/split-bill', splitBillRoutes);
+
+// 好友系統（需登入）
+process.env.FRIENDS_DB_PATH =
+  process.env.FRIENDS_DB_PATH || path.join(__dirname, 'data', 'friends-db.json');
+app.use('/api/friends', require('./lib/friends/friends.routes'));
+
 // 靜態檔
 app.use(express.static(__dirname, { index: 'index.html' }));
 
