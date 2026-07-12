@@ -392,6 +392,60 @@ img.ic.gem{margin-right:5px}
 .ledger-unified-grid>.ledger-tab-btn:nth-of-type(4){grid-column:2;grid-row:2}
 .ledger-unified-grid>.ledger-amt-block{grid-column:1/-1}
 .ledger-subtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin-bottom:8px}
+.ledger-subtabs--4{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ledger-subtabs--4 .ledger-tab-btn{font-size:12px;padding:9px 3px;letter-spacing:-.02em}
+/* 預先規劃 */
+.plan-page{display:flex;flex-direction:column;gap:12px;width:100%}
+#app[data-sky="dark"] .plan-page{color:rgba(255,255,255,.92)}
+#app[data-sky="light"] .plan-page{color:#2b2233}
+.plan-summary{text-align:center;padding:16px 14px}
+.plan-sum-label{font-size:12px;font-weight:800;opacity:.7}
+.plan-sum-big{font-size:30px;font-weight:900;letter-spacing:-.02em;line-height:1.1;margin:2px 0 4px;color:#FFD86B}
+#app[data-sky="light"] .plan-sum-big{color:#b8860b}
+.plan-sum-sub{font-size:12px;font-weight:700;opacity:.72}
+.plan-btn-row{display:flex;gap:8px}
+.plan-add-btn{flex:1;border:3px solid var(--line);border-radius:12px;background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:14px;padding:12px;cursor:pointer;box-shadow:3px 3px 0 rgba(15,23,42,.6)}
+.plan-add-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.6)}
+.plan-ai-btn{flex:1;border:3px solid var(--line);border-radius:12px;background:rgba(255,255,255,.16);color:inherit;font-family:var(--font);font-weight:900;font-size:14px;padding:12px;cursor:pointer;box-shadow:3px 3px 0 rgba(15,23,42,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#app[data-sky="light"] .plan-ai-btn{background:rgba(255,255,255,.72)}
+.plan-ai-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.45)}
+.plan-ai-box{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:12px 14px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+#app[data-sky="light"] .plan-ai-box{background:rgba(255,255,255,.8)}
+.plan-ai-head{font-size:13.5px;font-weight:900;margin-bottom:8px}
+.plan-ai-out{font-size:13px;font-weight:600;line-height:1.55;word-break:break-word}
+.plan-ai-out .pa-h{font-size:13.5px;font-weight:900;margin:14px 0 6px;color:#FFD86B}
+#app[data-sky="light"] .plan-ai-out .pa-h{color:#a86a00}
+.plan-ai-out .pa-h:first-child{margin-top:0}
+.plan-ai-out .pa-ul{margin:0 0 8px;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.plan-ai-out .pa-li{position:relative;padding-left:16px;line-height:1.55}
+.plan-ai-out .pa-li::before{content:"•";position:absolute;left:2px;top:-1px;color:#e0a000;font-weight:900}
+.plan-ai-out .pa-li.sub{padding-left:30px}
+.plan-ai-out .pa-li.sub::before{content:"◦";left:16px}
+.plan-ai-out .pa-p{margin:6px 0;line-height:1.6}
+.plan-ai-out b{font-weight:900}
+.plan-ai-out i{font-style:normal;font-weight:800;opacity:.9}
+.plan-list{display:flex;flex-direction:column;gap:10px}
+.plan-item{padding:12px 14px}
+.plan-item.over{opacity:.55}
+.plan-item-top{display:flex;align-items:center;gap:10px}
+.plan-ic{width:34px;height:34px;flex:none;display:flex;align-items:center;justify-content:center;font-size:19px;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24)}
+#app[data-sky="light"] .plan-ic{background:rgba(255,255,255,.7);border-color:rgba(255,255,255,.5)}
+.plan-ic .cat-ic{width:24px;height:24px}
+.plan-item-main{flex:1;min-width:0}
+.plan-name{font-size:14.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-when{font-size:11.5px;font-weight:700;opacity:.66;margin-top:1px}
+.plan-amt{flex:none;font-size:16px;font-weight:900;letter-spacing:-.02em}
+.plan-amt.exp{color:#FF8A80}
+.plan-amt.inc{color:#7be08a}
+#app[data-sky="light"] .plan-amt.exp{color:#d84a3a}
+#app[data-sky="light"] .plan-amt.inc{color:#2d8a45}
+.plan-item-bot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;padding-top:9px;border-top:1px dashed rgba(150,150,170,.35)}
+.plan-reserve{font-size:12.5px;font-weight:800;color:#FFD86B}
+#app[data-sky="light"] .plan-reserve{color:#b8860b}
+.plan-acts{display:flex;gap:4px;flex:none}
+.plan-acts button{width:30px;height:30px;border:none;background:transparent;font-size:14px;cursor:pointer;opacity:.72}
+.plan-date-picker{margin:4px 0 2px}
+.plan-date-hint{text-align:center;min-height:18px;margin:6px 0 2px;font-size:12px;font-weight:800;color:#c07a10}
 .ledger-amt-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:8px;row-gap:8px;width:100%;box-sizing:border-box}
 .ledger-amt-grid>.ledger-amt-block{grid-column:1/-1}
 .ledger-tab-btn{width:100%;min-width:0;box-sizing:border-box;padding:10px 8px;font-family:var(--font);font-size:13px;font-weight:800;
@@ -4831,8 +4885,268 @@ function feedPlay(){playWithPet();}
 
 /* ===== 記帳 ===== */
 let draft={type:'expense',cat:'飲食',photo:null,amt:''};
-let ledgerSub='quick'; // 記帳子分頁：'quick' 快速記帳 / 'dream' 圓夢浮島 / 'split' 分帳
+let ledgerSub='quick'; // 記帳子分頁：'quick' / 'dream' / 'split' / 'plan'
 function setLedgerSub(s){ledgerSub=s;renderLedger();}
+
+/* ===== 預先規劃（未來收支提前佈局）===== */
+let planDraft=null;
+function ensurePlans(){if(!Array.isArray(S.plans))S.plans=[];return S.plans;}
+function planDaysUntil(dateStr){
+  const now=new Date();now.setHours(0,0,0,0);
+  const d=new Date(dateStr+'T00:00:00');
+  return Math.round((d-now)/86400000);
+}
+function planMonthsUntil(dateStr){
+  const now=new Date(),d=new Date(dateStr+'T00:00:00');
+  const months=(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth())+(d.getDate()-now.getDate())/30;
+  return months;
+}
+function planSuggestMonthly(p){
+  if(p.type!=='expense')return 0;
+  if(planDaysUntil(p.date)<0)return 0;
+  const m=Math.max(1,Math.ceil(planMonthsUntil(p.date)));
+  return Math.ceil(p.amount/m);
+}
+function planCountdownText(p){
+  const days=planDaysUntil(p.date);
+  if(days<0)return '已到期';
+  if(days===0)return '就是今天';
+  if(days<45)return `還有 ${days} 天`;
+  return `約 ${Math.round(days/30)} 個月後`;
+}
+function planDateText(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+}
+function defaultPlanDate(){const d=new Date();d.setMonth(d.getMonth()+2);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function planDateDraftFromISO(iso){
+  const d=new Date(String(iso||'')+'T00:00:00');
+  if(Number.isNaN(d.getTime())){
+    const n=new Date();
+    return {year:String(n.getFullYear()),month:String(n.getMonth()+1),day:String(n.getDate())};
+  }
+  return {year:String(d.getFullYear()),month:String(d.getMonth()+1),day:String(d.getDate())};
+}
+function planISOFromDateDraft(draft){
+  const y=+(draft?.year||0),mo=+(draft?.month||0),da=+(draft?.day||0);
+  if(!y||!mo||!da)return '';
+  const d=new Date(y,mo-1,da);
+  if(d.getFullYear()!==y||d.getMonth()!==mo-1||d.getDate()!==da)return '';
+  return `${y}-${String(mo).padStart(2,'0')}-${String(da).padStart(2,'0')}`;
+}
+function syncPlanDraftDateFromWheels(){
+  if(!planDraft||!planDateDraft)return;
+  syncDateWheelPart($('#planWheelY'),'year',planDateDraft);
+  syncDateWheelPart($('#planWheelM'),'month',planDateDraft);
+  syncDateWheelPart($('#planWheelD'),'day',planDateDraft);
+  const iso=planISOFromDateDraft(planDateDraft);
+  if(iso)planDraft.date=iso;
+}
+function updatePlanDateHint(){
+  const hint=$('#planDateHint');if(!hint)return;
+  const iso=planISOFromDateDraft(planDateDraft||{});
+  if(!iso){hint.textContent='請選有效日期';return;}
+  if(planDraft)planDraft.date=iso;
+  hint.textContent=`預計 ${planDateText(iso)}・${planCountdownText({date:iso})}`;
+}
+function initPlanDateWheels(){
+  if(!planDraft)return;
+  planDateDraft=planDateDraftFromISO(planDraft.date||defaultPlanDate());
+  const nowY=new Date().getFullYear();
+  initDateWheels({
+    draft:planDateDraft,
+    ids:{y:'planWheelY',m:'planWheelM',d:'planWheelD'},
+    yearMin:nowY-1,
+    yearMax:nowY+15,
+    onChange:updatePlanDateHint
+  });
+  updatePlanDateHint();
+}
+function renderPlans(){
+  const plans=ensurePlans().slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const future=plans.filter(p=>planDaysUntil(p.date)>=0);
+  const totalReserve=future.filter(p=>p.type==='expense').reduce((s,p)=>s+planSuggestMonthly(p),0);
+  const totalExpense=future.filter(p=>p.type==='expense').reduce((s,p)=>s+p.amount,0);
+  const totalIncome=future.filter(p=>p.type==='income').reduce((s,p)=>s+p.amount,0);
+  const rows=plans.length?plans.map(renderPlanRow).join(''):'<div class="split-hint pad">還沒有預先規劃。把未來要花（出國、繳稅…）或要收的錢先記下來，系統會幫你算每月該預留多少。</div>';
+  return `<div class="plan-page">
+    <div class="card plan-summary">
+      <div class="plan-sum-label">建議每月預留</div>
+      <div class="plan-sum-big">$${fmt(totalReserve)}</div>
+      <div class="plan-sum-sub">未來支出合計 $${fmt(totalExpense)}${totalIncome?`　預計收入 $${fmt(totalIncome)}`:''}</div>
+    </div>
+    <div class="plan-btn-row">
+      <button type="button" class="plan-add-btn" onclick="openPlanForm()">＋ 新增規劃</button>
+      <button type="button" class="plan-ai-btn" onclick="analyzePlansAI()">AI 佈局分析</button>
+    </div>
+    <div id="planAiResult"></div>
+    <div class="plan-list">${rows}</div>
+  </div>`;
+}
+function renderPlanRow(p){
+  const cds=CATS[p.type]||CATS.expense;
+  const c=(cds.find(x=>x[1]===p.category)||['✨'])[0];
+  const over=planDaysUntil(p.date)<0;
+  const sign=p.type==='expense'?'−':'+';
+  const reserve=over?'已到期':(p.type==='expense'?`建議每月預留 $${fmt(planSuggestMonthly(p))}`:'預計進帳');
+  return `<div class="plan-item card${over?' over':''}">
+    <div class="plan-item-top">
+      <div class="plan-ic">${catIcon(p.category,c)}</div>
+      <div class="plan-item-main"><div class="plan-name">${esc(p.name)}</div><div class="plan-when">${planDateText(p.date)}・${planCountdownText(p)}</div></div>
+      <div class="plan-amt ${p.type==='expense'?'exp':'inc'}">${sign}$${fmt(p.amount)}</div>
+    </div>
+    <div class="plan-item-bot">
+      <span class="plan-reserve">${reserve}</span>
+      <span class="plan-acts"><button type="button" onclick="openPlanForm('${p.id}')" aria-label="修改">✏️</button><button type="button" onclick="deletePlan('${p.id}')" aria-label="刪除">🗑️</button></span>
+    </div>
+  </div>`;
+}
+let planDateDraft=null;
+function openPlanForm(id){
+  const plans=ensurePlans();
+  if(id){const p=plans.find(x=>x.id===id);if(!p)return;planDraft={id:p.id,type:p.type,name:p.name,amount:String(p.amount),date:p.date,category:p.category};}
+  else planDraft={id:null,type:'expense',name:'',amount:'',date:defaultPlanDate(),category:'其他'};
+  planDateDraft=planDateDraftFromISO(planDraft.date);
+  showOverlay(renderPlanForm());
+  setTimeout(()=>{initPlanDateWheels();const n=$('#planName');n&&n.focus();},50);
+}
+function renderPlanForm(){
+  const d=planDraft;if(!d)return '';
+  const cds=CATS[d.type]||CATS.expense;
+  if(!cds.some(c=>c[1]===d.category))d.category=cds[0][1];
+  const cats=cds.map(c=>`<button type="button" class="chip ${d.category===c[1]?'on':''}" onclick="setPlanCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${esc(c[1])}</span></button>`).join('');
+  return `<div class="txedit-wrap"><div class="txedit-head"><b>${d.id?'修改規劃':'新增預先規劃'}</b><button type="button" class="chatX" onclick="closePlanForm()" aria-label="關閉">✕</button></div><div class="txedit-body">
+    <div class="txedit-type"><button type="button" class="txedit-type-btn ${d.type==='expense'?'on':''}" onclick="setPlanType('expense')">未來支出</button><button type="button" class="txedit-type-btn ${d.type==='income'?'on':''}" onclick="setPlanType('income')">未來收入</button></div>
+    <label class="fld">項目名稱</label>
+    <input id="planName" type="text" value="${esc(d.name)}" placeholder="" maxlength="30" oninput="if(planDraft)planDraft.name=this.value">
+    <label class="fld">金額</label>
+    <input id="planAmt" type="text" readonly inputmode="none" class="numpad-field" value="${esc(d.amount)}" placeholder="0" onclick="openPlanNumpad()">
+    <label class="fld">預計日期</label>
+    <div class="bday-picker plan-date-picker">
+      <div class="bday-wheel-col bday-wheel-col-year">
+        <div class="bday-wheel-lbl">年</div>
+        <div class="bday-wheel-wrap">
+          <div class="bday-wheel-highlight" aria-hidden="true"></div>
+          <ul class="bday-wheel-list" id="planWheelY" aria-label="預計年"></ul>
+        </div>
+      </div>
+      <div class="bday-wheel-col">
+        <div class="bday-wheel-lbl">月</div>
+        <div class="bday-wheel-wrap">
+          <div class="bday-wheel-highlight" aria-hidden="true"></div>
+          <ul class="bday-wheel-list" id="planWheelM" aria-label="預計月"></ul>
+        </div>
+      </div>
+      <div class="bday-wheel-col">
+        <div class="bday-wheel-lbl">日</div>
+        <div class="bday-wheel-wrap">
+          <div class="bday-wheel-highlight" aria-hidden="true"></div>
+          <ul class="bday-wheel-list" id="planWheelD" aria-label="預計日"></ul>
+        </div>
+      </div>
+    </div>
+    <div id="planDateHint" class="plan-date-hint"></div>
+    <label class="fld">分類</label>
+    <div class="chips txedit-cats">${cats}</div>
+    <div class="txedit-actions"><button type="button" class="txedit-save" style="flex:1" onclick="savePlan()">${d.id?'儲存':'加入規劃'}</button></div>
+  </div></div>`;
+}
+function setPlanType(t){
+  if(!planDraft)return;
+  syncPlanDraftDateFromWheels();
+  planDraft.type=t;
+  const cds=CATS[t];if(!cds.some(c=>c[1]===planDraft.category))planDraft.category=cds[0][1];
+  showOverlay(renderPlanForm());
+  setTimeout(()=>initPlanDateWheels(),30);
+}
+function setPlanCat(c){
+  if(!planDraft)return;
+  syncPlanDraftDateFromWheels();
+  planDraft.category=c;
+  showOverlay(renderPlanForm());
+  setTimeout(()=>initPlanDateWheels(),30);
+}
+function openPlanNumpad(){
+  if(!planDraft)return;
+  syncPlanDraftDateFromWheels();
+  openNumpadModal({kind:'plan',fieldId:'#planAmt',value:planDraft.amount||'',title:'輸入金額',
+    onChange(raw){planDraft.amount=raw;const el=$('#planAmt');if(el)el.value=raw;},
+    onConfirm(raw){planDraft.amount=raw;const el=$('#planAmt');if(el)el.value=raw;}});
+}
+function closePlanForm(){planDraft=null;planDateDraft=null;closeOverlay();}
+function savePlan(){
+  const d=planDraft;if(!d)return;
+  syncPlanDraftDateFromWheels();
+  const amount=Math.abs(parseInt(d.amount||'0',10));
+  if(!d.name.trim()){toast('請輸入名稱');return;}
+  if(!amount){toast('請輸入金額');return;}
+  if(!d.date||!planISOFromDateDraft(planDateDraft||{})){toast('請選預計日期');return;}
+  const plans=ensurePlans();
+  if(d.id){const p=plans.find(x=>x.id===d.id);if(p){p.type=d.type;p.name=d.name.trim();p.amount=amount;p.date=d.date;p.category=d.category;}}
+  else plans.push({id:'plan_'+Date.now(),ts:new Date().toISOString(),type:d.type,name:d.name.trim(),amount,date:d.date,category:d.category});
+  save();planDraft=null;planDateDraft=null;closeOverlay();renderLedger();toast(d.id?'已更新規劃':'已加入規劃');
+}
+function deletePlan(id){
+  if(!confirm('刪除這筆規劃？'))return;
+  const plans=ensurePlans();const i=plans.findIndex(x=>x.id===id);
+  if(i>=0)plans.splice(i,1);save();renderLedger();toast('已刪除');
+}
+/* 把 AI 回的 Markdown 安全轉成排版 HTML（先跳脫再套樣式，避免 XSS） */
+function formatPlanAiMd(raw){
+  const inline=s=>esc(s)
+    .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g,'<i>$1</i>');
+  const lines=String(raw||'').replace(/\r/g,'').split('\n');
+  let html='',inList=false;
+  const closeList=()=>{if(inList){html+='</ul>';inList=false;}};
+  for(const line of lines){
+    const t=line.trim();
+    if(!t){closeList();continue;}
+    let m;
+    if(m=t.match(/^#{1,6}\s*(.+)$/)){closeList();html+=`<div class="pa-h">${inline(m[1].replace(/[#*]/g,'').trim())}</div>`;continue;}
+    const bm=line.match(/^(\s*)[\*\-•]\s+(.+)$/);
+    if(bm){
+      const sub=bm[1].length>=2;
+      if(!inList){html+='<ul class="pa-ul">';inList=true;}
+      html+=`<li class="pa-li${sub?' sub':''}">${inline(bm[2])}</li>`;
+      continue;
+    }
+    if(m=t.match(/^\d+\.\s+(.+)$/)){closeList();html+=`<div class="pa-h">${inline(m[1])}</div>`;continue;}
+    closeList();
+    html+=`<div class="pa-p">${inline(t)}</div>`;
+  }
+  closeList();
+  return html;
+}
+async function analyzePlansAI(){
+  const plans=ensurePlans();
+  const box=$('#planAiResult');
+  if(!plans.length){toast('先新增規劃再分析');return;}
+  if(box)box.innerHTML='<div class="plan-ai-box"><div class="split-hint pad">🤖 AI 分析中…</div></div>';
+  const m=todayStr().slice(0,7);let exp=0,inc=0;
+  S.tx.forEach(t=>{if(t.ts.slice(0,7)===m){t.type==='income'?inc+=t.amount:exp+=t.amount;}});
+  const lines=plans.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(p=>{
+    const mo=Math.max(0,Math.round(planMonthsUntil(p.date)));
+    return `- ${p.type==='income'?'未來收入':'未來支出'}｜${p.name}｜$${p.amount}｜預計 ${planDateText(p.date)}（約 ${mo} 個月後）`;
+  }).join('\n');
+  const sys='你是務實的個人理財規劃助手。請用繁體中文、條列給出精簡可行的「提前佈局」建議（4~6 點）：每月該預留多少、依到期時間排優先序、風險與提醒。針對數字給具體做法，不要空泛、不要說免責聲明以外的廢話。';
+  const user=`我目前的狀況：本月收入 $${inc}、本月支出 $${exp}、月預算 $${S.budget}、連續記帳 ${S.streak||0} 天。\n我的未來預先收支規劃：\n${lines}\n請幫我針對這些未來收支做提前財務佈局。`;
+  try{
+    const res=await fetch(apiUrl('/api/chat'),{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{temperature:0.7,maxOutputTokens:900,topP:0.95}})});
+    const data=await res.json().catch(()=>({}));
+    if(!box)return;
+    if(!res.ok||data.error){
+      const em=String(data.error?.message||('HTTP '+res.status));
+      box.innerHTML=`<div class="plan-ai-box"><div class="split-hint">AI 暫時無法分析（${esc(em)}）<br>本機需 npm start 啟動後端並設定 GEMINI_API_KEY。</div></div>`;
+      return;
+    }
+    const t=(data?.candidates?.[0]?.content?.parts||[]).map(x=>x.text).join('').trim();
+    box.innerHTML=`<div class="plan-ai-box"><div class="plan-ai-head">🤖 AI 財務佈局建議</div><div class="plan-ai-out">${t?formatPlanAiMd(t):'<div class="pa-p">（沒有回應，稍後再試）</div>'}</div></div>`;
+  }catch(e){
+    if(box)box.innerHTML='<div class="plan-ai-box"><div class="split-hint">AI 連線失敗，請稍後再試。</div></div>';
+  }
+}
 
 /* ===== 分帳（朋友出遊分帳）— 前端串接 /api/split-bill ===== */
 const SPLIT_GROUP_LS='gamefi_split_group_id';
@@ -4883,7 +5197,7 @@ function renderSplitEmpty(){
     <div class="split-empty-hero">🧾</div>
     <div class="split-empty-title">還沒有分帳群組</div>
     <div class="split-empty-sub">建一個出遊／聚餐群組，記下誰付了什麼，自動算出誰該還誰、最少幾筆轉帳。</div>
-    <input id="splitNewName" class="split-input" type="text" placeholder="主題名稱，例：沖繩三日遊" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup();}">
+    <input id="splitNewName" class="split-input" type="text" placeholder="主題名稱" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup();}">
     <button class="btn split-primary" onclick="createSplitGroup()">建立分帳主題</button>
     <button type="button" class="split-secondary" onclick="openSplitGroups()">查看既有主題</button>
   </div>`;
@@ -5060,7 +5374,7 @@ function renderSplitGroupsList(groups){
       <div class="split-glist">${rows}</div>
       <label class="fld">建立新主題</label>
       <div class="split-addmem">
-        <input id="splitNewName2" class="split-input" type="text" placeholder="主題名稱，例：墾丁團" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup2();}">
+        <input id="splitNewName2" class="split-input" type="text" placeholder="主題名稱" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup2();}">
         <button type="button" class="split-add-btn" onclick="createSplitGroup2()">＋</button>
       </div>
     </div>
@@ -5143,7 +5457,7 @@ function renderSplitExpenseForm(){
     <div class="txedit-head"><b>${isEdit?'修改分帳':'記一筆分帳'}</b><button type="button" class="chatX" onclick="closeSplitExpense()" aria-label="關閉">✕</button></div>
     <div class="txedit-body">
       <label class="fld">項目</label>
-      <input id="splitExpDesc" type="text" value="${esc(d.description)}" placeholder="例：晚餐、計程車" maxlength="30" oninput="if(splitExpDraft)splitExpDraft.description=this.value">
+      <input id="splitExpDesc" type="text" value="${esc(d.description)}" placeholder="" maxlength="30" oninput="if(splitExpDraft)splitExpDraft.description=this.value">
       <label class="fld">金額</label>
       <input id="splitExpAmt" type="text" readonly inputmode="none" class="numpad-field" value="${esc(d.amount)}" placeholder="0" onclick="openSplitAmtNumpad()">
       <label class="fld">誰付的（可複選）</label>
@@ -5228,14 +5542,15 @@ function renderLedger(){
   const quickAmt=ledgerSub==='quick'
     ?`<div class="ledger-amt-block"><label class="fld">金額</label><input id="amt" type="text" readonly inputmode="none" placeholder="0" value="${draft.amt||''}" onclick="openLedgerNumpad()" aria-label="金額" class="numpad-field"></div>`
     :'';
-  const subtabs=`<div class="ledger-subtabs">`+
+  const subtabs=`<div class="ledger-subtabs ledger-subtabs--4">`+
     `<button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='quick'?'on':''}" onclick="setLedgerSub('quick')">快速記帳</button>`+
     `<button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='dream'?'on':''}" onclick="setLedgerSub('dream')">圓夢浮島</button>`+
     `<button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='split'?'on':''}" onclick="setLedgerSub('split')">分帳</button>`+
+    `<button type="button" class="ledger-tab-btn ledger-sub-tab ${ledgerSub==='plan'?'on':''}" onclick="setLedgerSub('plan')">預先規劃</button>`+
     `</div>`;
   const quickGrid=ledgerSub==='quick'?`<div class="ledger-amt-grid">${quickRows}${quickAmt}</div>`:'';
   const stack=`<div class="ledger-stack">${subtabs}${quickGrid}</div>`;
-  const bodyHtml=ledgerSub==='dream'?renderDreamLedger():ledgerSub==='split'?renderSplitBill():renderQuickLedger();
+  const bodyHtml=ledgerSub==='dream'?renderDreamLedger():ledgerSub==='split'?renderSplitBill():ledgerSub==='plan'?renderPlans():renderQuickLedger();
   $('#sheetBody').innerHTML=`<div class="page-panel ledger-page">${stack}${bodyHtml}</div>`;
   if(ledgerSub==='quick')requestAnimationFrame(()=>{
     bootTimeBox();
@@ -5250,7 +5565,7 @@ function renderQuickLedger(){
     <label class="fld">分類</label>
     <div class="chips cat-grid${draft.type==='income'?' cat-grid--income':''}" id="catChips">${cds.map(c=>`<button type="button" class="chip cat-chip ${draft.cat===c[1]?'on':''}" onclick="setCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${c[1]}</span></button>`).join('')}</div>
     <label class="fld">備註</label>
-    <input id="note" type="text" placeholder="例：午餐、捷運、發薪…">
+    <input id="note" type="text" placeholder="">
     ${renderTimeBox()}
     <button class="btn mt ledger-submit-btn" style="width:100%" onclick="addTx()">記上一筆</button>
     <button type="button" class="dream-history-btn" onclick="openHistoryModal()">查看歷史記帳紀錄</button>
@@ -5382,7 +5697,7 @@ function renderDreamGoalForm(g){
       <div class="dream-hero">🏗️</div>
       <p class="hint" style="text-align:center;margin:6px 0 14px">${isEdit?'調整圓夢目標，儲存後立即重算預算。':'設定圓夢目標，每天記帳就能看著它一磚一瓦蓋起來！'}</p>
       <label class="fld">目標名稱</label>
-      <input id="goalName" type="text" placeholder="例：DJI Osmo Pocket 4" maxlength="24" value="${g?esc(g.name||''):''}">
+      <input id="goalName" type="text" placeholder="" maxlength="24" value="${g?esc(g.name||''):''}">
       <label class="fld">目標金額</label>
       <input id="goalAmt" type="text" readonly inputmode="none" class="numpad-field" placeholder="20000" value="${goalFormDraft.amt||''}" onclick="openGoalAmtNumpad()" aria-label="目標金額">
       <label class="fld">預計達成天數</label>
@@ -7457,7 +7772,7 @@ function renderFriendsBody(){
     </div>
     <label class="fld">加好友（輸入對方好友碼）</label>
     <div class="split-addmem">
-      <input id="friendCodeInput" class="split-input" type="text" placeholder="例：PET-AB12CD" maxlength="16" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();sendFriendReq();}">
+      <input id="friendCodeInput" class="split-input" type="text" placeholder="" maxlength="16" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();sendFriendReq();}">
       <button type="button" class="split-add-btn" onclick="sendFriendReq()">＋</button>
     </div>
     ${out}
@@ -8142,36 +8457,35 @@ function zodiacIndexFromYear(y){return ((y-4)%12+12)%12;}
 let onboardZodiac=null;
 let bdayDraft={year:'2000',month:'1',day:'1'};
 const BDAY_MIN_YEAR=1990;
-const BDAY_ITEM_H=40;
-const BDAY_WHEEL_PAD=2;
-function bdayDaysInMonth(y,m){
+const DATE_WHEEL_ITEM_H=40;
+const DATE_WHEEL_PAD=2;
+function dateDaysInMonth(y,m){
   if(!y||!m)return 31;
   return new Date(y,m,0).getDate();
 }
-function bdayWheelValues(part){
-  const nowY=new Date().getFullYear();
+function dateWheelValues(part,draft,yearMin,yearMax){
   if(part==='year'){
     const ys=[];
-    for(let y=BDAY_MIN_YEAR;y<=nowY;y++)ys.push(String(y));
+    for(let y=yearMin;y<=yearMax;y++)ys.push(String(y));
     return ys;
   }
   if(part==='month')return Array.from({length:12},(_,i)=>String(i+1));
-  const y=+(bdayDraft.year||2000),mo=+(bdayDraft.month||1);
-  const maxD=bdayDaysInMonth(y,mo);
+  const y=+(draft.year||2000),mo=+(draft.month||1);
+  const maxD=dateDaysInMonth(y,mo);
   return Array.from({length:maxD},(_,i)=>String(i+1));
 }
-function bdayWheelItemsHtml(values,selected){
+function dateWheelItemsHtml(values,selected){
   const sp='<li class="bday-wheel-item bday-wheel-spacer" aria-hidden="true"></li>';
-  const pad=sp.repeat(BDAY_WHEEL_PAD);
+  const pad=sp.repeat(DATE_WHEEL_PAD);
   const body=values.map(v=>{
     const on=v===String(selected)?' on':'';
     return `<li class="bday-wheel-item${on}" data-val="${v}">${v}</li>`;
   }).join('');
   return pad+body+pad;
 }
-function updateBdayWheelVisual(el){
+function updateDateWheelVisual(el){
   if(!el)return;
-  const idx=Math.round(el.scrollTop/BDAY_ITEM_H);
+  const idx=Math.round(el.scrollTop/DATE_WHEEL_ITEM_H);
   el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)').forEach((li,i)=>{
     const dist=Math.abs(i-idx);
     li.classList.toggle('on',dist===0);
@@ -8180,91 +8494,91 @@ function updateBdayWheelVisual(el){
     else li.style.opacity='';
   });
 }
-function scrollBdayWheelTo(el,val){
+function scrollDateWheelTo(el,val){
   if(!el)return;
   const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
   const idx=items.findIndex(li=>li.dataset.val===String(val));
   if(idx>=0){
-    el.scrollTop=idx*BDAY_ITEM_H;
-    updateBdayWheelVisual(el);
+    el.scrollTop=idx*DATE_WHEEL_ITEM_H;
+    updateDateWheelVisual(el);
   }
 }
-function syncBdayWheelPart(el,part){
-  if(!el)return;
+function syncDateWheelPart(el,part,draft){
+  if(!el||!draft)return;
   const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
   if(!items.length)return;
-  const idx=Math.max(0,Math.min(Math.round(el.scrollTop/BDAY_ITEM_H),items.length-1));
+  const idx=Math.max(0,Math.min(Math.round(el.scrollTop/DATE_WHEEL_ITEM_H),items.length-1));
   const val=items[idx]?.dataset.val;
   if(!val)return;
-  if(part==='year')bdayDraft.year=val;
-  else if(part==='month')bdayDraft.month=val;
-  else bdayDraft.day=val;
+  if(part==='year')draft.year=val;
+  else if(part==='month')draft.month=val;
+  else draft.day=val;
 }
-function finishBdayWheelScroll(el,part){
-  if(!el)return;
+function finishDateWheelScroll(el,part,ctx){
+  if(!el||!ctx)return;
   const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
   if(!items.length)return;
-  const idx=Math.max(0,Math.min(Math.round(el.scrollTop/BDAY_ITEM_H),items.length-1));
-  el.scrollTo({top:idx*BDAY_ITEM_H,behavior:'smooth'});
-  syncBdayWheelPart(el,part);
-  updateBdayWheelVisual(el);
-  if(part==='year'||part==='month')refreshBdayDayWheel();
-  updateBdayHint();
+  const idx=Math.max(0,Math.min(Math.round(el.scrollTop/DATE_WHEEL_ITEM_H),items.length-1));
+  el.scrollTo({top:idx*DATE_WHEEL_ITEM_H,behavior:'smooth'});
+  syncDateWheelPart(el,part,ctx.draft);
+  updateDateWheelVisual(el);
+  if(part==='year'||part==='month')refreshDateDayWheel(ctx);
+  if(typeof ctx.onChange==='function')ctx.onChange();
 }
-function bindBdayWheel(el,part){
-  if(!el||el.dataset.bdayBound)return;
-  el.dataset.bdayBound='1';
+function bindDateWheel(el,part,ctx){
+  if(!el||el.dataset.dateWheelBound)return;
+  el.dataset.dateWheelBound='1';
   let snapTimer;
   el.addEventListener('scroll',()=>{
-    updateBdayWheelVisual(el);
+    updateDateWheelVisual(el);
     clearTimeout(snapTimer);
-    snapTimer=setTimeout(()=>finishBdayWheelScroll(el,part),90);
+    snapTimer=setTimeout(()=>finishDateWheelScroll(el,part,ctx),90);
   },{passive:true});
   el.addEventListener('click',e=>{
     const li=e.target.closest('.bday-wheel-item:not(.bday-wheel-spacer)');
     if(!li)return;
     const items=[...el.querySelectorAll('.bday-wheel-item:not(.bday-wheel-spacer)')];
     const idx=items.indexOf(li);
-    if(idx>=0)el.scrollTo({top:idx*BDAY_ITEM_H,behavior:'smooth'});
+    if(idx>=0)el.scrollTo({top:idx*DATE_WHEEL_ITEM_H,behavior:'smooth'});
   });
 }
-function refreshBdayDayWheel(){
-  const dEl=$('#bdayWheelD');
+function refreshDateDayWheel(ctx){
+  if(!ctx)return;
+  const dEl=$(`#${ctx.ids.d}`);
   if(!dEl)return;
-  const y=+(bdayDraft.year||2000),mo=+(bdayDraft.month||1);
-  const maxD=bdayDaysInMonth(y,mo);
-  let da=+(bdayDraft.day||1);
-  if(da>maxD){da=maxD;bdayDraft.day=String(da);}
-  dEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('day'),bdayDraft.day);
-  requestAnimationFrame(()=>scrollBdayWheelTo(dEl,bdayDraft.day));
+  const y=+(ctx.draft.year||2000),mo=+(ctx.draft.month||1);
+  const maxD=dateDaysInMonth(y,mo);
+  let da=+(ctx.draft.day||1);
+  if(da>maxD){da=maxD;ctx.draft.day=String(da);}
+  dEl.innerHTML=dateWheelItemsHtml(dateWheelValues('day',ctx.draft,ctx.yearMin,ctx.yearMax),ctx.draft.day);
+  requestAnimationFrame(()=>scrollDateWheelTo(dEl,ctx.draft.day));
 }
-function syncBdayFromWheels(){
-  syncBdayWheelPart($('#bdayWheelY'),'year');
-  syncBdayWheelPart($('#bdayWheelM'),'month');
-  syncBdayWheelPart($('#bdayWheelD'),'day');
-}
-function initBdayWheels(){
-  const nowY=new Date().getFullYear();
-  let y=+(bdayDraft.year||2000);
-  if(y<BDAY_MIN_YEAR)y=BDAY_MIN_YEAR;
-  if(y>nowY)y=nowY;
-  bdayDraft.year=String(y);
-  bdayDraft.month=String(Math.max(1,Math.min(12,+(bdayDraft.month||1))));
-  const maxD=bdayDaysInMonth(y,+(bdayDraft.month));
-  bdayDraft.day=String(Math.max(1,Math.min(maxD,+(bdayDraft.day||1))));
-  const yEl=$('#bdayWheelY'),mEl=$('#bdayWheelM'),dEl=$('#bdayWheelD');
+function initDateWheels(ctx){
+  if(!ctx||!ctx.draft||!ctx.ids)return;
+  let y=+(ctx.draft.year||ctx.yearMin);
+  if(y<ctx.yearMin)y=ctx.yearMin;
+  if(y>ctx.yearMax)y=ctx.yearMax;
+  ctx.draft.year=String(y);
+  ctx.draft.month=String(Math.max(1,Math.min(12,+(ctx.draft.month||1))));
+  const maxD=dateDaysInMonth(y,+(ctx.draft.month));
+  ctx.draft.day=String(Math.max(1,Math.min(maxD,+(ctx.draft.day||1))));
+  const yEl=$(`#${ctx.ids.y}`),mEl=$(`#${ctx.ids.m}`),dEl=$(`#${ctx.ids.d}`);
   if(!yEl||!mEl||!dEl)return;
-  yEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('year'),bdayDraft.year);
-  mEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('month'),bdayDraft.month);
-  dEl.innerHTML=bdayWheelItemsHtml(bdayWheelValues('day'),bdayDraft.day);
-  bindBdayWheel(yEl,'year');
-  bindBdayWheel(mEl,'month');
-  bindBdayWheel(dEl,'day');
+  // 重新渲染時解除舊綁定旗標，讓 listener 可再掛（元素是新的）
+  delete yEl.dataset.dateWheelBound;
+  delete mEl.dataset.dateWheelBound;
+  delete dEl.dataset.dateWheelBound;
+  yEl.innerHTML=dateWheelItemsHtml(dateWheelValues('year',ctx.draft,ctx.yearMin,ctx.yearMax),ctx.draft.year);
+  mEl.innerHTML=dateWheelItemsHtml(dateWheelValues('month',ctx.draft,ctx.yearMin,ctx.yearMax),ctx.draft.month);
+  dEl.innerHTML=dateWheelItemsHtml(dateWheelValues('day',ctx.draft,ctx.yearMin,ctx.yearMax),ctx.draft.day);
+  bindDateWheel(yEl,'year',ctx);
+  bindDateWheel(mEl,'month',ctx);
+  bindDateWheel(dEl,'day',ctx);
   requestAnimationFrame(()=>{
-    scrollBdayWheelTo(yEl,bdayDraft.year);
-    scrollBdayWheelTo(mEl,bdayDraft.month);
-    scrollBdayWheelTo(dEl,bdayDraft.day);
-    updateBdayHint();
+    scrollDateWheelTo(yEl,ctx.draft.year);
+    scrollDateWheelTo(mEl,ctx.draft.month);
+    scrollDateWheelTo(dEl,ctx.draft.day);
+    if(typeof ctx.onChange==='function')ctx.onChange();
   });
 }
 function getBdayParts(){
@@ -8284,6 +8598,21 @@ function updateBdayHint(){
   if(!d){hint.textContent='請選有效日期';return;}
   const zi=zodiacIndexFromYear(d.getFullYear()),a=ANIMALS[zi];
   hint.innerHTML=`你的生肖是 <b style="color:#c07a10">${ZODIAC_NAMES[zi]}</b>　命運寵物：${a.e} <b>${a.n}</b>`;
+}
+function syncBdayFromWheels(){
+  syncDateWheelPart($('#bdayWheelY'),'year',bdayDraft);
+  syncDateWheelPart($('#bdayWheelM'),'month',bdayDraft);
+  syncDateWheelPart($('#bdayWheelD'),'day',bdayDraft);
+}
+function initBdayWheels(){
+  const nowY=new Date().getFullYear();
+  initDateWheels({
+    draft:bdayDraft,
+    ids:{y:'bdayWheelY',m:'bdayWheelM',d:'bdayWheelD'},
+    yearMin:BDAY_MIN_YEAR,
+    yearMax:nowY,
+    onChange:updateBdayHint
+  });
 }
 function showBirthday(){
   if(!bdayDraft.year)bdayDraft.year='2000';
