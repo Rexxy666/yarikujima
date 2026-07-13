@@ -425,6 +425,67 @@ img.ic.gem{margin-right:5px}
 .plan-ai-out b{font-weight:900}
 .plan-ai-out i{font-style:normal;font-weight:800;opacity:.9}
 .plan-list{display:flex;flex-direction:column;gap:10px}
+/* 固定收支 */
+.recur-list{display:flex;flex-direction:column;gap:8px}
+.recur-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;box-shadow:2px 2px 0 rgba(15,23,42,.4)}
+.recur-row:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.4)}
+.recur-ic{width:34px;height:34px;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:9px;background:#f4ecdb;border:2px solid var(--line)}
+.recur-ic .cat-ic{width:24px;height:24px}
+.recur-main{flex:1;min-width:0}
+.recur-name{font-size:14px;font-weight:900;color:#2b2233;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recur-when{font-size:11.5px;font-weight:700;color:#8a7a6a;margin-top:1px}
+.recur-amt{flex:none;font-size:15px;font-weight:900}
+.recur-amt.expense{color:#d84a3a}
+.recur-amt.income{color:#2d8a45}
+.recur-freq-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.recur-freq-btn{padding:10px 6px;border:3px solid var(--line);border-radius:8px;background:rgba(0,0,0,.06);color:#4a4a5a;font-family:var(--font);font-weight:900;font-size:13.5px;cursor:pointer}
+.recur-freq-btn.on{background:var(--gold);color:#4a3410;box-shadow:2px 2px 0 rgba(15,23,42,.7)}
+/* 每月幾號：下拉多選 + 標籤 */
+.recur-day-ms{position:relative;margin:0 0 2px}
+.recur-day-field{
+  width:100%;box-sizing:border-box;min-height:46px;
+  border:3px solid var(--line);border-radius:8px;
+  padding:8px 34px 8px 10px;background:#fff;cursor:pointer;
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+  font-family:var(--font);-webkit-tap-highlight-color:transparent;
+  transition:box-shadow .08s ease,border-color .08s ease}
+.recur-day-field.open{box-shadow:inset 0 0 0 1px #FFD043}
+.recur-day-field:focus{outline:none}
+.recur-day-field-ph{font-size:15px;font-weight:700;color:#9a8a7a;line-height:1.3;pointer-events:none}
+.recur-day-tag{
+  display:inline-flex;align-items:center;gap:2px;
+  padding:3px 4px 3px 8px;border:2.5px solid #000;border-radius:8px;
+  background:#FFD043;color:#2b2233;font-size:12.5px;font-weight:900;
+  line-height:1.2;max-width:100%;box-shadow:1px 1px 0 rgba(15,23,42,.35)}
+.recur-day-tag-x{
+  width:20px;height:20px;margin:0;padding:0;border:none;border-radius:6px;
+  background:transparent;color:#2b2233;font-size:14px;font-weight:900;
+  font-family:var(--font);line-height:1;cursor:pointer;flex:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent}
+.recur-day-tag-x:active{background:rgba(0,0,0,.1)}
+.recur-day-caret{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-size:11px;font-weight:900;color:#6a5a4a;pointer-events:none;line-height:1}
+.recur-day-panel{
+  position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:8;
+  background:#fffdf7;border:3px solid var(--line);border-radius:12px;
+  padding:10px;box-shadow:0 8px 0 rgba(15,23,42,.22),0 12px 28px rgba(30,20,55,.18);
+  /* 限制高度，避免擋死下方備註／新增；超出則內部捲動 */
+  max-height:min(200px,38vh);overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.recur-day-opts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.recur-day-opt{
+  min-height:42px;padding:0 4px;border:2.5px solid var(--line);border-radius:10px;
+  background:#fff;color:#2b2233;font-family:var(--font);font-weight:800;font-size:14px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform .05s ease,background .08s ease,box-shadow .08s ease}
+.recur-day-opt.wide{
+  grid-column:1 / span 3;min-height:44px;font-size:12.5px;font-weight:900;
+  letter-spacing:-.01em;padding:0 8px;text-align:center;line-height:1.25;white-space:normal}
+.recur-day-opt.on{background:#FFD043;color:#2b2233;border-color:#000;box-shadow:2px 2px 0 rgba(15,23,42,.45)}
+.recur-day-opt:active{transform:translate(1px,1px)}
+.recur-daily-note{margin:10px 0 2px;padding:14px;text-align:center;font-size:13px;font-weight:800;color:#7a6a8a;background:#fff8ec;border:2px dashed var(--line);border-radius:12px}
 .plan-item{padding:12px 14px}
 .plan-item.over{opacity:.55}
 .plan-item-top{display:flex;align-items:center;gap:10px}
@@ -750,6 +811,38 @@ img.ic.gem{margin-right:5px}
   background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:15px;cursor:pointer;
   box-shadow:3px 3px 0 rgba(15,23,42,.7);transition:transform .06s ease,box-shadow .06s ease}
 .txedit-save:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.7)}
+/* 分享成就：預覽面板 */
+.ach-composer{width:100%;max-width:380px;background:#fffdf7;color:#1a1a1a;
+  border:3px solid var(--line);border-radius:16px;box-shadow:5px 6px 0 rgba(0,0,0,.4);
+  display:flex;flex-direction:column;overflow:hidden;max-height:88vh}
+.ach-head{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 14px;border-bottom:3px solid var(--line);background:#fff8ec}
+.ach-head b{font-size:15px;font-weight:900;color:#2c2c3a}
+.ach-body{padding:12px 14px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.ach-sec-label{margin:12px 0 6px;font-size:12px;font-weight:800;color:#5a4a6a}
+.ach-sec-label:first-child{margin-top:0}
+.ach-chips{display:flex;flex-wrap:wrap;gap:7px}
+.ach-chip{padding:8px 13px;font-family:var(--font);font-size:12.5px;font-weight:800;line-height:1;
+  border-radius:99px;border:2px solid var(--line);background:#fff;color:#5a4a6a;-webkit-text-fill-color:#5a4a6a;cursor:pointer}
+.ach-chip.on{background:var(--gold);color:#4a3410;-webkit-text-fill-color:#4a3410;box-shadow:2px 2px 0 rgba(15,23,42,.5)}
+.ach-subchips .ach-chip{font-size:12px;padding:7px 12px;border-style:dashed}
+.ach-subchips .ach-chip.on{border-style:solid}
+.ach-preview{margin:0;background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px;box-shadow:none;color:#1a1a1a}
+.ach-preview .feed-text{color:#1a1a1a;font-size:14px;font-weight:600;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.ach-preview .feed-author{color:#1a1a1a}
+.ach-preview .feed-time{color:#6a6a7a}
+.ach-edit{width:100%;box-sizing:border-box;resize:vertical;min-height:78px;border:3px solid var(--line);border-radius:10px;
+  padding:11px 12px;font-family:var(--font);font-size:14px;font-weight:600;line-height:1.5;
+  color:#1a1a1a!important;background:#fff!important;-webkit-text-fill-color:#1a1a1a!important}
+.ach-actions{display:flex;gap:10px;margin-top:16px}
+.ach-cancel{flex:0 0 auto;min-width:88px;padding:13px 14px;border:3px solid var(--line);border-radius:10px;
+  background:rgba(0,0,0,.06);color:#4a4a5a;font-family:var(--font);font-weight:900;font-size:14px;cursor:pointer;
+  box-shadow:3px 3px 0 rgba(15,23,42,.5);transition:transform .06s ease,box-shadow .06s ease}
+.ach-cancel:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.5)}
+.ach-send{flex:1;padding:13px 14px;border:3px solid var(--line);border-radius:10px;
+  background:var(--gold);color:#4a3410;font-family:var(--font);font-weight:900;font-size:15px;cursor:pointer;
+  box-shadow:3px 3px 0 rgba(15,23,42,.7);transition:transform .06s ease,box-shadow .06s ease}
+.ach-send:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.7)}
 #historyModal .history-modal-body .tx-photo-cell{
   display:flex;align-items:center;justify-content:center;flex:none;flex-shrink:0;
   width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px}
@@ -783,6 +876,45 @@ img.ic.gem{margin-right:5px}
 .ledger-page .cat-grid.cat-grid--income{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .ledger-page .cat-grid .chip.cat-chip{display:flex;width:100%;min-width:0;box-sizing:border-box;
   align-items:center;justify-content:center;padding:9px 6px;font-size:12px;gap:6px;border-radius:10px;line-height:1.2}
+.ledger-page .cat-grid .chip.cat-chip.cat-open{box-shadow:0 0 0 2px var(--gold) inset}
+.ledger-page .subcat-panel{margin-top:8px;padding:9px 10px;border-radius:12px;
+  background:rgba(255,255,255,.14);border:2px dashed rgba(255,255,255,.28)}
+#app[data-sky="light"] .ledger-page .subcat-panel{background:#faf7ff;border:2px dashed var(--line)}
+#app[data-sky="dark"] .ledger-page .subcat-panel{background:rgba(255,255,255,.06)}
+.ledger-page .subcat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ledger-page .subcat-title{font-size:12px;font-weight:800;opacity:.85}
+.ledger-page .subcat-manage-btn{padding:4px 12px;font-family:var(--font);font-size:11px;font-weight:800;line-height:1;
+  border-radius:12px;border:2px solid var(--line);background:#fff;color:#6d5a86;-webkit-text-fill-color:#6d5a86;cursor:pointer}
+.ledger-page .subcat-manage-btn.on{background:var(--gold);color:#4a3410;-webkit-text-fill-color:#4a3410}
+.ledger-page .subcat-chips{display:flex;flex-wrap:wrap;gap:7px}
+.ledger-page .subcat-chips .chip.subcat-chip{padding:7px 12px;font-size:12px;font-weight:800;border-radius:14px;
+  background:#fff;border:2px solid var(--line);color:#2b2233;-webkit-text-fill-color:#2b2233;cursor:pointer;line-height:1}
+.ledger-page .subcat-chips .chip.subcat-chip.on{background:var(--gold);color:#4a3410;-webkit-text-fill-color:#4a3410;border-color:var(--line)}
+#app[data-sky="dark"] .ledger-page .subcat-chips .chip.subcat-chip{background:rgba(255,255,255,.9)}
+.ledger-page .subcat-chips .chip.subcat-chip--edit{display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;
+  background:#fff5f5;border-color:#f0b6b6}
+.ledger-page .subcat-chips .subcat-txt{color:#2b2233;-webkit-text-fill-color:#2b2233}
+.ledger-page .subcat-del{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+  border:none;border-radius:50%;background:#e05a5a;color:#fff;-webkit-text-fill-color:#fff;font-size:11px;line-height:1;cursor:pointer;flex:none;padding:0}
+.ledger-page .subcat-empty{font-size:12px;opacity:.7;padding:2px 0}
+.ledger-page .subcat-add-row{display:flex;gap:7px;margin-top:9px}
+.ledger-page .subcat-add-input{flex:1;min-width:0;padding:8px 11px;font-family:var(--font);font-size:12px;font-weight:700;
+  border-radius:12px;border:2px solid var(--line);background:#fff;color:#2b2233;-webkit-text-fill-color:#2b2233;box-sizing:border-box}
+.ledger-page .subcat-add-btn{padding:8px 14px;font-family:var(--font);font-size:12px;font-weight:800;line-height:1;white-space:nowrap;
+  border-radius:12px;border:2px solid var(--line);background:var(--gold);color:#4a3410;-webkit-text-fill-color:#4a3410;cursor:pointer}
+.ledger-page .subcat-manage-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:9px}
+.ledger-page .subcat-reset-btn{padding:6px 12px;font-family:var(--font);font-size:11px;font-weight:800;line-height:1;
+  border-radius:12px;border:2px dashed var(--line);background:transparent;color:#6d5a86;-webkit-text-fill-color:#6d5a86;cursor:pointer}
+.ledger-page .subcat-guest-hint{font-size:10.5px;line-height:1.4;opacity:.72;flex:1;min-width:120px}
+#app[data-sky="dark"] .ledger-page .subcat-manage-btn,
+#app[data-sky="dark"] .ledger-page .subcat-add-input{background:rgba(255,255,255,.9)}
+#app[data-sky="dark"] .ledger-page .subcat-chips .chip.subcat-chip--edit{background:#3a2626;border-color:#7a4a4a}
+#app[data-sky="dark"] .ledger-page .subcat-txt{color:#f0e6ff;-webkit-text-fill-color:#f0e6ff}
+.txedit-subcat-panel{margin-top:8px;padding:9px 10px;border-radius:12px;background:#faf7ff;border:2px dashed var(--line)}
+.txedit-subcat-panel .subcat-chips{display:flex;flex-wrap:wrap;gap:7px}
+.txedit-subcat-panel .chip.subcat-chip{padding:7px 12px;font-size:12px;font-weight:800;border-radius:14px;
+  background:#fff!important;border:2px solid var(--line)!important;color:#2b2233!important;-webkit-text-fill-color:#2b2233!important;cursor:pointer;line-height:1}
+.txedit-subcat-panel .chip.subcat-chip.on{background:var(--gold)!important;color:#4a3410!important;-webkit-text-fill-color:#4a3410!important}
 .ledger-page #note{margin-bottom:0}
 .ledger-page .btn.mt.ledger-submit-btn{margin-top:0;height:50px;font-size:15px}
 .ledger-page .card.mt{margin-top:18px!important}
@@ -1974,6 +2106,54 @@ const CATS={
   expense:[['🍎','飲食'],['🚌','交通'],['🛍️','購物'],['🏠','居住'],['🎮','娛樂'],['🏥','醫療'],['📚','學習'],['📈','投資'],['⚙️','其他']],
   income:[['💼','薪資'],['📈','投資'],['🐷','零用錢'],['⚙️','其他']]
 };
+/* ---- 分類細項（純文字，無 emoji）---- */
+const SUBCATS={
+  expense:{
+    '飲食':['早餐','午餐','晚餐','宵夜','飲料','點心'],
+    '交通':['捷運','公車','計程車','加油','停車','火車','高鐵','共享機車'],
+    '購物':['服飾','日用品','3C','書籍','美妝','家電'],
+    '居住':['房租','水費','電費','瓦斯','網路','家具','管理費'],
+    '娛樂':['電影','遊戲','旅遊','運動','KTV','訂閱','展覽'],
+    '醫療':['看診','藥品','保健','牙醫','眼科'],
+    '學習':['學費','課程','書籍','文具','證照'],
+    '投資':['股票','基金','定存','保險','加密貨幣'],
+    '其他':['禮金','捐款','手續費','雜項']
+  },
+  income:{
+    '薪資':['月薪','獎金','加班費','兼職'],
+    '投資':['股利','利息','價差','租金收入'],
+    '零用錢':['家人','紅包','發票中獎'],
+    '其他':['退款','轉帳','雜項收入']
+  }
+};
+function subcatsOf(type,cat){
+  const g=SUBCATS[type==='income'?'income':'expense']||{};
+  return g[cat]||[];
+}
+/* 使用者可自訂細項（新增/刪除）。有覆寫用覆寫，否則回退預設。
+   覆寫存於 S.subcats[type][cat]=[...]；僅登入 Google 用戶會被持久化／雲端同步。*/
+function effectiveSubcats(type,cat){
+  const t=type==='income'?'income':'expense';
+  const ov=(typeof S!=='undefined'&&S.subcats&&S.subcats[t])?S.subcats[t][cat]:null;
+  if(Array.isArray(ov))return ov.slice();
+  return subcatsOf(t,cat).slice();
+}
+/* 只有登入 Google 的用戶才把自訂細項存起來；訪客／匿名重整後還原預設 */
+function isSubcatPersistable(){
+  return !!(typeof S!=='undefined'&&S.auth&&S.auth.googleId);
+}
+function ensureSubcatBucket(type,cat){
+  const t=type==='income'?'income':'expense';
+  if(!S.subcats)S.subcats={};
+  if(!S.subcats[t])S.subcats[t]={};
+  if(!Array.isArray(S.subcats[t][cat]))S.subcats[t][cat]=effectiveSubcats(t,cat);
+  return S.subcats[t][cat];
+}
+/* 交易顯示標籤：有細項則「主分類·細項」，否則主分類 */
+function txCatLabel(t){
+  if(!t)return '';
+  return t.subcat?`${t.category}·${t.subcat}`:t.category;
+}
 /* 分類像素圖標：expenseicon.png 4欄×3列 sprite 的 [row,col]（0-indexed）*/
 const CAT_SPRITE={
   '飲食':[0,0],'交通':[0,1],'購物':[0,2],'居住':[0,3],
@@ -2285,10 +2465,17 @@ function loadStateForOwner(ownerKey){
   s._ownerKey=ownerKey;
   return s;
 }
+/* 準備要寫入 localStorage 的狀態：只有登入 Google 的用戶才保存自訂細項，
+   訪客／匿名的 subcats 不落地，重整後自動還原預設。*/
+function stateForPersist(){
+  if(isSubcatPersistable())return S;
+  const {subcats,...rest}=S;
+  return rest;
+}
 function persistOwnerState(ownerKey){
   if(!ownerKey)return;
   S._ownerKey=ownerKey;
-  localStorage.setItem(lsKeyForOwner(ownerKey),JSON.stringify(S));
+  localStorage.setItem(lsKeyForOwner(ownerKey),JSON.stringify(stateForPersist()));
 }
 function flushOwnerStateIfNeeded(nextOwnerKey){
   const cur=currentOwnerKey();
@@ -2792,7 +2979,7 @@ function fresh(){
   };
 }
 function load(){try{const d=JSON.parse(localStorage.getItem(LS));return d&&d.pet?d:fresh();}catch(e){return fresh();}}
-const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','savingGoals','theme','market','chat'];
+const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','savingGoals','theme','market','chat','subcats'];
 function migrateSavingGoals(){
   if(Array.isArray(S.savingGoals))return;
   if(S.goal&&S.goal.target){
@@ -2927,7 +3114,7 @@ function save(){
   S._savedAt=Date.now();
   const owner=currentOwnerKey();
   if(owner)persistOwnerState(owner);
-  else localStorage.setItem(LS,JSON.stringify(S));
+  else localStorage.setItem(LS,JSON.stringify(stateForPersist()));
   if(typeof scheduleAuthSync==='function')scheduleAuthSync();
 }
 function rollDay(){if(S.daily.date!==todayStr())S.daily={date:todayStr(),recruits:0,deploys:0};}
@@ -4747,7 +4934,7 @@ function homeTxItem(t,hmOnly){
   const ts=typeof t.ts==='function'?t.ts():t.ts;
   return `<div class="tx-item">
     <div class="tx-ic">${catIconCell(t.category,c)}</div>
-    <div class="tx-main"><div class="t">${t.category}${t.note?' · '+t.note:''}</div><div class="s">${hmOnly?formatTxHm(ts):formatTxTime(ts)}</div></div>
+    <div class="tx-main"><div class="t">${txCatLabel(t)}${t.note?' · '+t.note:''}</div><div class="s">${hmOnly?formatTxHm(ts):formatTxTime(ts)}</div></div>
     <div class="tx-amt ${t.type==='expense'?'amt-exp':'amt-inc'}">${t.type==='expense'?'−':'+'}$${fmt(t.amount)}</div>
   </div>`;
 }
@@ -4884,7 +5071,10 @@ function sleepInBedroom(){
 function feedPlay(){playWithPet();}
 
 /* ===== 記帳 ===== */
-let draft={type:'expense',cat:'飲食',photo:null,amt:''};
+let draft={type:'expense',cat:'飲食',subcat:null,photo:null,amt:''};
+let ledgerCatOpen=null; // 目前展開細項的主分類名稱（null＝全收合）
+let subcatManage=false; // 細項編輯模式（新增/刪除）
+let subcatAddVal='';    // 新增細項輸入框暫存值
 let ledgerSub='quick'; // 記帳子分頁：'quick' / 'dream' / 'split' / 'plan'
 function setLedgerSub(s){ledgerSub=s;renderLedger();}
 
@@ -5561,9 +5751,16 @@ function renderLedger(){
 function renderQuickLedger(){
   const cds=CATS[draft.type];
   if(!cds.some(c=>c[1]===draft.cat))draft.cat=cds[0][1];
+  if(ledgerCatOpen&&!cds.some(c=>c[1]===ledgerCatOpen))ledgerCatOpen=null;
+  const catBtns=cds.map(c=>{
+    const open=ledgerCatOpen===c[1];
+    return `<button type="button" class="chip cat-chip ${draft.cat===c[1]?'on':''}${open?' cat-open':''}" onclick="setCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${c[1]}</span></button>`;
+  }).join('');
+  const subPanel=ledgerCatOpen?renderSubcatPanel(effectiveSubcats(draft.type,ledgerCatOpen)):'';
   return `
     <label class="fld">分類</label>
-    <div class="chips cat-grid${draft.type==='income'?' cat-grid--income':''}" id="catChips">${cds.map(c=>`<button type="button" class="chip cat-chip ${draft.cat===c[1]?'on':''}" onclick="setCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${c[1]}</span></button>`).join('')}</div>
+    <div class="chips cat-grid${draft.type==='income'?' cat-grid--income':''}" id="catChips">${catBtns}</div>
+    ${subPanel}
     <label class="fld">備註</label>
     <input id="note" type="text" placeholder="">
     ${renderTimeBox()}
@@ -5804,7 +6001,7 @@ function photoWallZoom(id){
   $('#pwZoom')?.remove();
   const z=document.createElement('div'); z.id='pwZoom'; z.className='pw-zoom';
   z.onclick=()=>z.remove();
-  z.innerHTML=`<div class="pw-zoom-inner"><img src="${esc(src)}" alt=""><div class="pw-zoom-cap">${t.ts.slice(0,10)}・${esc(t.category)}・$${fmt(t.amount)}${t.note?'・'+esc(t.note):''}</div></div>`;
+  z.innerHTML=`<div class="pw-zoom-inner"><img src="${esc(src)}" alt=""><div class="pw-zoom-cap">${t.ts.slice(0,10)}・${esc(txCatLabel(t))}・$${fmt(t.amount)}${t.note?'・'+esc(t.note):''}</div></div>`;
   ov.appendChild(z);
 }
 let historyModalOpen=false;
@@ -5846,7 +6043,7 @@ function txPhotoThumbHtml(photoData){
   return `<span class="tx-photo-thumb-wrap" aria-hidden="true"><img class="tx-photo-thumb" src="${esc(src)}" alt=""></span>`;
 }
 function txTitleLineHtml(t){
-  const cat=esc(t.category);
+  const cat=esc(txCatLabel(t));
   const note=t.note?esc(t.note):'';
   const shredded=t.shredded?'<span class="mini">🗒️留字</span>':'';
   if(note)return `${cat} · <span class="tx-note-text">${note}</span>${shredded?' '+shredded:''}`;
@@ -5926,10 +6123,13 @@ function setHistoryFilter(f){
 }
 /* ===== 修改／刪除既有記帳（只改內容，不重發獎勵） ===== */
 let editTxDraft=null;
+let editTxCatOpen=null; // 修改表單中展開細項的主分類
 function openTxEdit(id){
   const t=(Array.isArray(S.tx)?S.tx:[]).find(x=>x.id===id);
   if(!t)return;
-  editTxDraft={id:t.id,type:t.type==='income'?'income':'expense',category:t.category,amount:String(t.amount),note:t.note||''};
+  const type=t.type==='income'?'income':'expense';
+  editTxDraft={id:t.id,type,category:t.category,subcat:t.subcat||null,amount:String(t.amount),note:t.note||''};
+  editTxCatOpen=effectiveSubcats(type,t.category).length?t.category:null; // 有細項則預設展開現有分類
   showOverlay(renderTxEditForm());
   setTimeout(()=>{const a=$('#editTxAmt');a&&a.focus();},60);
 }
@@ -5937,7 +6137,13 @@ function renderTxEditForm(){
   const d=editTxDraft;if(!d)return '';
   const cds=CATS[d.type]||CATS.expense;
   if(!cds.some(c=>c[1]===d.category))d.category=cds[0][1];
-  const chips=cds.map(c=>`<button type="button" class="chip cat-chip ${d.category===c[1]?'on':''}" onclick="setEditTxCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${esc(c[1])}</span></button>`).join('');
+  if(editTxCatOpen&&!cds.some(c=>c[1]===editTxCatOpen))editTxCatOpen=null;
+  const chips=cds.map(c=>{
+    const open=editTxCatOpen===c[1];
+    return `<button type="button" class="chip cat-chip ${d.category===c[1]?'on':''}${open?' cat-open':''}" onclick="setEditTxCat('${c[1]}')">${catIcon(c[1],c[0])}<span>${esc(c[1])}</span></button>`;
+  }).join('');
+  const subs=editTxCatOpen?effectiveSubcats(d.type,editTxCatOpen):[];
+  const subPanel=subs.length?`<div class="txedit-subcat-panel"><div class="subcat-chips">${subs.map(s=>`<button type="button" class="chip subcat-chip ${d.subcat===s?'on':''}" onclick="setEditTxSubcat('${esc(s)}')">${esc(s)}</button>`).join('')}</div></div>`:'';
   return `<div class="txedit-wrap">
     <div class="txedit-head"><b>修改這筆紀錄</b><button type="button" class="chatX" onclick="closeTxEdit()" aria-label="關閉">✕</button></div>
     <div class="txedit-body">
@@ -5949,6 +6155,7 @@ function renderTxEditForm(){
       <input id="editTxAmt" type="text" readonly inputmode="none" class="numpad-field" value="${esc(d.amount)}" onclick="openEditTxNumpad()" aria-label="金額" placeholder="0">
       <label class="fld">分類</label>
       <div class="chips txedit-cats">${chips}</div>
+      ${subPanel}
       <label class="fld">備註</label>
       <input id="editTxNote" type="text" value="${esc(d.note)}" placeholder="備註…" oninput="if(editTxDraft)editTxDraft.note=this.value">
       <div class="txedit-actions">
@@ -5963,12 +6170,24 @@ function setEditTxType(t){
   editTxDraft.type=t==='income'?'income':'expense';
   const cds=CATS[editTxDraft.type];
   if(!cds.some(c=>c[1]===editTxDraft.category))editTxDraft.category=cds[0][1];
+  editTxDraft.subcat=null;
+  editTxCatOpen=effectiveSubcats(editTxDraft.type,editTxDraft.category).length?editTxDraft.category:null;
   showOverlay(renderTxEditForm());
   setTimeout(()=>{const a=$('#editTxAmt');a&&a.focus();},40);
 }
 function setEditTxCat(c){
   if(!editTxDraft)return;
-  editTxDraft.category=c;
+  if(editTxDraft.category!==c){
+    editTxDraft.category=c;editTxDraft.subcat=null;
+    editTxCatOpen=effectiveSubcats(editTxDraft.type,c).length?c:null;
+  }else{
+    editTxCatOpen=(editTxCatOpen===c)?null:c;
+  }
+  showOverlay(renderTxEditForm());
+}
+function setEditTxSubcat(s){
+  if(!editTxDraft)return;
+  editTxDraft.subcat=(editTxDraft.subcat===s)?null:s;
   showOverlay(renderTxEditForm());
 }
 function openEditTxNumpad(){
@@ -5982,7 +6201,7 @@ function openEditTxNumpad(){
     onConfirm(raw){editTxDraft.amount=raw;const el=$('#editTxAmt');if(el)el.value=raw;}
   });
 }
-function closeTxEdit(){editTxDraft=null;closeOverlay();}
+function closeTxEdit(){editTxDraft=null;editTxCatOpen=null;closeOverlay();}
 function saveTxEdit(){
   const d=editTxDraft;if(!d)return;
   const amt=Math.abs(parseInt(d.amount||'0',10));
@@ -5992,6 +6211,7 @@ function saveTxEdit(){
   t.type=(d.type==='income')?'income':'expense';
   const cds=CATS[t.type];
   t.category=cds.some(c=>c[1]===d.category)?d.category:'其他';
+  t.subcat=(d.subcat&&effectiveSubcats(t.type,t.category).includes(d.subcat))?d.subcat:null;
   t.amount=amt;
   t.note=(d.note||'').trim();
   save();
@@ -6047,8 +6267,75 @@ function debugResetPhotoCooldown(){
   syncTimeBoxRowButton();
   toast('開發：相機冷卻與每日配額已重置');
 }
-function setType(t){draft.type=t;draft.cat=CATS[t][0][1];renderLedger();}
-function setCat(c){draft.cat=c;renderLedger();}
+function setType(t){draft.type=t;draft.cat=CATS[t][0][1];draft.subcat=null;ledgerCatOpen=null;subcatManage=false;subcatAddVal='';renderLedger();}
+function setCat(c){
+  if(draft.cat!==c){
+    draft.cat=c;draft.subcat=null;ledgerCatOpen=c; // 選新分類即展開細項
+    subcatManage=false;subcatAddVal='';
+  }else{
+    ledgerCatOpen=(ledgerCatOpen===c)?null:c;      // 再點同一分類收合/展開
+    if(!ledgerCatOpen){subcatManage=false;subcatAddVal='';}
+  }
+  renderLedger();
+}
+function setSubcat(s){draft.subcat=(draft.subcat===s)?null:s;renderLedger();}
+/* ---- 細項自訂（新增/刪除/還原）---- */
+function toggleSubcatManage(){subcatManage=!subcatManage;subcatAddVal='';renderLedger();}
+function addSubcat(){
+  const cat=ledgerCatOpen||draft.cat;
+  const name=(subcatAddVal||'').trim();
+  if(!name){toast('請輸入細項名稱');return;}
+  if(name.length>8){toast('細項名稱最多 8 個字');return;}
+  const arr=ensureSubcatBucket(draft.type,cat);
+  if(arr.includes(name)){toast('已經有這個細項了');return;}
+  arr.push(name);
+  subcatAddVal='';
+  draft.subcat=name;
+  save();
+  renderLedger();
+}
+function deleteSubcat(s){
+  const cat=ledgerCatOpen||draft.cat;
+  const arr=ensureSubcatBucket(draft.type,cat);
+  const i=arr.indexOf(s);
+  if(i>=0)arr.splice(i,1);
+  if(draft.subcat===s)draft.subcat=null;
+  save();
+  renderLedger();
+}
+function resetSubcats(){
+  const t=draft.type==='income'?'income':'expense';
+  const cat=ledgerCatOpen||draft.cat;
+  if(S.subcats&&S.subcats[t])delete S.subcats[t][cat];
+  if(draft.subcat&&!effectiveSubcats(t,cat).includes(draft.subcat))draft.subcat=null;
+  save();
+  renderLedger();
+}
+function renderSubcatPanel(subs){
+  const chips=subs.length
+    ? subs.map(s=>subcatManage
+        ? `<span class="chip subcat-chip subcat-chip--edit"><span class="subcat-txt">${esc(s)}</span><button type="button" class="subcat-del" onclick="deleteSubcat('${esc(s)}')" aria-label="刪除">✕</button></span>`
+        : `<button type="button" class="chip subcat-chip ${draft.subcat===s?'on':''}" onclick="setSubcat('${esc(s)}')">${esc(s)}</button>`
+      ).join('')
+    : `<span class="subcat-empty">此分類尚無細項${subcatManage?'，在下方新增':'，點右上「編輯」新增'}</span>`;
+  const addRow=subcatManage
+    ? `<div class="subcat-add-row">
+         <input id="subcatAddInput" class="subcat-add-input" type="text" maxlength="8" placeholder="新增常用細項…" value="${esc(subcatAddVal)}" oninput="subcatAddVal=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubcat();}">
+         <button type="button" class="subcat-add-btn" onclick="addSubcat()">＋ 新增</button>
+       </div>
+       <div class="subcat-manage-foot">
+         <button type="button" class="subcat-reset-btn" onclick="resetSubcats()">還原此分類預設</button>
+         ${!isSubcatPersistable()?`<span class="subcat-guest-hint">訪客的變更重整後會還原，登入 Google 才會記住</span>`:''}
+       </div>`
+    : '';
+  return `<div class="subcat-panel">
+    <div class="subcat-head"><span class="subcat-title">細項（選填）</span>
+      <button type="button" class="subcat-manage-btn ${subcatManage?'on':''}" onclick="toggleSubcatManage()">${subcatManage?'完成':'編輯'}</button>
+    </div>
+    <div class="subcat-chips">${chips}</div>
+    ${addRow}
+  </div>`;
+}
 
 /* ===== 浮島生活剪影・懸浮相機視窗 ===== */
 const PHOTO_CRIT_CD_MS=600000;
@@ -6530,17 +6817,18 @@ function formatLedgerRewardToast(r,hasPhoto){
   if(r.rewardGranted)return `+${r.coinGain}${coinIc(true)}  +${r.expGain}EXP${r.crit?'  ⚡暴擊':''}`;
   return '已記帳';
 }
-function recordTx({type,amount,category,note='',hasPhoto=false,photo=null,photoData=null}){
+function recordTx({type,amount,category,subcategory=null,note='',hasPhoto=false,photo=null,photoData=null}){
   type=(type==='income')?'income':'expense';
   const amt=Math.abs(parseInt(amount||0));
   if(!amt)return null;
   const cat=(CATS[type].find(c=>c[1]===category))?category:'其他';
+  const sub=(subcategory&&effectiveSubcats(type,cat).includes(subcategory))?subcategory:null;
   const resolvedPhotoData=photoData!=null&&photoData!==''?photoData:null;
   const photoReward=(hasPhoto||resolvedPhotoData)?grantPhotoReward():{coinGain:0,coinCapped:false,rewardGranted:false};
   const onCD=Date.now()-S.lastPhotoCrit<600000;
   const crit=(hasPhoto||resolvedPhotoData)&&photoReward.rewardGranted&&!onCD;
   const expGain=photoReward.rewardGranted?((crit?10:5)+(type==='income'?3:0)):0;
-  S.tx.unshift({id:Date.now(),ts:new Date().toISOString(),type,category:cat,amount:amt,note:note||'',
+  S.tx.unshift({id:Date.now(),ts:new Date().toISOString(),type,category:cat,subcat:sub,amount:amt,note:note||'',
     hasPhoto:!!(hasPhoto||resolvedPhotoData),photo,photoData:resolvedPhotoData,
     coinGain:photoReward.coinGain,expGain,crit,rewardGranted:photoReward.rewardGranted,coinCapped:photoReward.coinCapped});
   if(expGain>0)gainExp(expGain);
@@ -6569,12 +6857,13 @@ async function addTxAsync(amt){
       photoData=typeof photoMeta==='string'?photoMeta:(photoMeta.remoteUrl||null);
     }
   }
-  const r=recordTx({type:draft.type,amount:amt,category:draft.cat,note:$('#note').value.trim(),
+  const r=recordTx({type:draft.type,amount:amt,category:draft.cat,subcategory:draft.subcat,note:$('#note').value.trim(),
     hasPhoto:!!photoData,photo:photoMeta,photoData});
   releasePhotoAsset(draft.photo);
   draft.photo=null;
   closeTimeBoxModal(true);
   draft.amt='';
+  draft.subcat=null;ledgerCatOpen=null;subcatManage=false;subcatAddVal='';
   say(r.crit&&r.expGain>0?'相片暴擊！額外經驗與心情加成～':recordLine(r));
   toast(formatLedgerRewardToast(r,!!photoData));
   renderAll();hop();switchTab('ledger');
@@ -7575,12 +7864,76 @@ function seedSocialIfEmpty(){
   save();
 }
 function feedGrow(el){if(!el)return;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
-function achievementText(){
+/* ===== 成就產生器（多種可預覽的成就內容）===== */
+function achMonthStats(){
   const m=todayStr().slice(0,7);let exp=0,inc=0;
   S.tx.forEach(t=>{if(t.ts.slice(0,7)===m){t.type==='income'?inc+=t.amount:exp+=t.amount;}});
-  const rate=inc>0?Math.max(0,Math.round((inc-exp)/inc*100)):0;
-  return `📊 本月存錢率 ${rate}%，連續記帳 ${S.streak||0} 天，Lv.${S.level||1}！${S.pet.name||'我的守護靈'}陪我一起變有錢 🐾`;
+  return {inc,exp,bal:inc-exp,budget:Math.max(0,S.budget||0)};
 }
+function petName(){return S.pet?.name||'我的守護靈';}
+function petLv(){return S.pet?.level||1;}
+/* 本月結餘／是否超支 */
+function achBalance(){
+  const {inc,exp,bal,budget}=achMonthStats();
+  if(budget>0&&exp>budget){
+    return `😅 本月支出 $${fmt(exp)}，超出預算 $${fmt(exp-budget)}。${petName()}提醒我下個月要更省一點，繼續加油！💪`;
+  }
+  if(budget>0){
+    const leftPct=Math.round((1-exp/budget)*100);
+    return `💰 本月守住預算！結餘 $${fmt(bal)}（收入 $${fmt(inc)}、支出 $${fmt(exp)}），預算還剩 ${leftPct}%。穩穩存錢中 🌱`;
+  }
+  return `💰 本月結餘 $${fmt(bal)}（收入 $${fmt(inc)}、支出 $${fmt(exp)}），和 ${petName()}一起理財有成 🌱`;
+}
+/* 存錢率 */
+function achSavingRate(){
+  const {inc,exp}=achMonthStats();
+  const rate=inc>0?Math.max(0,Math.round((inc-exp)/inc*100)):0;
+  return `📊 本月存錢率 ${rate}%，連續記帳 ${S.streak||0} 天，Lv.${petLv()}！${petName()}陪我一起變有錢 🐾`;
+}
+/* 圓夢浮島進度／達標（可指定某個目標）*/
+function defaultDreamGoalId(){
+  const goals=getSavingGoals().filter(g=>g&&g.target);
+  if(!goals.length)return null;
+  const rows=goals.map(g=>({g,st:computeGoalStats(g)})).filter(r=>r.st);
+  const done=rows.find(r=>r.st.progress>=1); // 有達標的優先，否則進度最高
+  const pick=done?done.g:rows.slice().sort((a,b)=>b.st.progress-a.st.progress)[0].g;
+  return pick.id;
+}
+function achDreamText(goalId){
+  const goals=getSavingGoals().filter(g=>g&&g.target);
+  if(!goals.length)return `🏝️ 我在浮島開始存錢囉！正準備設定圓夢目標，一磚一瓦蓋起夢想～快來一起存！`;
+  let g=goals.find(x=>String(x.id)===String(goalId));
+  if(!g)g=goals.find(x=>String(x.id)===String(defaultDreamGoalId()))||goals[0];
+  const st=computeGoalStats(g);
+  const pct=st?Math.round(st.progress*100):0;
+  if(st&&st.progress>=1){
+    return `🎉 圓夢達標！「${g.name}」已經 100% 完工（存滿 $${fmt(g.target)}），夢想成真的感覺太棒了！🏆`;
+  }
+  return `🏗️ 圓夢浮島「${g.name}」進度 ${pct}%（已存 $${fmt(st?st.saved:0)} / $${fmt(g.target)}），離夢想又近一步！`;
+}
+function achDream(){return achDreamText(achComposer.dreamGoalId);}
+/* 我的目標清單 */
+function achGoalList(){
+  const goals=getSavingGoals().filter(g=>g&&g.target);
+  if(!goals.length)return `🎯 我還沒設定圓夢目標，正在想要為什麼而存呢～有好建議嗎？`;
+  const lines=goals.slice(0,4).map(g=>{
+    const st=computeGoalStats(g);const pct=st?Math.round(st.progress*100):0;
+    return `・${g.name} ${pct}%（$${fmt(st?st.saved:0)}/$${fmt(g.target)}）`;
+  }).join('\n');
+  return `🎯 我的圓夢清單：\n${lines}\n一起朝目標前進！`;
+}
+/* 連續記帳／等級 */
+function achStreak(){
+  return `🔥 連續記帳 ${S.streak||0} 天，${petName()} 已經 Lv.${petLv()}！誠實記帳，浮島越來越亮 ✨`;
+}
+const ACH_TEMPLATES=[
+  {id:'balance',label:'本月結餘',fn:achBalance},
+  {id:'rate',   label:'存錢率',  fn:achSavingRate},
+  {id:'dream',  label:'圓夢進度',fn:achDream},
+  {id:'goals',  label:'目標清單',fn:achGoalList},
+  {id:'streak', label:'連續記帳',fn:achStreak},
+];
+function achievementText(){return achSavingRate();} // 保留相容
 async function postToFeed(){
   const inp=$('#feedCompose');const t=(inp?.value||'').trim();
   if(!t)return;
@@ -7600,8 +7953,72 @@ async function postToFeed(){
   if(inp)inp.value='';
   save();renderFeed();
 }
-async function shareAchievement(){
-  const text=achievementText();
+/* ===== 分享成就：先預覽再發佈 ===== */
+let achComposer={tplId:'balance',text:'',dreamGoalId:null};
+function shareAchievement(){openAchievementComposer();}
+function openAchievementComposer(){
+  const tpl=ACH_TEMPLATES[0];
+  achComposer.tplId=tpl.id;
+  achComposer.dreamGoalId=defaultDreamGoalId();
+  achComposer.text=tpl.fn();
+  showOverlay(renderAchievementComposer());
+}
+function selectAchTemplate(id){
+  const tpl=ACH_TEMPLATES.find(t=>t.id===id);if(!tpl)return;
+  achComposer.tplId=id;
+  if(id==='dream')achComposer.dreamGoalId=defaultDreamGoalId(); // 進入圓夢進度預設選一個目標
+  achComposer.text=tpl.fn(); // 切換快捷鍵即重算內容並即時預覽
+  showOverlay(renderAchievementComposer());
+}
+function selectDreamGoal(id){
+  achComposer.dreamGoalId=id;
+  achComposer.text=achDreamText(id);
+  showOverlay(renderAchievementComposer());
+}
+function onAchTextInput(v){
+  achComposer.text=v;
+  const el=document.getElementById('achPreviewText');
+  if(el)el.textContent=v; // 只更新預覽，避免 textarea 失焦
+}
+function closeAchievementComposer(){closeOverlay();}
+function renderAchievementComposer(){
+  const chips=ACH_TEMPLATES.map(t=>`<button type="button" class="ach-chip ${achComposer.tplId===t.id?'on':''}" onclick="selectAchTemplate('${t.id}')">${t.label}</button>`).join('');
+  const dreamGoals=getSavingGoals().filter(g=>g&&g.target);
+  const dreamPicker=(achComposer.tplId==='dream'&&dreamGoals.length>1)?`
+      <div class="ach-sec-label">選擇圓夢目標</div>
+      <div class="ach-chips ach-subchips">${dreamGoals.map(g=>{
+        const st=computeGoalStats(g);const pct=st?Math.round(st.progress*100):0;
+        return `<button type="button" class="ach-chip ${String(achComposer.dreamGoalId)===String(g.id)?'on':''}" onclick="selectDreamGoal('${esc(String(g.id))}')">${esc(g.name)} ${pct}%</button>`;
+      }).join('')}</div>`:'';
+  const text=achComposer.text||'';
+  return `<div class="ach-composer">
+    <div class="ach-head"><b>🏆 分享成就</b><button type="button" class="chatX" onclick="closeAchievementComposer()" aria-label="關閉">✕</button></div>
+    <div class="ach-body">
+      <div class="ach-sec-label">快捷成就</div>
+      <div class="ach-chips">${chips}</div>
+      ${dreamPicker}
+      <div class="ach-sec-label">預覽</div>
+      <div class="feed-post card ach-preview">
+        <div class="feed-post-head">
+          <div class="feed-av">${petAvatarHtml()}</div>
+          <div class="feed-post-who"><span class="feed-author">${esc(S.pet.name||'我')}</span><span class="feed-time">剛剛</span></div>
+          <span class="feed-badge">🏆 成就</span>
+        </div>
+        <div class="feed-text" id="achPreviewText">${esc(text)}</div>
+      </div>
+      <div class="ach-sec-label">內容可自行修改</div>
+      <textarea id="achEdit" class="ach-edit" rows="4" maxlength="280" oninput="onAchTextInput(this.value)" placeholder="想說點什麼…">${esc(text)}</textarea>
+      <div class="ach-actions">
+        <button type="button" class="ach-cancel" onclick="closeAchievementComposer()">取消</button>
+        <button type="button" class="ach-send" onclick="sendAchievement()">發佈成就</button>
+      </div>
+    </div>
+  </div>`;
+}
+async function sendAchievement(){
+  const text=(achComposer.text||'').trim();
+  if(!text){toast('成就內容不能空白');return;}
+  closeAchievementComposer();
   if(feedCloudEnabled()){
     try{
       await feedApi('POST','/posts',{text,author:S.pet.name||'我',kind:'achievement'});
@@ -7615,6 +8032,7 @@ async function shareAchievement(){
   s.posts.unshift({id:Date.now(),ts:new Date().toISOString(),kind:'achievement',author:S.pet.name||'我',
     text,likeCount:0,liked:false,replies:[],mine:true});
   save();renderFeed();
+  toast('已分享成就');
 }
 async function toggleFeedLike(id){
   if(feedCloudEnabled()){
@@ -8338,6 +8756,237 @@ async function callGemini(text){
 }
 
 /* ===== 設定（全螢幕分頁） ===== */
+/* ===== 固定收支（每月自動記帳）===== */
+let recurDraft=null;
+let recurDayPickerOpen=false;
+let recurDayOutsideCloser=null;
+function ensureRecurring(){if(!Array.isArray(S.recurring))S.recurring=[];return S.recurring;}
+function recurIsoLocal(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function recurDays(r){
+  if(Array.isArray(r.days))return r.days.map(Number).filter(n=>n>=1&&n<=31);
+  if(r.day!=null)return [Number(r.day)]; // 舊資料相容
+  return [];
+}
+/**
+ * 判斷某日是否應觸發固定收支。
+ * 小月／2 月相容：若規則選了 29／30／31，但當月沒有那天，
+ * 一律折到「該月最後一天」觸發（例：選 31 → 4 月在 30 日、2 月在 28/29 日記帳）。
+ * 同一天若多個選號都折到月底，只會記一筆（Set 去重）。
+ */
+function recurEffectiveDay(selectedDay, daysInMonth){
+  const n=Number(selectedDay);
+  if(!n||n<1)return null;
+  // 選號超過當月天數 → 落在月底最後一天
+  return Math.min(n, daysInMonth);
+}
+function recurMatches(r,d){
+  const daysInMonth=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  const todayDom=d.getDate();
+  const effective=new Set();
+  recurDays(r).forEach(sel=>{
+    const day=recurEffectiveDay(sel,daysInMonth);
+    if(day!=null)effective.add(day);
+  });
+  return effective.has(todayDom);
+}
+function recurDayLabel(n){
+  n=+n;
+  if(n===31)return '31 號／月底';
+  return n+' 號';
+}
+function recurWhenText(r){
+  const ds=recurDays(r).slice().sort((a,b)=>a-b);
+  if(!ds.length)return '每月';
+  return '每月 '+ds.map(n=>n===31?'31 號（不足則月底）':(n+' 號')).join('、');
+}
+/* 到期自動補記（不發代幣/經驗，避免刷獎勵），冪等：靠 lastApplied */
+function applyRecurring(){
+  const rules=ensureRecurring();if(!rules.length)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  let changed=false,counter=0;
+  rules.forEach(r=>{
+    let start;
+    if(r.lastApplied){start=new Date(r.lastApplied+'T00:00:00');start.setDate(start.getDate()+1);}
+    else start=new Date(today); // 新規則從今天起算，不回補建立前
+    const cap=new Date(today);cap.setDate(cap.getDate()-120);
+    if(start<cap)start=cap;
+    for(let d=new Date(start);d<=today;d.setDate(d.getDate()+1)){
+      if(recurMatches(r,d)){
+        const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),12,0,0);
+        const cat=(CATS[r.type]||[]).some(c=>c[1]===r.category)?r.category:'其他';
+        const nt='固定'+(r.type==='income'?'收入':'支出')+'：'+r.name+(r.note?('・'+r.note):'');
+        S.tx.unshift({id:Date.now()+(counter++),ts:at.toISOString(),type:r.type,category:cat,
+          amount:Math.abs(parseInt(r.amount||0,10)),note:nt,
+          hasPhoto:false,photo:null,photoData:null,coinGain:0,expGain:0,crit:false,rewardGranted:false,coinCapped:false,recurring:true});
+        r.lastApplied=recurIsoLocal(d);
+        changed=true;
+      }
+    }
+    if(!r.lastApplied)r.lastApplied=recurIsoLocal(today);
+  });
+  if(changed)save();
+}
+function unbindRecurDayOutside(){
+  if(!recurDayOutsideCloser)return;
+  document.removeEventListener('click',recurDayOutsideCloser,true);
+  recurDayOutsideCloser=null;
+}
+function bindRecurDayOutside(){
+  unbindRecurDayOutside();
+  recurDayOutsideCloser=(e)=>{
+    const ms=$('#recurDayMs');
+    if(ms&&ms.contains(e.target))return;
+    unbindRecurDayOutside();
+    if(recurDayPickerOpen){
+      recurDayPickerOpen=false;
+      refreshRecurDayPicker();
+    }
+  };
+  setTimeout(()=>document.addEventListener('click',recurDayOutsideCloser,true),0);
+}
+function recurSelectedDays(){
+  return (recurDraft&&Array.isArray(recurDraft.days)?recurDraft.days:[]).slice()
+    .map(Number).filter(n=>n>=1&&n<=31).sort((a,b)=>a-b);
+}
+function renderRecurDayTags(days){
+  if(!days.length)return '<span class="recur-day-field-ph">選擇每月幾號</span>';
+  return days.map(d=>`<span class="recur-day-tag" onclick="event.stopPropagation()"><span>${esc(recurDayLabel(d))}</span><button type="button" class="recur-day-tag-x" aria-label="移除 ${d} 號" onclick="removeRecurDay(${d})">×</button></span>`).join('');
+}
+function renderRecurDayPicker(){
+  const days=recurSelectedDays();
+  const open=!!recurDayPickerOpen;
+  // 6 欄：1~30 剛好 5 列；31 橫跨左半 3 欄，補齊視覺空白
+  const opts=Array.from({length:30},(_,i)=>i+1).map(dd=>{
+    const on=days.includes(dd)?' on':'';
+    return `<button type="button" class="recur-day-opt${on}" role="option" aria-selected="${days.includes(dd)?'true':'false'}" onclick="event.stopPropagation();toggleRecurDay(${dd})">${dd}</button>`;
+  }).join('')+(()=>{
+    const on=days.includes(31)?' on':'';
+    return `<button type="button" class="recur-day-opt wide${on}" role="option" aria-selected="${days.includes(31)?'true':'false'}" title="小月或 2 月會在該月最後一天記帳" onclick="event.stopPropagation();toggleRecurDay(31)">31 號 (或月底最後一天)</button>`;
+  })();
+  return `<div class="recur-day-ms" id="recurDayMs">
+    <div class="recur-day-field${open?' open':''}" role="combobox" tabindex="0" aria-expanded="${open?'true':'false'}" aria-haspopup="listbox" aria-controls="recurDayPanel" onclick="toggleRecurDayPicker()" onkeydown="recurDayFieldKey(event)">
+      ${renderRecurDayTags(days)}
+      <span class="recur-day-caret" aria-hidden="true">${open?'▴':'▾'}</span>
+    </div>
+    ${open?`<div class="recur-day-panel" id="recurDayPanel" role="listbox" aria-multiselectable="true" onclick="event.stopPropagation()"><div class="recur-day-opts">${opts}</div></div>`:''}
+  </div>`;
+}
+function refreshRecurDayPicker(){
+  const wrap=$('#recurDayMs');
+  if(!wrap)return;
+  wrap.outerHTML=renderRecurDayPicker();
+  if(recurDayPickerOpen)bindRecurDayOutside();
+  else unbindRecurDayOutside();
+}
+function toggleRecurDayPicker(){
+  recurDayPickerOpen=!recurDayPickerOpen;
+  refreshRecurDayPicker();
+}
+function recurDayFieldKey(e){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleRecurDayPicker();}
+  else if(e.key==='Escape'&&recurDayPickerOpen){e.preventDefault();recurDayPickerOpen=false;refreshRecurDayPicker();}
+}
+function toggleRecurDay(v){
+  if(!recurDraft)return;
+  v=+v;
+  recurDraft.days=recurDraft.days||[];
+  const i=recurDraft.days.indexOf(v);
+  if(i>=0)recurDraft.days.splice(i,1);
+  else recurDraft.days.push(v);
+  recurDayPickerOpen=true;
+  refreshRecurDayPicker();
+}
+function removeRecurDay(v){
+  if(!recurDraft)return;
+  v=+v;
+  recurDraft.days=(recurDraft.days||[]).filter(x=>+x!==v);
+  refreshRecurDayPicker();
+}
+function openRecurring(){
+  unbindRecurDayOutside();
+  recurDayPickerOpen=false;
+  const rules=ensureRecurring();
+  const rows=rules.length?rules.map(renderRecurringRow).join(''):'<div class="split-hint pad">還沒有固定收支。新增後會依每月／每週／每日自動記一筆。</div>';
+  showOverlay(`<div class="txedit-wrap"><div class="txedit-head"><b>固定收支</b><button type="button" class="chatX" onclick="closeOverlay()" aria-label="關閉">✕</button></div><div class="txedit-body">
+    <div class="recur-list">${rows}</div>
+    <button type="button" class="txedit-save" style="width:100%;margin-top:12px" onclick="openRecurringForm()">＋ 新增固定收支</button>
+  </div></div>`);
+}
+function renderRecurringRow(r){
+  const sign=r.type==='expense'?'−':'+';
+  const ic=r.type==='income'?'💰':'💳';
+  const sub=recurWhenText(r)+(r.note?('・'+esc(r.note)):'');
+  return `<div class="recur-row" onclick="openRecurringForm('${r.id}')">
+    <div class="recur-ic">${ic}</div>
+    <div class="recur-main"><div class="recur-name">${esc(r.name)}</div><div class="recur-when">${sub}</div></div>
+    <div class="recur-amt ${r.type}">${sign}$${fmt(r.amount)}</div>
+  </div>`;
+}
+function openRecurringForm(id){
+  unbindRecurDayOutside();
+  recurDayPickerOpen=false;
+  const rules=ensureRecurring();
+  if(id){const r=rules.find(x=>x.id===id);if(!r)return;recurDraft={id:r.id,type:r.type,name:r.name,amount:String(r.amount),days:recurDays(r).slice(),note:r.note||''};}
+  else recurDraft={id:null,type:'expense',name:'',amount:'',days:[1],note:''};
+  showOverlay(renderRecurringForm());
+  setTimeout(()=>{const n=$('#recurName');if(n&&!recurDraft.id)n.focus();},60);
+}
+function renderRecurringForm(){
+  const d=recurDraft;if(!d)return '';
+  return `<div class="txedit-wrap"><div class="txedit-head"><b>${d.id?'修改固定收支':'新增固定收支'}</b><button type="button" class="chatX" onclick="closeRecurringForm()" aria-label="關閉">✕</button></div><div class="txedit-body">
+    <div class="txedit-type"><button type="button" class="txedit-type-btn ${d.type==='expense'?'on':''}" onclick="setRecurType('expense')">固定支出</button><button type="button" class="txedit-type-btn ${d.type==='income'?'on':''}" onclick="setRecurType('income')">固定收入</button></div>
+    <label class="fld">名稱</label>
+    <input id="recurName" type="text" value="${esc(d.name)}" placeholder="" maxlength="20" oninput="if(recurDraft)recurDraft.name=this.value" autocomplete="off">
+    <label class="fld">金額</label>
+    <input id="recurAmt" type="text" readonly inputmode="none" class="numpad-field" value="${esc(d.amount)}" placeholder="0" onclick="openRecurNumpad()">
+    <label class="fld">每月幾號（可複選）</label>
+    ${renderRecurDayPicker()}
+    <label class="fld">備註（選填）</label>
+    <input id="recurNote" type="text" value="${esc(d.note||'')}" placeholder="" maxlength="30" oninput="if(recurDraft)recurDraft.note=this.value" autocomplete="off">
+    <div class="txedit-actions">${d.id?`<button type="button" class="txedit-del" onclick="deleteRecurring('${d.id}')">刪除</button>`:''}<button type="button" class="txedit-save" style="flex:1" onclick="saveRecurring()">${d.id?'儲存':'新增'}</button></div>
+  </div></div>`;
+}
+function reRenderRecurForm(){
+  unbindRecurDayOutside();
+  showOverlay(renderRecurringForm());
+  if(recurDayPickerOpen)bindRecurDayOutside();
+}
+function setRecurType(t){if(!recurDraft)return;recurDraft.type=t;reRenderRecurForm();}
+function openRecurNumpad(){
+  if(!recurDraft)return;
+  openNumpadModal({kind:'recur',fieldId:'#recurAmt',value:recurDraft.amount||'',title:'輸入金額',
+    onChange(raw){recurDraft.amount=raw;const el=$('#recurAmt');if(el)el.value=raw;},
+    onConfirm(raw){recurDraft.amount=raw;reRenderRecurForm();}});
+}
+function closeRecurringForm(){
+  unbindRecurDayOutside();
+  recurDayPickerOpen=false;
+  recurDraft=null;
+  closeOverlay();
+}
+function saveRecurring(){
+  const d=recurDraft;if(!d)return;
+  const amount=Math.abs(parseInt(d.amount||'0',10));
+  if(!d.name.trim()){toast('請輸入名稱');return;}
+  if(!amount){toast('請輸入金額');return;}
+  const days=(d.days||[]).slice().sort((a,b)=>a-b);
+  if(!days.length){toast('請至少選一個日期');return;}
+  const rules=ensureRecurring();
+  const payload={type:d.type,name:d.name.trim(),amount,freq:'monthly',days,note:(d.note||'').trim()};
+  if(d.id){const r=rules.find(x=>x.id===d.id);if(r){delete r.day;Object.assign(r,payload);}}
+  else rules.push({id:'rec_'+Date.now(),...payload,lastApplied:null});
+  unbindRecurDayOutside();
+  recurDayPickerOpen=false;
+  save();recurDraft=null;applyRecurring();renderAll();openRecurring();
+  toast(d.id?'已更新固定收支':'已新增固定收支');
+}
+function deleteRecurring(id){
+  if(!confirm('刪除這筆固定收支？（已產生的記帳不會被刪）'))return;
+  unbindRecurDayOutside();
+  recurDayPickerOpen=false;
+  const rules=ensureRecurring();const i=rules.findIndex(x=>x.id===id);
+  if(i>=0)rules.splice(i,1);save();recurDraft=null;openRecurring();toast('已刪除');
+}
 function renderSettings(){
   const mode=S.theme?.mode||'auto';
   const themeOpts=[
@@ -8363,6 +9012,7 @@ function renderSettings(){
         <label class="fld">遊戲與帳務</label>
         <div class="settings-list">
           <button type="button" class="settings-key" onclick="editBudget()">調整每月預算<span class="settings-key-sub">目前 $${fmt(S.budget)}</span></button>
+          <button type="button" class="settings-key" onclick="openRecurring()">固定收支<span class="settings-key-sub">目前 ${ensureRecurring().length} 筆</span></button>
           <button type="button" class="settings-key" onclick="renamePet()">幫寵物改名<span class="settings-key-sub">目前 ${petName}</span></button>
           <button type="button" class="settings-key danger" onclick="resetGame()">重置全部資料<span class="settings-key-sub">清空本機存檔並重新開始</span></button>
         </div>
@@ -9004,13 +9654,14 @@ _bootGameCore=function bootGameCore(){
     decay();S._lastDecay=Date.now();renderAll();
     setTimeout(()=>sayPetLine(null,LINES.idle),600);
   }
+  applyRecurring();
   switchTab(loadSavedTab());
   startMarketTicker();
   layoutSheet();
   initScenes();
   scheduleTimeOfDay();
   if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
-  setInterval(()=>{decay();renderScene();save();},60000);
+  setInterval(()=>{decay();applyRecurring();renderScene();save();},60000);
   scheduleChatter();
 };
 (async function bootGame(){
