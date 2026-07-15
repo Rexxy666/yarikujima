@@ -888,9 +888,12 @@ img.ic.gem{margin-right:5px}
 .ledger-page .subcat-manage-btn.on{background:var(--gold);color:#4a3410;-webkit-text-fill-color:#4a3410}
 .ledger-page .subcat-chips{display:flex;flex-wrap:wrap;gap:7px}
 .ledger-page .subcat-chips .chip.subcat-chip{padding:7px 12px;font-size:12px;font-weight:800;border-radius:14px;
-  background:#fff;border:2px solid var(--line);color:#2b2233;-webkit-text-fill-color:#2b2233;cursor:pointer;line-height:1}
+  background:#fff;border:2px solid var(--line);color:#2b2233;-webkit-text-fill-color:#2b2233;cursor:pointer;line-height:1;
+  pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:relative;z-index:1}
 .ledger-page .subcat-chips .chip.subcat-chip.on{background:var(--gold);color:#4a3410;-webkit-text-fill-color:#4a3410;border-color:var(--line)}
-#app[data-sky="dark"] .ledger-page .subcat-chips .chip.subcat-chip{background:rgba(255,255,255,.9)}
+#app[data-sky="dark"] .ledger-page .subcat-chips .chip.subcat-chip{background:rgba(255,255,255,.9);color:#2b2233;-webkit-text-fill-color:#2b2233}
+/* dark 規則含 #app，必須同樣加 #app 才能蓋過未選取態，否則傍晚/夜間點了看起來沒反應 */
+#app[data-sky="dark"] .ledger-page .subcat-chips .chip.subcat-chip.on{background:var(--gold);color:#4a3410;-webkit-text-fill-color:#4a3410;border-color:var(--line)}
 .ledger-page .subcat-chips .chip.subcat-chip--edit{display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;
   background:#fff5f5;border-color:#f0b6b6}
 .ledger-page .subcat-chips .subcat-txt{color:#2b2233;-webkit-text-fill-color:#2b2233}
@@ -914,7 +917,8 @@ img.ic.gem{margin-right:5px}
 .txedit-subcat-panel .subcat-chips{display:flex;flex-wrap:wrap;gap:7px}
 .txedit-subcat-panel .chip.subcat-chip{padding:7px 12px;font-size:12px;font-weight:800;border-radius:14px;
   background:#fff!important;border:2px solid var(--line)!important;color:#2b2233!important;-webkit-text-fill-color:#2b2233!important;cursor:pointer;line-height:1}
-.txedit-subcat-panel .chip.subcat-chip.on{background:var(--gold)!important;color:#4a3410!important;-webkit-text-fill-color:#4a3410!important}
+.txedit-subcat-panel .chip.subcat-chip.on,
+#app[data-sky="dark"] .txedit-subcat-panel .chip.subcat-chip.on{background:var(--gold)!important;color:#4a3410!important;-webkit-text-fill-color:#4a3410!important}
 .ledger-page #note{margin-bottom:0}
 .ledger-page .btn.mt.ledger-submit-btn{margin-top:0;height:50px;font-size:15px}
 .ledger-page .card.mt{margin-top:18px!important}
