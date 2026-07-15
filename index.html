@@ -1270,16 +1270,28 @@ img.ic.gem{margin-right:5px}
 @keyframes tutIn{from{transform:translateY(14px);opacity:.4}to{transform:translateY(0);opacity:1}}
 .tut-top{display:flex;align-items:center;gap:11px;padding:15px 16px 6px}
 .tut-ic{font-size:26px;line-height:1;flex:none}
-.tut-title{font-size:16px;font-weight:900;color:#2c2c3a;flex:1;line-height:1.25}
-.tut-skip{background:none;border:none;color:#9086a6;font-family:var(--font);font-weight:800;font-size:12.5px;cursor:pointer;padding:4px}
-.tut-body{padding:2px 18px 4px;font-size:13.5px;line-height:1.6;color:#4a4458}
-.tut-lead{margin:0 0 8px}
+.tut-title{font-size:16px;font-weight:900;color:#2c2c3a;flex:1;line-height:1.3;
+  word-break:keep-all;overflow-wrap:break-word;text-wrap:balance}
+.tut-skip{background:none;border:none;color:#9086a6;font-family:var(--font);font-weight:800;font-size:12.5px;cursor:pointer;padding:4px;flex:none}
+.tut-body{padding:2px 16px 4px;font-size:13.5px;line-height:1.65;color:#4a4458;
+  word-break:normal;overflow-wrap:break-word;line-break:loose;text-wrap:pretty}
+.tut-lead{margin:0 0 8px;word-break:normal;overflow-wrap:break-word;line-break:loose;text-wrap:pretty}
 .tut-body b{color:#2c2c3a;font-weight:900}
 .tut-list{margin:4px 0 2px;padding:0;list-style:none}
-.tut-list li{position:relative;padding:5px 0 5px 20px;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
-.tut-list li:before{content:'▸';position:absolute;left:2px;top:5px;color:#d0a53f;font-weight:900}
-.tut-nw{white-space:nowrap}
+.tut-list li{position:relative;padding:6px 0 6px 18px;
+  word-break:normal;overflow-wrap:break-word;line-break:loose;text-wrap:pretty}
+.tut-list li:before{content:'▸';position:absolute;left:1px;top:6px;color:#d0a53f;font-weight:900}
 .tut-foot{display:flex;align-items:center;gap:9px;padding:12px 16px 15px}
+@media (max-width:420px){
+  .tut-overlay{padding:10px}
+  .tut-top{padding:12px 12px 4px;gap:8px}
+  .tut-body{padding:2px 14px 4px;font-size:13px;line-height:1.7}
+  .tut-list li{padding:5px 0 5px 16px}
+  .tut-title{font-size:15px}
+  .tut-foot{padding:10px 12px 12px;gap:6px}
+  .tut-btn{padding:9px 12px;font-size:13px}
+  .tut-demo-cap{line-height:1.45;padding:0 4px}
+}
 .tut-dots{display:flex;align-items:center;gap:5px;flex:1;flex-wrap:wrap}
 .tut-dot{width:7px;height:7px;border-radius:50%;background:#ddd6e8;transition:all .2s}
 .tut-dot.on{background:var(--gold);width:18px;border-radius:4px}
@@ -9711,91 +9723,92 @@ function finishOnboard(){
 /* ===== 新手教學導覽 ===== */
 const TUTORIAL_STEPS=[
   { tab:'home', title:'歡迎來到浮島記帳！', demo:'welcome',
-    lead:'這是一款「養寵物 × 誠實記帳」的遊戲——你的記帳會照顧財務，也照顧浮島上的寵物。以下快速帶你認識每個功能，隨時可按右上角「跳過」。',
+    lead:'這是一款「養寵物 × 誠實記帳」的遊戲。記帳照顧財務，也照顧浮島上的寵物。下面快速帶你認識各功能，可隨時按右上角「跳過」。',
     lines:[
-      '畫面<b>最下方有 5 個分頁</b>：首頁、社群、記帳、統計、設定，另有<b>商店</b>按鈕',
-      '接著一頁一頁介紹每個功能與按鍵～'
+      '畫面最下方有 <b>5 個分頁</b>：首頁、社群、記帳、統計、設定',
+      '另外還有 <b>商店</b> 按鈕可進入換裝',
+      '接著一頁一頁介紹每個功能～'
     ]},
   { tab:'home', title:'首頁 · 你的寵物', demo:'pet',
     lines:[
-      '點<b>寵物</b>可互動；上方是你的<b>金幣 / 點卷</b>',
-      '首頁<b>左滑到餐廳</b>餵食，<b>右滑是寢室</b>',
-      '寵物<b>飢餓／心情／健康</b>會隨記帳與照顧變化',
-      '天氣反映<b>本月結餘</b>，超支會下雨'
+      '點 <b>寵物</b> 可互動；上方是你的 <b>金幣／點卷</b>',
+      '首頁 <b>左滑到餐廳</b> 餵食，<b>右滑是寢室</b>',
+      '寵物的 <b>飢餓／心情／健康</b> 會隨記帳與照顧變化',
+      '天氣反映 <b>本月結餘</b>，超支會下雨'
     ]},
   { tab:'home', title:'首頁 · 跟寵物對話記帳', demo:'chat',
-    lead:'點首頁的<b>聊天鈕</b>就能跟寵物聊天，牠還會<b>一邊聊一邊幫你記帳</b>！',
+    lead:'點首頁的 <b>聊天鈕</b> 就能跟寵物聊天，牠還會一邊聊一邊幫你記帳！',
     lines:[
-      '直接說「剛買咖啡花了120」，牠會自動<b>記成一筆</b>存進帳本',
+      '直接說「剛買咖啡花了 120」，牠會自動記成一筆',
       '也能聊近況、問理財建議，牠都會回你',
       '記完會出現「📒 已記帳」，跟手動記帳同步'
     ]},
   { tab:'ledger', sub:'quick', title:'記帳 · 記上一筆', demo:'record',
     lines:[
-      '切換支出/收入、輸入金額後，點<b>大分類</b>會展開<b>小分類</b>（看右邊示範）',
-      '可<b>拍照</b>記錄心情或物品，照片在<b>首頁相簿</b>回顧',
-      '<b>選完要按「記上一筆」</b>才會完成'
+      '切換支出／收入、輸入金額後，點 <b>大分類</b> 會展開小分類',
+      '可 <b>拍照</b> 記錄心情或物品，照片在首頁相簿回顧',
+      '選完要按 <b>「記上一筆」</b> 才會完成'
     ]},
   { tab:'ledger', sub:'dream', title:'記帳 · 圓夢浮島', demo:'piggy',
-    lead:'設定一個存錢目標，<b>百分比上升＝存錢豬的金色水位跟著裝滿</b>（如上圖示範）。',
+    lead:'設定存錢目標後，百分比上升＝存錢豬的金色水位跟著裝滿（如上圖）。',
     lines:[
-      '設定目標金額與天數，系統自動幫你算<b>每天要存多少</b>',
-      '每記一筆，<b>百分比與存錢豬水位一起往上升</b>',
-      '存滿 100% 存錢豬會<b>發光慶祝</b>，夢想達成！'
+      '設定目標金額與天數，系統自動算出每天要存多少',
+      '每記一筆，百分比與存錢豬水位一起往上升',
+      '存滿 100% 存錢豬會發光慶祝，夢想達成！'
     ]},
   { tab:'ledger', sub:'split', title:'記帳 · 分帳', demo:'split',
-    lead:'一筆共同花費，<b>自動拆給每個人</b>（如上圖示範）。',
+    lead:'一筆共同花費，自動拆給每個人（如上圖示範）。',
     lines:[
       '建立群組、加入好友，輸入一筆共同支出',
-      '選<b>誰付錢、誰要分攤</b>，系統算出每人金額',
-      '最後<b>結算誰欠誰、欠多少</b>，一目了然'
+      '選誰付錢、誰要分攤，系統算出每人金額',
+      '最後結算誰欠誰、欠多少，一目了然'
     ]},
   { tab:'ledger', sub:'plan', title:'記帳 · 預先規劃', demo:'plan',
-    lead:'把<b>未來</b>的收入支出先登記起來，提前佈局（如上圖時間軸示範）。',
+    lead:'把未來的收入支出先登記起來，提前佈局（如上圖時間軸）。',
     lines:[
       '登記未來的收入（如薪水）與支出（如房租、旅遊）',
-      '系統把它們排到<b>時間軸</b>上，預見每個月的收支',
-      '幫你<b>提前準備預算</b>，不被大筆花費打亂'
+      '系統把它們排到時間軸上，預見每個月的收支',
+      '幫你提前準備預算，不被大筆花費打亂'
     ]},
   { tab:'war', social:'feed', title:'社群 · 動態牆', demo:'feed',
     lines:[
       '<b>發佈</b>近況，好友都能在動態牆看到',
-      '<b>分享成就</b>：一鍵套用（結餘、存錢率、圓夢進度…），<b>發佈前先預覽</b>',
-      '多個圓夢目標時，還能<b>選要分享哪一個</b>',
+      '<b>分享成就</b>可一鍵套用結餘、存錢率、圓夢進度',
+      '發佈前可先預覽；多個目標時可選要分享哪一個',
       '<b>好友</b>：互相加好友、按讚、留言'
     ]},
   { tab:'war', social:'war', title:'社群 · 股市小兵聖戰', demo:'war',
-    lead:'社群上方切到 <b>⚔️ 聖戰</b> 分頁——設計來<b>培養投資習慣</b>：把記帳省下的金幣放大，換更多遊戲內造型與飾品。',
+    lead:'社群上方切到 <b>⚔️ 聖戰</b>。用來培養投資習慣：把省下的金幣放大，換更多造型與飾品。',
     lines:[
-      '用<b>金幣招募小兵</b>：做多（看漲）或做空（看跌）',
-      '綁定<span class="tut-nw"><b>虛擬標的</b></span>對戰',
-      '走勢由後台數學模型即時演算<span class="tut-nw">（非真實股價）</span>',
-      '<b>看對方向賺更多金幣</b>；看錯則戰果縮水、收回較少',
-      '純虛擬練習，<b>不涉及真實金錢</b>'
+      '用金幣招募小兵：做多（看漲）或做空（看跌）',
+      '綁定虛擬標的對戰',
+      '走勢由後台數學模型演算（非真實股價）',
+      '看對方向賺更多金幣；看錯則戰果縮水',
+      '純虛擬練習，不涉及真實金錢'
     ]},
   { tab:'shop', title:'商店 · 像素商店', demo:'shop',
     lines:[
-      '點畫面上的<b>商店</b>按鈕進入',
-      '用<b>金幣 / 點卷</b>購買外觀與道具',
+      '點畫面上的 <b>商店</b> 按鈕進入',
+      '用金幣／點卷購買外觀與道具',
       '讓你的浮島和寵物更有個人風格'
     ]},
   { tab:'stats', title:'統計 · 財務洞察', demo:'pie',
-    lead:'開始記帳後這裡會有<b>收支圓餅圖</b>（上方為示範）。',
+    lead:'開始記帳後，這裡會有收支圓餅圖（上方為示範）。',
     lines:[
-      '一眼看出錢<b>花在哪些分類</b>、佔比多少',
-      '掌握你的<b>存錢率</b>與消費趨勢'
+      '一眼看出錢花在哪些分類、佔比多少',
+      '掌握你的存錢率與消費趨勢'
     ]},
   { tab:'settings', title:'設定 · 個人化', demo:'settings',
     lines:[
-      '<b>天空主題</b>、<b>背景音樂 / 按鈕音效</b>開關',
-      '調整<b>每月預算</b>、<b>固定收支</b>、<b>幫寵物改名</b>',
-      '想再看一次導覽？點這裡的<b>「新手教學」</b>就能重播'
+      '可調天空主題、背景音樂、按鈕音效',
+      '也可調整每月預算、固定收支、幫寵物改名',
+      '想再看一次？點這裡的「新手教學」就能重播'
     ]},
   { tab:'home', title:'準備好了！', demo:'celebrate',
     lead:'就這樣，你已經認識所有功能囉。',
     lines:[
-      '去<b>記下第一筆</b>，照顧你的寵物與財務吧！',
-      '隨時可到<b>設定 → 新手教學</b>再看一次'
+      '去記下第一筆，照顧你的寵物與財務吧！',
+      '隨時可到「設定 → 新手教學」再看一次'
     ]}
 ];
 /* 教學卡片用「對應頁面的實際 icon」（來自 assets.js 的 NAV_ICON / 設定圖示），不用 emoji */
