@@ -2849,9 +2849,14 @@ function applyAuthUser(u,isNewUser){
       S.pet.named=false;
       S.onboarded=false;
     }
-    // 新帳號強制空帳本／空相簿，绝不匯入其他裝置或舊雲端交易
-    S.tx=[];
-    if(Array.isArray(S.chat))S.chat=[];
+    // 僅在本機此帳號本來就沒有交易時才清空。
+    // Render 若曾用暫存碟／空 DB，同一 Google 會被當成「新用戶」；
+    // 若此處強制 S.tx=[] 會把本機記帳／相簿永久清掉再 sync 上空雲端。
+    const localTx=Array.isArray(S.tx)?S.tx:[];
+    if(!localTx.length){
+      S.tx=[];
+      if(Array.isArray(S.chat))S.chat=[];
+    }
     if(u.klineHistory)S.market=u.klineHistory;
   }else{
     const remote=u.gameState;
@@ -2864,10 +2869,21 @@ function applyAuthUser(u,isNewUser){
       const localAt=+(S._savedAt||0);
       const remoteAt=+(remote._savedAt||0);
       const localSnap={_savedAt:S._savedAt};
+      if(S._historyWipedAt)localSnap._historyWipedAt=S._historyWipedAt;
       GAME_STATE_KEYS.forEach(k=>{if(S[k]!==undefined)localSnap[k]=S[k];});
-      const merged=remoteAt>=localAt
-        ?mergeGameStateForSync(remote,localSnap)
-        :mergeGameStateForSync(localSnap,remote);
+      // 雲端空帳本且無更新 wipe → 以本機為準，避免重整後被空雲端蓋掉
+      const remoteTx=Array.isArray(remote.tx)?remote.tx:[];
+      const localTx=Array.isArray(localSnap.tx)?localSnap.tx:[];
+      const remoteWipe=+(remote._historyWipedAt||0);
+      const localWipe=+(localSnap._historyWipedAt||0);
+      let merged;
+      if(remoteTx.length===0&&localTx.length>0&&remoteWipe<=localWipe){
+        merged=mergeGameStateForSync(localSnap,remote);
+      }else{
+        merged=remoteAt>=localAt
+          ?mergeGameStateForSync(remote,localSnap)
+          :mergeGameStateForSync(localSnap,remote);
+      }
       importGameState(merged);
     }
     S.pet.stage=S.pet.stage||2;
@@ -2908,7 +2924,8 @@ function finishGoogleLogin(data){
   initMarketIfNeeded();
   save();
   if(typeof _bootGameCore==='function')_bootGameCore();
-  if(!data.user.isNewUser)void syncAuthStateNow();
+  // 一律嘗試上行同步：新用戶若本機已有記帳（例如 DB 重建後被當成新戶）也要把資料救回雲端
+  void syncAuthStateNow();
   if(!S.onboarded||needsPetNaming())return;
   decay();
   S._lastDecay=Date.now();
@@ -3325,7 +3342,12 @@ function mergeGameStateForSync(base,overlay){
     else if(!overAck)merged.tx=baseTx;
     else merged.tx=mergeTxPhotoRowsForSync(baseTx,overTx);
   }else if(Array.isArray(base.tx)||Array.isArray(overlay.tx)){
-    merged.tx=mergeTxPhotoRowsForSync(base.tx,overlay.tx);
+    const baseTx=Array.isArray(base.tx)?base.tx:[];
+    const overTx=Array.isArray(overlay.tx)?overlay.tx:[];
+    // 無 wipe 時：空陣列不得蓋掉有資料的一方
+    if(baseTx.length===0&&overTx.length>0)merged.tx=overTx;
+    else if(overTx.length===0&&baseTx.length>0)merged.tx=baseTx;
+    else merged.tx=mergeTxPhotoRowsForSync(baseTx,overTx);
   }
   merged._savedAt=Math.max(+(base._savedAt||0),+(overlay._savedAt||0))||Date.now();
   return merged;
