@@ -1256,6 +1256,225 @@ img.ic.gem{margin-right:5px}
 .settings-key.on .settings-key-sub{color:#6b4a10}
 .settings-key.danger{color:#dc2626;background:#fff5f5}
 .settings-section-gap{display:none}
+/* ===== 新手教學導覽 ===== */
+/* 導覽彈窗：因 #tutorial 是 #app 的子層(#app position:relative)，用 absolute inset:0
+   即可把整個教學限制在手機畫面/欄位範圍內，桌機也只出現在手機框內 */
+.tut-overlay{position:absolute;inset:0;z-index:130;display:flex;flex-direction:column;justify-content:flex-end;
+  background:rgba(18,18,38,.5);padding:14px;box-sizing:border-box}
+.tut-card{width:100%;max-width:420px;margin:0 auto;background:#fffdf7;border:3px solid var(--line);border-radius:16px;
+  box-shadow:0 10px 0 rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column;
+  max-height:calc(100% - 12px);animation:tutIn .2s ease}
+#app[data-sky="dark"] .tut-card{background:#241f33;border-color:#4a4066}
+.tut-card .tut-top,.tut-card .tut-foot{flex:none}
+.tut-card .tut-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+@keyframes tutIn{from{transform:translateY(14px);opacity:.4}to{transform:translateY(0);opacity:1}}
+.tut-top{display:flex;align-items:center;gap:11px;padding:15px 16px 6px}
+.tut-ic{font-size:26px;line-height:1;flex:none}
+.tut-title{font-size:16px;font-weight:900;color:#2c2c3a;flex:1;line-height:1.25}
+.tut-skip{background:none;border:none;color:#9086a6;font-family:var(--font);font-weight:800;font-size:12.5px;cursor:pointer;padding:4px}
+.tut-body{padding:2px 18px 4px;font-size:13.5px;line-height:1.6;color:#4a4458}
+.tut-lead{margin:0 0 8px}
+.tut-body b{color:#2c2c3a;font-weight:900}
+.tut-list{margin:4px 0 2px;padding:0;list-style:none}
+.tut-list li{position:relative;padding:5px 0 5px 20px;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+.tut-list li:before{content:'▸';position:absolute;left:2px;top:5px;color:#d0a53f;font-weight:900}
+.tut-nw{white-space:nowrap}
+.tut-foot{display:flex;align-items:center;gap:9px;padding:12px 16px 15px}
+.tut-dots{display:flex;align-items:center;gap:5px;flex:1;flex-wrap:wrap}
+.tut-dot{width:7px;height:7px;border-radius:50%;background:#ddd6e8;transition:all .2s}
+.tut-dot.on{background:var(--gold);width:18px;border-radius:4px}
+.tut-btn{padding:10px 16px;border:3px solid var(--line);border-radius:10px;font-family:var(--font);font-weight:900;font-size:14px;
+  cursor:pointer;box-shadow:3px 3px 0 rgba(15,23,42,.55);transition:transform .06s,box-shadow .06s}
+.tut-btn.ghost{background:#fff;color:#5a4a6a}
+.tut-btn.primary{background:var(--gold);color:#4a3410}
+.tut-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(15,23,42,.55)}
+#app[data-sky="dark"] .tut-title,#app[data-sky="dark"] .tut-body b{color:#f0e9ff}
+#app[data-sky="dark"] .tut-body{color:#cfc6e4}
+#app[data-sky="dark"] .tut-btn.ghost{background:#332b47;color:#e6def7}
+.tut-ic-img{width:30px;height:30px;object-fit:contain;flex:none;image-rendering:pixelated}
+/* ---- 教學動畫示範 ---- */
+.tut-demo{display:flex;flex-direction:column;align-items:center;gap:6px;margin:2px 0 10px;padding:12px 10px;
+  background:#f6f2ff;border:2px dashed #d9d0ee;border-radius:12px}
+#app[data-sky="dark"] .tut-demo{background:#2a2340;border-color:#4a3f66}
+.tut-demo-row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:14px;justify-items:center}
+.tut-demo-cap{font-size:11px;color:#8a80a0;text-align:center}
+.tut-demo-cap.full{grid-column:1 / -1}
+/* 歡迎：寵物漂浮＋閃光 */
+.tut-welcome{position:relative;width:100px;height:80px;display:flex;align-items:center;justify-content:center}
+.tut-welcome-pet{animation:tutBob 2.2s ease-in-out infinite}
+.tut-welcome-pet img,.tut-welcome-pet .feed-av-em{width:58px;height:58px;object-fit:contain;image-rendering:pixelated;font-size:46px}
+.tut-spark{position:absolute;width:8px;height:8px;background:radial-gradient(circle,#ffe066 40%,transparent 70%);animation:tutTwinkle 1.6s ease-in-out infinite}
+.tut-spark.k1{left:8px;top:8px}.tut-spark.k2{right:10px;top:14px;animation-delay:.4s}
+.tut-spark.k3{left:16px;bottom:8px;animation-delay:.8s}.tut-spark.k4{right:14px;bottom:12px;animation-delay:1.2s}
+@keyframes tutBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes tutTwinkle{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+/* 首頁：寵物＋狀態條 */
+.tut-demo-pet{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:14px;justify-items:stretch}
+.tut-pet-av{justify-self:center;animation:tutBob 2.4s ease-in-out infinite}
+.tut-pet-av img,.tut-pet-av .feed-av-em{width:50px;height:50px;object-fit:contain;image-rendering:pixelated;font-size:40px}
+.tut-bars{display:flex;flex-direction:column;gap:7px}
+.tut-bar{display:flex;align-items:center;gap:8px}
+.tut-bar-lb{font-size:11px;font-weight:800;color:#6a6280;width:28px;flex:none}
+#app[data-sky="dark"] .tut-bar-lb{color:#c9bfe0}
+.tut-bar-tr{flex:1;height:9px;background:#e6e0f2;border-radius:6px;overflow:hidden}
+.tut-bar-fi{display:block;height:100%;width:0;border-radius:6px;animation:tutFillBar 2.6s ease-in-out infinite}
+.bf-hunger{background:#f5a623}.bf-happy{background:#e0506a}.bf-health{background:#3f9e4d}
+.bf-hunger{--w:78%;animation-delay:.1s}.bf-happy{--w:64%;animation-delay:.35s}.bf-health{--w:88%;animation-delay:.6s}
+@keyframes tutFillBar{0%{width:6%}45%,80%{width:var(--w)}100%{width:6%}}
+/* 首頁：跟寵物對話記帳（訊息依序浮現，6s 循環）*/
+.tut-chat{display:flex;flex-direction:column;gap:7px;width:100%;max-width:250px;margin:0 auto}
+.tut-chat-msg{font-size:12px;font-weight:700;line-height:1.4;padding:7px 11px;border-radius:12px;max-width:82%;opacity:0}
+.tut-chat-msg.me{align-self:flex-end;background:var(--gold);color:#4a3410;border-bottom-right-radius:4px;animation:tutChatIn 6s ease-in-out infinite}
+.tut-chat-msg.pet{align-self:flex-start;display:flex;align-items:center;gap:6px;background:#fff;border:2px solid var(--line);color:#3a3348;border-bottom-left-radius:4px;animation:tutChatIn 6s ease-in-out infinite;animation-delay:1.1s}
+#app[data-sky="dark"] .tut-chat-msg.pet{background:#2f2842;color:#e9e2f7}
+.tut-chat-av{width:20px;height:20px;border-radius:50%;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;background:#ffe9c2}
+.tut-chat-av img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.tut-chat-av .feed-av-em{font-size:14px}
+.tut-chat-sys{align-self:center;font-size:11px;font-weight:900;color:#2f8a45;background:#e5f6ea;border:1px solid #a9dcb8;
+  padding:5px 10px;border-radius:99px;opacity:0;animation:tutChatIn 6s ease-in-out infinite;animation-delay:2.3s}
+#app[data-sky="dark"] .tut-chat-sys{background:#25402c;color:#7fd39a;border-color:#3f6a4c}
+@keyframes tutChatIn{0%{opacity:0;transform:translateY(8px)}12%,90%{opacity:1;transform:none}100%{opacity:0}}
+/* 記帳：記一筆（依序：大分類→小分類→拍照→按鈕→完成，10.5s 循環）*/
+.tut-record{display:flex;flex-direction:column;align-items:center;gap:6px}
+.tut-rec-amt{font-size:22px;font-weight:900;color:#2c2c3a;opacity:0;animation:tutRecAmt 10.5s ease-in-out infinite}
+#app[data-sky="dark"] .tut-rec-amt{color:#f0e9ff}
+.tut-rec-line{display:flex;align-items:center;gap:8px}
+.tut-rec-chip{padding:5px 11px;border-radius:14px;font-size:12px;font-weight:800;background:#fff;border:2px solid var(--line);color:#5a4a6a;white-space:nowrap}
+.tut-rec-chip.big{opacity:0;animation:tutRecBig 10.5s ease-in-out infinite}
+.tut-rec-small{display:flex;gap:6px;opacity:0;animation:tutRecSmall 10.5s ease-in-out infinite}
+.tut-rec-chip.sm{padding:4px 9px;font-size:11px}
+.tut-rec-chip.sm.s2{animation:tutRecPick 10.5s ease-in-out infinite}
+.tut-rec-photo{position:relative;display:flex;align-items:center;gap:6px;opacity:0;animation:tutRecPhoto 10.5s ease-in-out infinite}
+.tut-rec-pic{width:30px;height:24px;border-radius:4px;background:linear-gradient(135deg,#bfe3ff,#7fb8e6);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);position:relative;overflow:hidden}
+.tut-rec-pic i{position:absolute;left:5px;bottom:4px;width:8px;height:8px;border-radius:50%;background:#ffe066;box-shadow:9px -3px 0 #9fd6a0}
+.tut-rec-photolb{font-size:10.5px;font-weight:800;color:#7a7290}
+.tut-rec-flash{position:absolute;inset:-6px;background:#fff;border-radius:8px;opacity:0;animation:tutRecFlash 10.5s ease-in-out infinite}
+.tut-rec-btn{padding:6px 18px;border-radius:10px;background:var(--gold);color:#4a3410;font-size:12.5px;font-weight:900;border:2px solid var(--line);box-shadow:2px 2px 0 rgba(15,23,42,.5);opacity:0;animation:tutRecBtn 10.5s ease-in-out infinite}
+.tut-rec-done{font-size:13px;font-weight:900;color:#3f9e4d;opacity:0;animation:tutRecDone 10.5s ease-in-out infinite}
+@keyframes tutRecAmt{0%{opacity:0;transform:scale(.6)}4%,94%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes tutRecBig{0%,7%{opacity:0}12%{opacity:1;background:#fff;color:#5a4a6a}20%,94%{opacity:1;background:var(--gold);color:#4a3410}100%{opacity:0}}
+@keyframes tutRecSmall{0%,24%{opacity:0;transform:translateY(6px)}32%,94%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes tutRecPick{0%,38%{background:#fff;color:#5a4a6a}46%,94%{background:var(--gold);color:#4a3410}100%{background:#fff;color:#5a4a6a}}
+@keyframes tutRecPhoto{0%,50%{opacity:0;transform:scale(.5)}58%,94%{opacity:1;transform:scale(1)}100%{opacity:0}}
+@keyframes tutRecFlash{0%,52%{opacity:0}55%{opacity:.85}60%{opacity:0}100%{opacity:0}}
+@keyframes tutRecBtn{0%,30%{opacity:0}38%{opacity:1;transform:scale(1)}70%{transform:scale(1)}75%{transform:scale(.9)}80%{transform:scale(1)}94%{opacity:1}100%{opacity:0}}
+@keyframes tutRecDone{0%,78%{opacity:0;transform:scale(.5)}84%,94%{opacity:1;transform:scale(1)}100%{opacity:0}}
+/* 圓夢：存錢豬（沿用實際豬豬資產；填充由 JS 緩慢驅動，百分比同步）*/
+.tut-demo-piggy{display:grid;grid-template-columns:auto auto;align-items:center;gap:18px;justify-content:center}
+.tut-piggy{transform:scale(.92)}
+.tut-piggy .lp-fluid.tut-fluid{transition:none}
+.tut-piggy-pct{font-weight:900;color:#2fa35f;line-height:1}
+.tut-piggy-pct b{font-size:34px}
+.tut-piggy-pct span{font-size:18px;margin-left:1px}
+#app[data-sky="dark"] .tut-piggy-pct{color:#5fd39a}
+/* 社群：動態貼文 */
+.tut-feed-card{width:210px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px;
+  animation:tutSlideUp .5s ease both}
+#app[data-sky="dark"] .tut-feed-card{background:#2f2842}
+.tut-feed-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.tut-feed-av{width:22px;height:22px;border-radius:50%;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;background:#ffe9c2}
+.tut-feed-av img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.tut-feed-av .feed-av-em{font-size:16px}
+.tut-feed-name{font-size:12px;font-weight:900;color:#2c2c3a}
+#app[data-sky="dark"] .tut-feed-name{color:#f0e9ff}
+.tut-feed-txt{font-size:12px;color:#4a4458;line-height:1.4}
+#app[data-sky="dark"] .tut-feed-txt{color:#cfc6e4}
+.tut-feed-like{margin-top:6px;font-size:12px;font-weight:800;color:#e0506a}
+.tut-feed-like{animation:tutLike 2.8s ease-in-out infinite}
+.tut-like-n{animation:tutPulse 2.8s ease-in-out infinite}
+@keyframes tutLike{0%,30%{transform:scale(1)}42%{transform:scale(1.35)}55%,100%{transform:scale(1)}}
+@keyframes tutSlideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* 商店 */
+.tut-demo-shop{display:grid;grid-template-columns:auto auto;align-items:center;gap:16px;justify-content:center}
+.tut-shop-item{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#ffd27a,#f5a623);
+  box-shadow:0 3px 0 rgba(0,0,0,.15);animation:tutBob 2.2s ease-in-out infinite}
+.tut-shop-info{display:flex;flex-direction:column;align-items:center;gap:6px}
+.tut-shop-price{display:flex;align-items:center;gap:5px;font-size:14px;font-weight:900;color:#4a3410}
+#app[data-sky="dark"] .tut-shop-price{color:#ffd98a}
+.tut-coin{width:18px;height:18px;object-fit:contain;image-rendering:pixelated}
+.tut-shop-buy{padding:5px 16px;border-radius:10px;background:var(--gold);color:#4a3410;font-size:12.5px;font-weight:900;
+  border:2px solid var(--line);animation:tutBuy 2.4s ease-in-out infinite}
+@keyframes tutBuy{0%,60%,100%{transform:scale(1)}75%{transform:scale(1.1)}}
+/* 社群：股市小兵聖戰 */
+.tut-war{display:flex;flex-direction:column;align-items:center;gap:8px}
+.tut-war-units{display:flex;gap:10px}
+.tut-unit{padding:4px 11px;border-radius:10px;font-size:12px;font-weight:900;border:2px solid var(--line)}
+.tut-unit.u-long{background:#e5f6ea;color:#2f8a45;animation:tutPulse 2.4s ease-in-out infinite}
+.tut-unit.u-short{background:#fdeaea;color:#c0392b;animation:tutPulse 2.4s ease-in-out infinite;animation-delay:.6s}
+.tut-war-chart{display:flex;align-items:flex-end;gap:5px;height:44px}
+.tut-war-chart .cbar{width:12px;border-radius:2px 2px 0 0;background:#3f9e4d;height:8px;transform-origin:bottom;animation:tutBar 3s ease-in-out infinite}
+.tut-war-chart .w1{animation-delay:0s}.tut-war-chart .w2{animation-delay:.25s;background:#4bb35a}
+.tut-war-chart .w3{animation-delay:.5s;background:#3f9e4d}.tut-war-chart .w4{animation-delay:.75s;background:#57c268}
+.tut-war-chart .w5{animation-delay:1s;background:#2f8a45}
+.tut-war-reward{font-size:12.5px;font-weight:900;color:#c79a2e;opacity:0;animation:tutRewardPop 3s ease-in-out infinite}
+@keyframes tutBar{0%{height:8px}40%{height:40px}70%{height:30px}100%{height:8px}}
+@keyframes tutRewardPop{0%,55%{opacity:0;transform:translateY(6px) scale(.7)}70%,90%{opacity:1;transform:none}100%{opacity:0}}
+/* 設定：實際是「金色按鈕」在開／關間切換（非滑動開關）*/
+.tut-set{display:flex;flex-direction:column;gap:9px;width:210px;margin:0 auto}
+.tut-set-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;border-radius:10px;
+  border:2px solid var(--line);font-size:12.5px;font-weight:900;background:#fff;color:#5a4a6a;
+  box-shadow:2px 2px 0 rgba(15,23,42,.4)}
+.tut-set-btn.sk1{animation:tutSkBg 3.2s ease-in-out infinite}
+.tut-set-btn.sk2{animation:tutSkBg 3.2s ease-in-out infinite;animation-delay:.7s}
+@keyframes tutSkBg{0%,16%{background:#fff;color:#5a4a6a}30%,86%{background:var(--gold);color:#4a3410}100%{background:#fff;color:#5a4a6a}}
+.tut-set-state{position:relative;width:56px;height:16px;flex:none}
+.tut-set-state i{position:absolute;right:0;top:0;font-style:normal;white-space:nowrap}
+.tut-set-btn.sk1 .tut-set-state .off{animation:tutStOff 3.2s ease-in-out infinite}
+.tut-set-btn.sk1 .tut-set-state .on{opacity:0;animation:tutStOn 3.2s ease-in-out infinite}
+.tut-set-btn.sk2 .tut-set-state .off{animation:tutStOff 3.2s ease-in-out infinite;animation-delay:.7s}
+.tut-set-btn.sk2 .tut-set-state .on{opacity:0;animation:tutStOn 3.2s ease-in-out infinite;animation-delay:.7s}
+@keyframes tutStOff{0%,16%{opacity:1}30%,86%{opacity:0}100%{opacity:1}}
+@keyframes tutStOn{0%,16%{opacity:0}30%,86%{opacity:1}100%{opacity:0}}
+/* 完成：慶祝 */
+.tut-celebrate{position:relative;width:120px;height:84px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.tut-celebrate-pet{animation:tutHappy 1s ease-in-out infinite}
+.tut-celebrate-pet img,.tut-celebrate-pet .feed-av-em{width:54px;height:54px;object-fit:contain;image-rendering:pixelated;font-size:44px}
+.tut-conf{position:absolute;top:-10px;width:7px;height:10px;border-radius:1px;animation:tutConfFall 1.8s linear infinite}
+.tut-conf.cf1{left:12%;background:#e0506a;animation-delay:0s}.tut-conf.cf2{left:28%;background:#f5a623;animation-delay:.3s}
+.tut-conf.cf3{left:45%;background:#3f9e4d;animation-delay:.6s}.tut-conf.cf4{left:60%;background:#4a90d9;animation-delay:.15s}
+.tut-conf.cf5{left:76%;background:#d4b8f0;animation-delay:.45s}.tut-conf.cf6{left:88%;background:#ffd166;animation-delay:.75s}
+@keyframes tutHappy{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-7px) rotate(4deg)}}
+@keyframes tutConfFall{0%{transform:translateY(-10px) rotate(0);opacity:0}15%{opacity:1}100%{transform:translateY(88px) rotate(220deg);opacity:.2}}
+/* 分帳 */
+.tut-split{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tut-split-total{font-size:20px;font-weight:900;color:#2c2c3a;animation:tutPulse 3s ease-in-out infinite}
+#app[data-sky="dark"] .tut-split-total{color:#f0e9ff}
+.tut-split-arrow{color:#b9a8dd;font-size:14px;line-height:1}
+.tut-split-people{display:flex;gap:14px}
+.tut-sp{display:flex;flex-direction:column;align-items:center;gap:3px;opacity:0;transform:translateY(-8px);animation:tutDrop 3s ease-in-out infinite}
+.tut-sp.s1{animation-delay:.2s}.tut-sp.s2{animation-delay:.5s}.tut-sp.s3{animation-delay:.8s}
+.tut-sp-face{width:22px;height:22px;border-radius:50%;background:#ffd27a;border:2px solid #c99a3a}
+.tut-sp-amt{font-size:12px;font-weight:800;color:#4a3410}
+#app[data-sky="dark"] .tut-sp-amt{color:#ffd98a}
+@keyframes tutDrop{0%{opacity:0;transform:translateY(-8px)}18%,82%{opacity:1;transform:none}100%{opacity:1;transform:none}}
+@keyframes tutPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+/* 預先規劃時間軸 */
+.tut-plan{position:relative;display:flex;justify-content:space-between;align-items:flex-start;width:210px;padding-top:4px}
+.tut-plan-line{position:absolute;top:10px;left:6px;right:6px;height:3px;background:#d9d0ee;border-radius:2px}
+.tut-plan-node{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;width:46px;
+  opacity:0;animation:tutFadeUp 3.2s ease-in-out infinite}
+.tut-plan-node.p1{animation-delay:.1s}.tut-plan-node.p2{animation-delay:.5s}
+.tut-plan-node.p3{animation-delay:.9s}.tut-plan-node.p4{animation-delay:1.3s}
+.tut-plan-dot{width:13px;height:13px;border-radius:50%;background:#9086a6;border:2px solid #fff;box-shadow:0 0 0 1px #c9bfe0}
+.tut-plan-dot.now{background:#6b7488}.tut-plan-dot.inc{background:#3f9e4d}.tut-plan-dot.exp{background:#e0506a}
+.tut-plan-node span{font-size:10px;font-weight:800;color:#6a6280;white-space:nowrap}
+#app[data-sky="dark"] .tut-plan-node span{color:#c9bfe0}
+@keyframes tutFadeUp{0%{opacity:0;transform:translateY(6px)}16%,84%{opacity:1;transform:none}100%{opacity:1;transform:none}}
+/* 統計圓餅（示範） */
+.tut-pie-wrap{width:100px;height:100px;animation:tutSpin 14s linear infinite}
+.tut-pie{width:100px;height:100px;border-radius:50%;opacity:0;transform:scale(.4);animation:tutPiePop .6s ease forwards;
+  background:conic-gradient(#F5C6A8 0 40%,#A8D4F0 40% 68%,#D4B8F0 68% 86%,#B8E8C8 86% 100%);
+  -webkit-mask:radial-gradient(circle 30px at center,transparent 98%,#000 100%);
+  mask:radial-gradient(circle 30px at center,transparent 98%,#000 100%)}
+@keyframes tutPiePop{to{opacity:1;transform:scale(1)}}
+@keyframes tutSpin{to{transform:rotate(360deg)}}
+.tut-pie-legend{display:flex;flex-direction:column;gap:5px}
+.tut-lg{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#4a4458;opacity:0;
+  transform:translateX(8px);animation:tutFadeIn .5s ease forwards}
+#app[data-sky="dark"] .tut-lg{color:#d6cdea}
+.tut-lg i{width:12px;height:12px;border-radius:3px;flex:none}
+.tut-lg.l1{animation-delay:.25s}.tut-lg.l2{animation-delay:.45s}.tut-lg.l3{animation-delay:.65s}.tut-lg.l4{animation-delay:.85s}
+@keyframes tutFadeIn{to{opacity:1;transform:none}}
 .settings-logout{
   display:block;width:100%;box-sizing:border-box;margin:0;min-height:50px;padding:14px 16px;
   background:rgba(254,202,202,.55);border:3px solid #dc2626;border-radius:10px;
@@ -1977,6 +2196,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
     <p>載入雲端存檔中…</p>
   </div>
   <div class="overlay" id="onboard" style="display:none"></div>
+  <div class="tut-overlay" id="tutorial" style="display:none"></div>
   <div id="foodInv" class="food-inv-overlay" style="display:none" aria-hidden="true">
     <div class="food-inv-panel" role="dialog" aria-labelledby="foodInvTitle">
       <div class="food-inv-head">
@@ -2076,6 +2296,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 
 <script src="assets.js"></script>
 <script src="pet-dialogues.js"></script>
+<script src="music.js"></script>
+<script src="sound-manager.js"></script>
 <script>
 /* ============================================================
    浮島記帳 GameFi — 純前端 Demo。資料存 localStorage，無外部相依。
@@ -2959,6 +3181,33 @@ if(!S.gemini.model)S.gemini.model='gemini-3.5-flash';
 S.chat=S.chat||[];
 S.theme=S.theme||{mode:'auto'};
 if(!['auto','day','night'].includes(S.theme.mode))S.theme.mode='auto';
+if(typeof S.musicOn!=='boolean')S.musicOn=true; // 背景音樂預設開啟
+if(typeof S.sfxOn!=='boolean')S.sfxOn=true;     // 點擊音效預設開啟
+if(typeof S.tutorialDone!=='boolean')S.tutorialDone=!!S.onboarded; // 既有用戶視為已看過，不打擾
+/* 首次任何互動時，若音樂為開啟則自動播放（滿足瀏覽器自動播放限制）*/
+(function(){
+  function kickMusic(){
+    if(S.musicOn&&typeof BgMusic!=='undefined')BgMusic.start();
+    document.removeEventListener('pointerdown',kickMusic,true);
+    document.removeEventListener('keydown',kickMusic,true);
+  }
+  document.addEventListener('pointerdown',kickMusic,true);
+  document.addEventListener('keydown',kickMusic,true);
+})();
+/* 全域點擊音效：點任何按鈕/可點元素都發出 8-bit 短音（capture 階段，
+   即使該按鈕自己 stopPropagation 或重繪 DOM 也能先播）。可用 S.sfxOn 關閉。*/
+(function(){
+  var SEL='button,[role="button"],[onclick],.tab,.chip,.settings-key';
+  document.addEventListener('click',function(e){
+    if(typeof SoundManager==='undefined')return;
+    if(typeof S!=='undefined'&&S.sfxOn===false)return;
+    var t=e.target;
+    if(!t||!t.closest)return;
+    var el=t.closest(SEL);
+    if(!el||el.disabled)return;
+    SoundManager.play('click');
+  },true);
+})();
 // 聖戰 2.0 市場改為延遲初始化（VSTOCKS 在後面才宣告，這裡不能提前呼叫 initMarket）
 if(S.cosmetics)S.cosmetics.skin=null; // 皮膚不再取代寵物，一律顯示原本動物
 function fresh(){
@@ -2975,11 +3224,11 @@ function fresh(){
     battleLog:[],
     savingGoals:[], // 圓夢存錢目標 [{id,name,target,days,start}]
     gemini:{key:'',model:'gemini-3.5-flash'}, chat:[],
-    theme:{mode:'auto'}
+    theme:{mode:'auto'}, musicOn:true, sfxOn:true, tutorialDone:false
   };
 }
 function load(){try{const d=JSON.parse(localStorage.getItem(LS));return d&&d.pet?d:fresh();}catch(e){return fresh();}}
-const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','savingGoals','theme','market','chat','subcats'];
+const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','savingGoals','theme','market','chat','subcats','musicOn','sfxOn','tutorialDone'];
 function migrateSavingGoals(){
   if(Array.isArray(S.savingGoals))return;
   if(S.goal&&S.goal.target){
@@ -9009,11 +9258,20 @@ function renderSettings(){
         <label class="fld">天空主題</label>
         <div class="settings-list">${themeOpts}</div>
         <div class="settings-section-gap" aria-hidden="true"></div>
+        <label class="fld">音樂與音效</label>
+        <div class="settings-list">
+          <button type="button" class="settings-key ${S.musicOn?'on':''}" onclick="toggleMusic()">
+            背景音樂　${S.musicOn?'🎵 開':'🔇 關'}<span class="settings-key-sub">${S.musicOn?'輕快旋律陪你記帳，點一下關閉':'目前已關閉，點一下開啟'}</span></button>
+          <button type="button" class="settings-key ${S.sfxOn!==false?'on':''}" onclick="toggleSfx()">
+            按鈕音效　${S.sfxOn!==false?'🔊 開':'🔇 關'}<span class="settings-key-sub">${S.sfxOn!==false?'點擊按鈕發出 8-bit 音效，點一下關閉':'目前已關閉，點一下開啟'}</span></button>
+        </div>
+        <div class="settings-section-gap" aria-hidden="true"></div>
         <label class="fld">遊戲與帳務</label>
         <div class="settings-list">
           <button type="button" class="settings-key" onclick="editBudget()">調整每月預算<span class="settings-key-sub">目前 $${fmt(S.budget)}</span></button>
           <button type="button" class="settings-key" onclick="openRecurring()">固定收支<span class="settings-key-sub">目前 ${ensureRecurring().length} 筆</span></button>
           <button type="button" class="settings-key" onclick="renamePet()">幫寵物改名<span class="settings-key-sub">目前 ${petName}</span></button>
+          <button type="button" class="settings-key" onclick="startTutorial()">新手教學<span class="settings-key-sub">重新播放各功能導覽</span></button>
           <button type="button" class="settings-key danger" onclick="resetGame()">重置全部資料<span class="settings-key-sub">清空本機存檔並重新開始</span></button>
         </div>
         ${logoutBtn}
@@ -9027,6 +9285,22 @@ function setThemeMode(mode){
   S.theme.mode=mode;
   save();
   refreshSky();
+  if(curTab==='settings')renderSettings();
+}
+function toggleMusic(){
+  S.musicOn=!S.musicOn;
+  save();
+  if(typeof BgMusic!=='undefined'){
+    if(S.musicOn)BgMusic.start(); else BgMusic.stop();
+  }
+  toast(S.musicOn?'🎵 背景音樂開啟':'🔇 背景音樂關閉');
+  if(curTab==='settings')renderSettings();
+}
+function toggleSfx(){
+  S.sfxOn=(S.sfxOn===false);   // 由關→開 / 開→關
+  save();
+  if(S.sfxOn&&typeof SoundManager!=='undefined')SoundManager.play('click'); // 開啟時給個回饋音
+  toast(S.sfxOn?'🔊 按鈕音效開啟':'🔇 按鈕音效關閉');
   if(curTab==='settings')renderSettings();
 }
 function editBudget(){
@@ -9401,6 +9675,7 @@ function submitPetName(){
   switchTab('home');
   toast(`歡迎，${S.pet.name}！`);
   setTimeout(()=>say(`嗨 ${S.pet.name}！一起把理財變好玩吧～`),500);
+  maybeStartTutorial(); // 初次登入完成命名後，自動播放新手教學（可跳過）
 }
 
 function finishOnboard(){
@@ -9409,6 +9684,289 @@ function finishOnboard(){
   layoutSheet();
   renderAll();
   say(`嗨 ${S.pet.name}！一起把理財變好玩吧～`);
+}
+
+/* ===== 新手教學導覽 ===== */
+const TUTORIAL_STEPS=[
+  { tab:'home', title:'歡迎來到浮島記帳！', demo:'welcome',
+    lead:'這是一款「養寵物 × 誠實記帳」的遊戲——你的記帳會照顧財務，也照顧浮島上的寵物。以下快速帶你認識每個功能，隨時可按右上角「跳過」。',
+    lines:[
+      '畫面<b>最下方有 5 個分頁</b>：首頁、社群、記帳、統計、設定，另有<b>商店</b>按鈕',
+      '接著一頁一頁介紹每個功能與按鍵～'
+    ]},
+  { tab:'home', title:'首頁 · 你的寵物', demo:'pet',
+    lines:[
+      '點<b>寵物</b>可互動；上方是你的<b>金幣 / 點卷</b>',
+      '首頁<b>左滑到餐廳</b>餵食，<b>右滑是寢室</b>',
+      '寵物<b>飢餓／心情／健康</b>會隨記帳與照顧變化',
+      '天氣反映<b>本月結餘</b>，超支會下雨'
+    ]},
+  { tab:'home', title:'首頁 · 跟寵物對話記帳', demo:'chat',
+    lead:'點首頁的<b>聊天鈕</b>就能跟寵物聊天，牠還會<b>一邊聊一邊幫你記帳</b>！',
+    lines:[
+      '直接說「剛買咖啡花了120」，牠會自動<b>記成一筆</b>存進帳本',
+      '也能聊近況、問理財建議，牠都會回你',
+      '記完會出現「📒 已記帳」，跟手動記帳同步'
+    ]},
+  { tab:'ledger', sub:'quick', title:'記帳 · 記上一筆', demo:'record',
+    lines:[
+      '切換支出/收入、輸入金額後，點<b>大分類</b>會展開<b>小分類</b>（看右邊示範）',
+      '可<b>拍照</b>記錄心情或物品，照片在<b>首頁相簿</b>回顧',
+      '<b>選完要按「記上一筆」</b>才會完成'
+    ]},
+  { tab:'ledger', sub:'dream', title:'記帳 · 圓夢浮島', demo:'piggy',
+    lead:'設定一個存錢目標，<b>百分比上升＝存錢豬的金色水位跟著裝滿</b>（如上圖示範）。',
+    lines:[
+      '設定目標金額與天數，系統自動幫你算<b>每天要存多少</b>',
+      '每記一筆，<b>百分比與存錢豬水位一起往上升</b>',
+      '存滿 100% 存錢豬會<b>發光慶祝</b>，夢想達成！'
+    ]},
+  { tab:'ledger', sub:'split', title:'記帳 · 分帳', demo:'split',
+    lead:'一筆共同花費，<b>自動拆給每個人</b>（如上圖示範）。',
+    lines:[
+      '建立群組、加入好友，輸入一筆共同支出',
+      '選<b>誰付錢、誰要分攤</b>，系統算出每人金額',
+      '最後<b>結算誰欠誰、欠多少</b>，一目了然'
+    ]},
+  { tab:'ledger', sub:'plan', title:'記帳 · 預先規劃', demo:'plan',
+    lead:'把<b>未來</b>的收入支出先登記起來，提前佈局（如上圖時間軸示範）。',
+    lines:[
+      '登記未來的收入（如薪水）與支出（如房租、旅遊）',
+      '系統把它們排到<b>時間軸</b>上，預見每個月的收支',
+      '幫你<b>提前準備預算</b>，不被大筆花費打亂'
+    ]},
+  { tab:'war', social:'feed', title:'社群 · 動態牆', demo:'feed',
+    lines:[
+      '<b>發佈</b>近況，好友都能在動態牆看到',
+      '<b>分享成就</b>：一鍵套用（結餘、存錢率、圓夢進度…），<b>發佈前先預覽</b>',
+      '多個圓夢目標時，還能<b>選要分享哪一個</b>',
+      '<b>好友</b>：互相加好友、按讚、留言'
+    ]},
+  { tab:'war', social:'war', title:'社群 · 股市小兵聖戰', demo:'war',
+    lead:'社群上方切到 <b>⚔️ 聖戰</b> 分頁——設計來<b>培養投資習慣</b>：把記帳省下的金幣放大，換更多遊戲內造型與飾品。',
+    lines:[
+      '用<b>金幣招募小兵</b>：做多（看漲）或做空（看跌）',
+      '綁定<span class="tut-nw"><b>虛擬標的</b></span>對戰',
+      '走勢由後台數學模型即時演算<span class="tut-nw">（非真實股價）</span>',
+      '<b>看對方向賺更多金幣</b>；看錯則戰果縮水、收回較少',
+      '純虛擬練習，<b>不涉及真實金錢</b>'
+    ]},
+  { tab:'shop', title:'商店 · 像素商店', demo:'shop',
+    lines:[
+      '點畫面上的<b>商店</b>按鈕進入',
+      '用<b>金幣 / 點卷</b>購買外觀與道具',
+      '讓你的浮島和寵物更有個人風格'
+    ]},
+  { tab:'stats', title:'統計 · 財務洞察', demo:'pie',
+    lead:'開始記帳後這裡會有<b>收支圓餅圖</b>（上方為示範）。',
+    lines:[
+      '一眼看出錢<b>花在哪些分類</b>、佔比多少',
+      '掌握你的<b>存錢率</b>與消費趨勢'
+    ]},
+  { tab:'settings', title:'設定 · 個人化', demo:'settings',
+    lines:[
+      '<b>天空主題</b>、<b>背景音樂 / 按鈕音效</b>開關',
+      '調整<b>每月預算</b>、<b>固定收支</b>、<b>幫寵物改名</b>',
+      '想再看一次導覽？點這裡的<b>「新手教學」</b>就能重播'
+    ]},
+  { tab:'home', title:'準備好了！', demo:'celebrate',
+    lead:'就這樣，你已經認識所有功能囉。',
+    lines:[
+      '去<b>記下第一筆</b>，照顧你的寵物與財務吧！',
+      '隨時可到<b>設定 → 新手教學</b>再看一次'
+    ]}
+];
+/* 教學卡片用「對應頁面的實際 icon」（來自 assets.js 的 NAV_ICON / 設定圖示），不用 emoji */
+function tutIconHtml(tab){
+  var src='';
+  if(tab==='settings')src=(typeof settingsIconSrc==='function')?settingsIconSrc():'';
+  else if(typeof NAV_ICON!=='undefined'&&NAV_ICON[tab])src=NAV_ICON[tab];
+  return src?`<img class="tut-ic-img" src="${src}" alt="">`:'';
+}
+/* 動畫示範：純 CSS/SVG，循環播放 */
+function tutDemoHtml(kind){
+  const petAv=(typeof petAvatarHtml==='function')?petAvatarHtml():'';
+  if(kind==='welcome'){
+    return `<div class="tut-demo"><div class="tut-welcome">
+      <i class="tut-spark k1"></i><i class="tut-spark k2"></i><i class="tut-spark k3"></i><i class="tut-spark k4"></i>
+      <div class="tut-welcome-pet">${petAv}</div>
+    </div><span class="tut-demo-cap">你的守護寵物在浮島等你！</span></div>`;
+  }
+  if(kind==='pet'){
+    return `<div class="tut-demo tut-demo-pet">
+      <div class="tut-pet-av">${petAv}</div>
+      <div class="tut-bars">
+        <div class="tut-bar"><span class="tut-bar-lb">飢餓</span><div class="tut-bar-tr"><i class="tut-bar-fi bf-hunger"></i></div></div>
+        <div class="tut-bar"><span class="tut-bar-lb">心情</span><div class="tut-bar-tr"><i class="tut-bar-fi bf-happy"></i></div></div>
+        <div class="tut-bar"><span class="tut-bar-lb">健康</span><div class="tut-bar-tr"><i class="tut-bar-fi bf-health"></i></div></div>
+      </div>
+      <span class="tut-demo-cap full">記帳與照顧會改變寵物狀態</span></div>`;
+  }
+  if(kind==='chat'){
+    return `<div class="tut-demo"><div class="tut-chat">
+      <div class="tut-chat-msg me c1">剛買咖啡花了 120</div>
+      <div class="tut-chat-msg pet c2"><span class="tut-chat-av">${petAv}</span><span class="tut-chat-tx">收到！幫你記上囉～☕</span></div>
+      <div class="tut-chat-sys c3">📒 已記帳：飲食 −$120</div>
+    </div><span class="tut-demo-cap">跟寵物說一句話，就自動記成一筆</span></div>`;
+  }
+  if(kind==='record'){
+    return `<div class="tut-demo"><div class="tut-record">
+      <div class="tut-rec-amt">$120</div>
+      <div class="tut-rec-line"><span class="tut-rec-chip big">飲食</span>
+        <span class="tut-rec-small"><span class="tut-rec-chip sm s1">早餐</span><span class="tut-rec-chip sm s2">午餐</span><span class="tut-rec-chip sm s3">晚餐</span></span></div>
+      <div class="tut-rec-photo"><span class="tut-rec-flash"></span><span class="tut-rec-pic"><i></i></span><span class="tut-rec-photolb">拍照留存</span></div>
+      <div class="tut-rec-btn">記上一筆</div>
+      <div class="tut-rec-done">✓ 已記上一筆</div>
+    </div><span class="tut-demo-cap">選大分類→小分類→拍照，按「記上一筆」才完成</span></div>`;
+  }
+  if(kind==='piggy'){
+    return `<div class="tut-demo tut-demo-piggy">
+      <div class="tut-piggy liquid-piggy">
+        <div class="lp-clip"><div class="lp-fluid tut-fluid" style="height:12%"><div class="lp-wave"></div>
+          <i class="lp-bub b1"></i><i class="lp-bub b2"></i><i class="lp-bub b3"></i></div></div>
+        <div class="lp-shell"></div>
+      </div>
+      <div class="tut-piggy-pct"><b>0</b><span>%</span></div>
+      <span class="tut-demo-cap full">百分比上升＝存錢豬金色水位跟著裝滿</span></div>`;
+  }
+  if(kind==='war'){
+    return `<div class="tut-demo"><div class="tut-war">
+      <div class="tut-war-units"><span class="tut-unit u-long">做多▲</span><span class="tut-unit u-short">做空▼</span></div>
+      <div class="tut-war-chart"><i class="cbar w1"></i><i class="cbar w2"></i><i class="cbar w3"></i><i class="cbar w4"></i><i class="cbar w5"></i></div>
+      <div class="tut-war-reward">＋金幣</div>
+    </div><span class="tut-demo-cap">用金幣招募小兵，跟隨虛擬走勢對戰（純模擬）</span></div>`;
+  }
+  if(kind==='feed'){
+    return `<div class="tut-demo"><div class="tut-feed-card">
+      <div class="tut-feed-row"><span class="tut-feed-av">${petAv}</span><span class="tut-feed-name">我的成就 🏆</span></div>
+      <div class="tut-feed-txt">本月存錢率 68%，連續記帳 12 天！</div>
+      <div class="tut-feed-like">♥ <b class="tut-like-n">1</b></div>
+    </div><span class="tut-demo-cap">分享成就，好友能按讚回覆</span></div>`;
+  }
+  if(kind==='shop'){
+    const coin=(typeof coinImgSrc==='function')?coinImgSrc():'';
+    return `<div class="tut-demo tut-demo-shop">
+      <div class="tut-shop-item"></div>
+      <div class="tut-shop-info"><div class="tut-shop-price">${coin?`<img class="tut-coin" src="${coin}" alt="">`:''}200</div>
+        <div class="tut-shop-buy">購買</div></div>
+      <span class="tut-demo-cap full">用金幣點卷購買外觀道具</span></div>`;
+  }
+  if(kind==='settings'){
+    return `<div class="tut-demo"><div class="tut-set">
+      <div class="tut-set-btn sk1"><span>背景音樂</span><span class="tut-set-state"><i class="off">🔇 關</i><i class="on">🎵 開</i></span></div>
+      <div class="tut-set-btn sk2"><span>按鈕音效</span><span class="tut-set-state"><i class="off">🔇 關</i><i class="on">🔊 開</i></span></div>
+    </div><span class="tut-demo-cap">點按鈕即在「開／關」間切換（變金色＝開啟）</span></div>`;
+  }
+  if(kind==='celebrate'){
+    return `<div class="tut-demo"><div class="tut-celebrate">
+      ${[1,2,3,4,5,6].map(n=>`<i class="tut-conf cf${n}"></i>`).join('')}
+      <div class="tut-celebrate-pet">${petAv}</div>
+    </div><span class="tut-demo-cap">開始你的理財冒險吧！</span></div>`;
+  }
+  if(kind==='split'){
+    return `<div class="tut-demo"><div class="tut-split">
+      <div class="tut-split-total">$900</div>
+      <div class="tut-split-arrow">▾</div>
+      <div class="tut-split-people">
+        <div class="tut-sp s1"><span class="tut-sp-face"></span><span class="tut-sp-amt">$300</span></div>
+        <div class="tut-sp s2"><span class="tut-sp-face"></span><span class="tut-sp-amt">$300</span></div>
+        <div class="tut-sp s3"><span class="tut-sp-face"></span><span class="tut-sp-amt">$300</span></div>
+      </div>
+    </div><span class="tut-demo-cap">一筆共同花費自動拆給每個人</span></div>`;
+  }
+  if(kind==='plan'){
+    return `<div class="tut-demo"><div class="tut-plan">
+      <div class="tut-plan-line"></div>
+      <div class="tut-plan-node p1"><i class="tut-plan-dot now"></i><span>今天</span></div>
+      <div class="tut-plan-node p2"><i class="tut-plan-dot inc"></i><span>+薪水</span></div>
+      <div class="tut-plan-node p3"><i class="tut-plan-dot exp"></i><span>−房租</span></div>
+      <div class="tut-plan-node p4"><i class="tut-plan-dot exp"></i><span>−旅遊</span></div>
+    </div><span class="tut-demo-cap">未來收支排上時間軸，提前佈局</span></div>`;
+  }
+  if(kind==='pie'){
+    var legend=[['飲食','40%','#F5C6A8'],['交通','28%','#A8D4F0'],['購物','18%','#D4B8F0'],['其他','14%','#B8E8C8']]
+      .map((r,i)=>`<div class="tut-lg l${i+1}"><i style="background:${r[2]}"></i>${r[0]} ${r[1]}</div>`).join('');
+    return `<div class="tut-demo tut-demo-row">
+      <div class="tut-pie-wrap"><div class="tut-pie"></div></div>
+      <div class="tut-pie-legend">${legend}</div>
+      <span class="tut-demo-cap full">示範資料，記帳後會顯示你的真實佔比</span></div>`;
+  }
+  return '';
+}
+let tutIndex=0;
+function startTutorial(){
+  tutIndex=0;
+  const ov=document.getElementById('tutorial');
+  if(!ov)return;
+  ov.style.display='flex';
+  renderTutorialStep();
+}
+function renderTutorialStep(){
+  const ov=document.getElementById('tutorial');
+  if(!ov)return;
+  const step=TUTORIAL_STEPS[tutIndex];
+  tutStopAnims();
+  // 切到對應分頁／子分頁，讓卡片後方就是實際頁面
+  if(step.tab&&typeof switchTab==='function'&&curTab!==step.tab){ try{switchTab(step.tab);}catch(e){} }
+  if(step.sub&&typeof setLedgerSub==='function'&&typeof ledgerSub!=='undefined'&&ledgerSub!==step.sub){ try{setLedgerSub(step.sub);}catch(e){} }
+  if(step.social&&typeof setSocialSub==='function'&&typeof socialSub!=='undefined'&&socialSub!==step.social){ try{setSocialSub(step.social);}catch(e){} }
+  const dots=TUTORIAL_STEPS.map((_,i)=>`<span class="tut-dot ${i===tutIndex?'on':''}"></span>`).join('');
+  const isFirst=tutIndex===0, isLast=tutIndex===TUTORIAL_STEPS.length-1;
+  const lis=step.lines.map(l=>`<li>${l}</li>`).join('');
+  const demo=step.demo?tutDemoHtml(step.demo):'';
+  ov.innerHTML=`<div class="tut-card">
+    <div class="tut-top">${tutIconHtml(step.tab)||''}<span class="tut-title">${esc(step.title)}</span>
+      <button type="button" class="tut-skip" onclick="skipTutorial()">跳過</button></div>
+    <div class="tut-body">${demo}${step.lead?`<p class="tut-lead">${step.lead}</p>`:''}<ul class="tut-list">${lis}</ul></div>
+    <div class="tut-foot">
+      <div class="tut-dots">${dots}</div>
+      ${isFirst?'':`<button type="button" class="tut-btn ghost" onclick="prevTutorial()">上一步</button>`}
+      <button type="button" class="tut-btn primary" onclick="${isLast?'finishTutorial()':'nextTutorial()'}">${isLast?'開始冒險':'下一步'}</button>
+    </div>
+  </div>`;
+  if(step.demo==='piggy')tutStartPiggyAnim();
+}
+/* 存錢豬示範：JS 驅動，緩慢填充，百分比與水位同步 */
+let tutAnimRaf=0;
+function tutStopAnims(){ if(tutAnimRaf){cancelAnimationFrame(tutAnimRaf);tutAnimRaf=0;} }
+function tutStartPiggyAnim(){
+  const fluid=document.querySelector('#tutorial .tut-fluid');
+  const pctEl=document.querySelector('#tutorial .tut-piggy-pct b');
+  if(!fluid)return;
+  const MIN=12, MAX=86;
+  const RISE=6000, HOLD=1400, FALL=1600, PAUSE=600;
+  const cycle=RISE+HOLD+FALL+PAUSE;
+  const t0=performance.now();
+  function frame(now){
+    const ph=(now-t0)%cycle;
+    let p;
+    if(ph<RISE)p=ph/RISE;
+    else if(ph<RISE+HOLD)p=1;
+    else if(ph<RISE+HOLD+FALL)p=1-(ph-RISE-HOLD)/FALL;
+    else p=0;
+    fluid.style.height=(MIN+(MAX-MIN)*p).toFixed(1)+'%';
+    if(pctEl)pctEl.textContent=Math.round(p*100);
+    tutAnimRaf=requestAnimationFrame(frame);
+  }
+  tutAnimRaf=requestAnimationFrame(frame);
+}
+function nextTutorial(){ if(tutIndex<TUTORIAL_STEPS.length-1){tutIndex++;renderTutorialStep();}else finishTutorial(); }
+function prevTutorial(){ if(tutIndex>0){tutIndex--;renderTutorialStep();} }
+function skipTutorial(){ finishTutorial(); }
+function finishTutorial(){
+  tutStopAnims();
+  const ov=document.getElementById('tutorial');
+  if(ov)ov.style.display='none';
+  S.tutorialDone=true;
+  save();
+  // 教學過程切換過子分頁，結束後還原成預設
+  try{ if(typeof ledgerSub!=='undefined')ledgerSub='quick'; }catch(e){}
+  try{ if(typeof socialSub!=='undefined')socialSub='feed'; }catch(e){}
+  if(curTab!=='home'){ try{switchTab('home');}catch(e){} }
+}
+function maybeStartTutorial(){
+  if(S.tutorialDone)return;
+  setTimeout(()=>{ if(!S.tutorialDone)startTutorial(); },450);
 }
 
 /* ===== BottomSheet 固定高度底部面板 ===== */
