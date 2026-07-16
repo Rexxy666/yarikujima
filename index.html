@@ -2888,13 +2888,13 @@ function applyAuthUser(u,isNewUser){
       const localSnap={_savedAt:S._savedAt};
       if(S._historyWipedAt)localSnap._historyWipedAt=S._historyWipedAt;
       GAME_STATE_KEYS.forEach(k=>{if(S[k]!==undefined)localSnap[k]=S[k];});
-      // 雲端空帳本且無更新 wipe → 以本機為準，避免重整後被空雲端蓋掉
+      // 僅在「雲端從未 wipe 且為空」時以本機救援（例如 DB 重建）。
+      // 若雲端已有 _historyWipedAt，不可把本機舊帳整包蓋回去。
       const remoteTx=Array.isArray(remote.tx)?remote.tx:[];
       const localTx=Array.isArray(localSnap.tx)?localSnap.tx:[];
       const remoteWipe=+(remote._historyWipedAt||0);
-      const localWipe=+(localSnap._historyWipedAt||0);
       let merged;
-      if(remoteTx.length===0&&localTx.length>0&&remoteWipe<=localWipe){
+      if(remoteTx.length===0&&localTx.length>0&&remoteWipe===0){
         merged=mergeGameStateForSync(localSnap,remote);
       }else{
         merged=remoteAt>=localAt
@@ -3139,6 +3139,13 @@ async function syncAuthState(){
       })
     });
     if(!res.ok){console.warn('[auth] sync failed:',res.status);return false;}
+    // 回寫伺服器合併結果，避免本機樂觀狀態與雲端真相長期分叉
+    const data=await res.json().catch(()=>null);
+    if(data?.user?.gameState){
+      importGameState(data.user.gameState);
+      const owner=currentOwnerKey();
+      if(owner)persistOwnerState(owner);
+    }
     return true;
   }catch(e){console.warn('[auth] sync error:',e);return false;}
 }
@@ -3262,7 +3269,8 @@ function fresh(){
   };
 }
 function load(){try{const d=JSON.parse(localStorage.getItem(LS));return d&&d.pet?d:fresh();}catch(e){return fresh();}}
-const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','savingGoals','theme','market','chat','subcats','musicOn','sfxOn','tutorialDone'];
+const GAME_STATE_KEYS=['onboarded','quizScore','pet','wallet','budget','tx','deletedTxIds','army','daily','cosmetics','photoCap','lastPhotoCrit','streak','lastRecordDate','dailyBookkeepingCount','lastBookkeepingDate','battleLog','savingGoals','theme','market','chat','subcats','musicOn','sfxOn','tutorialDone'];
+const DELETED_TX_TTL_MS=180*24*60*60*1000;
 function migrateSavingGoals(){
   if(Array.isArray(S.savingGoals))return;
   if(S.goal&&S.goal.target){
@@ -3270,11 +3278,62 @@ function migrateSavingGoals(){
   }else S.savingGoals=[];
   delete S.goal;
 }
+function ensureDeletedTxIds(){
+  if(!S.deletedTxIds||typeof S.deletedTxIds!=='object'||Array.isArray(S.deletedTxIds))S.deletedTxIds={};
+  return S.deletedTxIds;
+}
+function txTimeMs(t){
+  if(!t)return 0;
+  if(t.ts){const ms=Date.parse(t.ts);if(!Number.isNaN(ms))return ms;}
+  if(typeof t.id==='number'&&Number.isFinite(t.id))return t.id;
+  const n=parseInt(t.id,10);
+  return Number.isFinite(n)?n:0;
+}
+function mergeDeletedTxIdsMaps(a,b){
+  const out={};
+  for(const src of [a,b]){
+    if(!src||typeof src!=='object'||Array.isArray(src))continue;
+    Object.keys(src).forEach(id=>{
+      const t=+src[id]||0;
+      if(!id||t<=0)return;
+      if(!out[id]||t>out[id])out[id]=t;
+    });
+  }
+  return out;
+}
+function pruneDeletedTxIdsMap(map,wipedAt){
+  const now=Date.now();
+  const out={};
+  Object.keys(map||{}).forEach(id=>{
+    const t=+map[id]||0;
+    if(!id||t<=0)return;
+    if(wipedAt>0&&t<wipedAt)return;
+    if(now-t>DELETED_TX_TTL_MS)return;
+    out[id]=t;
+  });
+  return out;
+}
+function filterTxAfterWipeLocal(txList,wipedAt){
+  if(!Array.isArray(txList))return [];
+  if(!wipedAt)return txList.slice();
+  return txList.filter(t=>txTimeMs(t)>=wipedAt);
+}
+function markTxDeleted(id){
+  if(id==null)return;
+  const map=ensureDeletedTxIds();
+  map[String(id)]=Date.now();
+}
 function exportGameState(){
   const o={_savedAt:Date.now()};
   if(S._historyWipedAt)o._historyWipedAt=+S._historyWipedAt;
-  const txList=Array.isArray(S.tx)?S.tx:[];
+  const wipedAt=+(S._historyWipedAt||0);
+  const deleted=pruneDeletedTxIdsMap(ensureDeletedTxIds(),wipedAt);
+  S.deletedTxIds=deleted;
+  o.deletedTxIds=deleted;
+  const txList=filterTxAfterWipeLocal(Array.isArray(S.tx)?S.tx:[],wipedAt)
+    .filter(t=>t&&t.id!=null&&!deleted[String(t.id)]);
   GAME_STATE_KEYS.forEach(k=>{
+    if(k==='deletedTxIds'){o.deletedTxIds=deleted;return;}
     if(S[k]===undefined)return;
     if(k==='tx'){
       o.tx=txList.map(t=>{
@@ -3319,14 +3378,20 @@ async function hydrateTxPhotosForCloudSync(){
 function isPersistablePhotoData(pd){
   return typeof pd==='string'&&(pd.startsWith('data:')||pd.startsWith('http://')||pd.startsWith('https://'));
 }
-function mergeTxPhotoRowsForSync(existingTx,incomingTx){
-  if(!Array.isArray(incomingTx))return Array.isArray(existingTx)?existingTx:[];
-  if(!Array.isArray(existingTx))return incomingTx;
+function mergeTxPhotoRowsForSync(existingTx,incomingTx,deletedMap){
+  const deleted=deletedMap||{};
+  if(!Array.isArray(incomingTx)){
+    return (Array.isArray(existingTx)?existingTx:[]).filter(t=>t&&t.id!=null&&!deleted[String(t.id)]);
+  }
+  if(!Array.isArray(existingTx)){
+    return incomingTx.filter(t=>t&&t.id!=null&&!deleted[String(t.id)]);
+  }
   const prevById=new Map(existingTx.filter(t=>t&&t.id!=null).map(t=>[t.id,t]));
   const seen=new Set();
   const out=[];
   incomingTx.forEach(t=>{
     if(!t||t.id==null){out.push(t);return;}
+    if(deleted[String(t.id)])return;
     seen.add(t.id);
     const prev=prevById.get(t.id);
     if(!prev){out.push(t);return;}
@@ -3338,7 +3403,7 @@ function mergeTxPhotoRowsForSync(existingTx,incomingTx){
     out.push(merged);
   });
   existingTx.forEach(t=>{
-    if(t&&t.id!=null&&!seen.has(t.id))out.push(t);
+    if(t&&t.id!=null&&!seen.has(t.id)&&!deleted[String(t.id)])out.push(t);
   });
   return out.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
 }
@@ -3348,24 +3413,15 @@ function mergeGameStateForSync(base,overlay){
   const merged={...base,...overlay};
   const wipedAt=Math.max(+(base._historyWipedAt||0),+(overlay._historyWipedAt||0));
   if(wipedAt>0)merged._historyWipedAt=wipedAt;
-  // 雲端已洗歷史：未承認 wipe 的一方帶的舊 tx 一律丟棄；雙方都承認後正常合併（允許洗完後新記帳）
-  if(wipedAt>0){
-    const baseAck=+(base._historyWipedAt||0)>=wipedAt;
-    const overAck=+(overlay._historyWipedAt||0)>=wipedAt;
-    const baseTx=baseAck&&Array.isArray(base.tx)?base.tx:[];
-    const overTx=overAck&&Array.isArray(overlay.tx)?overlay.tx:[];
-    if(!baseAck&&!overAck)merged.tx=[];
-    else if(!baseAck)merged.tx=overTx;
-    else if(!overAck)merged.tx=baseTx;
-    else merged.tx=mergeTxPhotoRowsForSync(baseTx,overTx);
-  }else if(Array.isArray(base.tx)||Array.isArray(overlay.tx)){
-    const baseTx=Array.isArray(base.tx)?base.tx:[];
-    const overTx=Array.isArray(overlay.tx)?overlay.tx:[];
-    // 無 wipe 時：空陣列不得蓋掉有資料的一方
-    if(baseTx.length===0&&overTx.length>0)merged.tx=overTx;
-    else if(overTx.length===0&&baseTx.length>0)merged.tx=baseTx;
-    else merged.tx=mergeTxPhotoRowsForSync(baseTx,overTx);
-  }
+  const deleted=pruneDeletedTxIdsMap(
+    mergeDeletedTxIdsMaps(base.deletedTxIds,overlay.deletedTxIds),
+    wipedAt
+  );
+  merged.deletedTxIds=deleted;
+  // 依每筆交易時間過濾 wipe 前舊帳；tombstone 排除已刪。不再整包丟棄未 ack 一方的新記帳。
+  const baseTx=filterTxAfterWipeLocal(base.tx,wipedAt);
+  const overTx=filterTxAfterWipeLocal(overlay.tx,wipedAt);
+  merged.tx=mergeTxPhotoRowsForSync(baseTx,overTx,deleted);
   merged._savedAt=Math.max(+(base._savedAt||0),+(overlay._savedAt||0))||Date.now();
   return merged;
 }
@@ -3373,29 +3429,40 @@ function applyHistoryWipeFromRemote(remote){
   if(!remote||typeof remote!=='object')return;
   const remoteWipe=+(remote._historyWipedAt||0);
   if(!remoteWipe)return;
-  const localWipe=+(S._historyWipedAt||0);
-  if(remoteWipe>localWipe){
-    // 本機還是洗之前的存檔 → 清空舊帳本／相簿，並承認 wipe，避免再 sync 回去
-    S.tx=[];
-    S._historyWipedAt=remoteWipe;
-    if(remote._savedAt)S._savedAt=Math.max(+(S._savedAt||0),+remote._savedAt);
-  }else{
-    S._historyWipedAt=Math.max(localWipe,remoteWipe);
-  }
+  // 只剔除 wipe 之前的舊帳，保留 wipe 之後本機新記的消費
+  S._historyWipedAt=Math.max(+(S._historyWipedAt||0),remoteWipe);
+  if(Array.isArray(S.tx))S.tx=filterTxAfterWipeLocal(S.tx,remoteWipe);
+  S.deletedTxIds=pruneDeletedTxIdsMap(ensureDeletedTxIds(),remoteWipe);
+  if(remote._savedAt)S._savedAt=Math.max(+(S._savedAt||0),+remote._savedAt);
 }
 function importGameState(g){
   if(!g||typeof g!=='object')return;
   applyHistoryWipeFromRemote(g);
+  const wipedAt=Math.max(+(S._historyWipedAt||0),+(g._historyWipedAt||0));
+  const deleted=pruneDeletedTxIdsMap(
+    mergeDeletedTxIdsMaps(S.deletedTxIds,g.deletedTxIds),
+    wipedAt
+  );
   GAME_STATE_KEYS.forEach(k=>{
     if(g[k]===undefined)return;
-    if(k==='tx'&&+(S._historyWipedAt||0)>0&&+(g._historyWipedAt||0)>0&&+(g._historyWipedAt||0)<+(S._historyWipedAt||0))return;
+    if(k==='deletedTxIds')return;
+    if(k==='tx'){
+      // 合併雙方帳本（含 tombstone／wipe 過濾），避免單向覆寫造成新帳消失或舊帳復活
+      S.tx=mergeTxPhotoRowsForSync(
+        filterTxAfterWipeLocal(S.tx,wipedAt),
+        filterTxAfterWipeLocal(g.tx,wipedAt),
+        deleted
+      );
+      return;
+    }
     if(k==='pet'&&S.pet&&g.pet&&typeof g.pet==='object')S.pet={...S.pet,...g.pet};
     else if(k==='wallet'&&g.wallet)S.wallet={...S.wallet,...g.wallet};
     else if(k==='cosmetics'&&g.cosmetics)S.cosmetics={...S.cosmetics,...g.cosmetics};
     else S[k]=g[k];
   });
+  S.deletedTxIds=deleted;
   if(g._historyWipedAt)S._historyWipedAt=Math.max(+(S._historyWipedAt||0),+g._historyWipedAt);
-  if(g._savedAt)S._savedAt=g._savedAt;
+  if(g._savedAt)S._savedAt=Math.max(+(S._savedAt||0),+g._savedAt);
   migrateSavingGoals();
 }
 function save(){
@@ -6514,12 +6581,14 @@ function deleteTxEdit(){
   if(!confirm('確定刪除這筆紀錄？此動作無法復原。'))return;
   const i=(Array.isArray(S.tx)?S.tx:[]).findIndex(x=>x.id===d.id);
   if(i>=0)S.tx.splice(i,1);
+  markTxDeleted(d.id); // tombstone：避免雲端／其他分頁把這筆又合併回來
   save();
   editTxDraft=null;
   closeOverlay();
   renderHistoryModalList();
   renderAll();
   toast('已刪除這筆紀錄');
+  void syncAuthStateNow(); // 立刻上行，讓刪除記號盡快進雲端
 }
 function openHistoryModal(){
   const ov=$('#historyModal');
