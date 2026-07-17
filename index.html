@@ -717,15 +717,43 @@ img.ic.gem{margin-right:5px}
 .dream-piggy-debug-val{font-weight:900;color:#fde68a}
 .dream-piggy-debug-range{width:100%;height:8px;cursor:pointer;accent-color:#fbbf24;
   -webkit-appearance:none;appearance:none;background:#374151;border-radius:6px}
-.dream-history-btn{
-  display:block;width:100%;margin-top:14px;padding:11px 14px;box-sizing:border-box;
-  font-family:var(--font);font-size:12px;font-weight:800;text-align:center;color:#3a3548;
-  background:#fffdf7;border:3px solid var(--line);border-radius:10px;box-shadow:0 3px 0 #d8c9b0;
-  cursor:pointer;-webkit-tap-highlight-color:transparent}
-.dream-history-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #d8c9b0}
-.ledger-page .dream-history-btn{margin-top:12px;margin-bottom:0}
-.ledger-page .btn.mt+.dream-history-btn{margin-top:12px}
-.ledger-page .dream-history-btn+.ledger-debug-btn{margin-top:12px}
+.ledger-recent{
+  margin-top:14px;padding:10px 12px 8px;box-sizing:border-box;
+  background:rgba(255,255,255,.82);border:2px solid rgba(58,46,74,.14);
+  border-radius:14px;box-shadow:0 4px 14px rgba(30,20,55,.06);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:background .12s ease,box-shadow .12s ease}
+.ledger-recent:hover{background:rgba(255,253,247,.96);box-shadow:0 5px 16px rgba(30,20,55,.09)}
+#app[data-sky="dark"] .ledger-recent{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16)}
+#app[data-sky="dark"] .ledger-recent:hover{background:rgba(255,255,255,.14)}
+.ledger-recent-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.ledger-recent-head b{font-size:13px;font-weight:900;color:#1a1a1a}
+#app[data-sky="dark"] .ledger-recent-head b{color:rgba(255,255,255,.92)}
+.ledger-recent-all{
+  flex:none;border:none;background:transparent;padding:2px 0;cursor:pointer;
+  font-family:var(--font);font-size:11.5px;font-weight:800;color:#C07A10;
+  -webkit-tap-highlight-color:transparent}
+.ledger-recent-all:hover{text-decoration:underline}
+#app[data-sky="dark"] .ledger-recent-all{color:#FFD86B}
+.ledger-recent-list{display:flex;flex-direction:column}
+.ledger-recent-list .tx-item{
+  display:flex;align-items:center;gap:8px;padding:7px 0;
+  border-bottom:1px dashed rgba(150,140,160,.28)}
+.ledger-recent-list .tx-item:last-child{border-bottom:none;padding-bottom:2px}
+.ledger-recent-list .tx-ic{width:32px;height:32px;flex:none;border-radius:8px}
+.ledger-recent-list .tx-ic .cat-ic-cell .cat-ic,
+.ledger-recent-list .tx-ic .cat-ic-cell .cat-ic-em{width:20px;height:20px;font-size:14px}
+.ledger-recent-list .tx-main{flex:1;min-width:0}
+.ledger-recent-list .tx-main .t{font-size:12.5px;font-weight:800;color:#1a1a1a;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ledger-recent-list .tx-main .s{font-size:10.5px;font-weight:700;color:#8a7a6a;margin-top:1px}
+#app[data-sky="dark"] .ledger-recent-list .tx-main .t{color:rgba(255,255,255,.92)}
+#app[data-sky="dark"] .ledger-recent-list .tx-main .s{color:rgba(255,255,255,.55)}
+.ledger-recent-list .tx-amt{flex:none;font-size:13px;font-weight:900}
+.ledger-recent-empty{margin:4px 0 6px;padding:10px 4px;text-align:center;
+  font-size:12px;font-weight:700;line-height:1.5;color:#9a8a7a}
+#app[data-sky="dark"] .ledger-recent-empty{color:rgba(255,255,255,.5)}
+.ledger-page .ledger-recent+.ledger-debug-btn{margin-top:12px}
 .history-modal-overlay{position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.4);
   display:none;align-items:center;justify-content:center;padding:16px;
   -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
@@ -756,8 +784,13 @@ img.ic.gem{margin-right:5px}
 #historyModal .history-modal-body .tx-amt.amt-inc{color:#2d8a45}
 #historyModal .history-modal-body .tx-item{
   display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;
-  align-items:center;width:100%;padding:9px 0;border-bottom:2px dashed #e6dcc8;box-sizing:border-box}
+  align-items:center;width:calc(100% + 16px);padding:9px 8px;margin:0 -8px;
+  border-bottom:2px dashed #e6dcc8;border-radius:10px;box-sizing:border-box;
+  transition:background .12s ease;-webkit-tap-highlight-color:transparent}
 #historyModal .history-modal-body .tx-item:last-child{border-bottom:none}
+#historyModal .history-modal-body .tx-item--clickable{cursor:pointer}
+#historyModal .history-modal-body .tx-item--clickable:hover{background:rgba(255,208,67,.18)}
+#historyModal .history-modal-body .tx-item--clickable:active{background:rgba(255,208,67,.28)}
 #historyModal .history-modal-body .tx-left{grid-column:1;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
 #historyModal .history-modal-body .tx-ic{flex-shrink:0}
 #historyModal .history-modal-body .tx-main{flex:1;min-width:0;overflow:hidden}
@@ -765,8 +798,6 @@ img.ic.gem{margin-right:5px}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #historyModal .history-modal-body .tx-main .s{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #historyModal .history-modal-body .tx-note-text{display:inline}
-#historyModal .history-modal-body .tx-main--expand{cursor:pointer;-webkit-tap-highlight-color:transparent}
-#historyModal .history-modal-body .tx-main--expand:active .t{opacity:.75}
 #historyModal .history-modal-body .tx-right-rail{
   grid-column:2;display:flex;align-items:center;gap:7px;flex-shrink:0;
   width:176px;min-width:176px;max-width:176px;padding-right:2px;box-sizing:border-box}
@@ -867,7 +898,14 @@ img.ic.gem{margin-right:5px}
 .tx-note-x{background:#fff;border:2px solid var(--line);border-radius:8px;width:28px;height:28px;
   font-size:14px;cursor:pointer;flex:none;line-height:1;padding:0}
 .tx-note-body{padding:14px 12px;font-size:13px;font-weight:700;line-height:1.55;color:#1a1a1a;
-  word-break:break-word;max-height:min(40vh,220px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+  word-break:break-word;max-height:min(50vh,280px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tx-detail-row{margin:0 0 12px}
+.tx-detail-row:last-child{margin-bottom:0}
+.tx-detail-label{display:block;margin:0 0 4px;font-size:11px;font-weight:900;color:#6a5a4a;letter-spacing:.02em}
+.tx-detail-value{display:block;font-size:14px;font-weight:800;color:#1a1a1a;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.tx-detail-value.amt-exp{color:#c43c3c}
+.tx-detail-value.amt-inc{color:#2d8a45}
+.tx-detail-empty{color:#8a7a6a;font-weight:700}
 .tx-note-ok{display:block;width:calc(100% - 24px);margin:0 12px 12px;padding:10px 12px;box-sizing:border-box;
   font-family:var(--font);font-size:12px;font-weight:900;color:#4a3410;background:var(--gold);
   border:2px solid var(--line);border-radius:8px;box-shadow:0 2px 0 #d8c9b0;cursor:pointer}
@@ -1056,11 +1094,35 @@ img.ic.gem{margin-right:5px}
 .split-empty-sub{font-size:12.5px;font-weight:700;opacity:.72;line-height:1.5;margin-bottom:6px}
 .split-primary{width:100%}
 .split-form .split-chips{display:flex;flex-wrap:wrap;gap:7px}
+.split-form .txedit-body{color:#1a1a1a}
+.split-form .txedit-body label.fld,
+#app[data-sky="dark"] .split-form .txedit-body label.fld,
+#app[data-sky="light"] .split-form .txedit-body label.fld{
+  display:block;margin:14px 0 6px;color:#1a1a1a!important;
+  -webkit-text-fill-color:#1a1a1a!important;opacity:1;
+  font-size:12.5px;font-weight:900;line-height:1.35;text-align:left}
+.split-form .txedit-body input,
+#app[data-sky="dark"] .split-form .txedit-body input,
+#app[data-sky="light"] .split-form .txedit-body input{
+  color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a!important;
+  background:#fff!important;opacity:1}
+.split-form .txedit-body input::placeholder,
+#app[data-sky="dark"] .split-form .txedit-body input::placeholder,
+#app[data-sky="light"] .split-form .txedit-body input::placeholder{
+  color:#4a4a4a!important;-webkit-text-fill-color:#4a4a4a!important;
+  opacity:1;font-weight:700}
 .txedit-cats .chip,.split-chips .chip{background:#fff!important;border:2px solid var(--line)!important;color:#2b2233!important;-webkit-text-fill-color:#2b2233!important;cursor:pointer}
 .txedit-cats .chip.on,.split-chips .chip.on{background:var(--gold)!important;color:#4a3410!important;-webkit-text-fill-color:#4a3410!important}
 .split-exp-edit{flex:none;width:30px;height:30px;border:none;background:transparent;font-size:14px;cursor:pointer;opacity:.7;padding:0}
 /* 多付款人：各自付多少 */
+.split-mode-seg{display:flex;gap:6px;background:#f1ecff;border:2px solid var(--line);border-radius:10px;padding:4px;margin-top:2px}
+.split-mode-btn{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:7px;font-family:var(--font);font-size:13px;font-weight:900;color:#333!important;-webkit-text-fill-color:#333!important;opacity:1;cursor:pointer}
+.split-mode-btn.on{background:var(--gold);color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a!important}
 .split-pay-detail{margin:8px 0 2px;padding:10px 12px;border:2px dashed var(--line);border-radius:10px;background:#fff8ec}
+.split-pay-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;
+  font-size:11.5px;font-weight:900;color:#333!important;-webkit-text-fill-color:#333!important;opacity:1;letter-spacing:.02em}
+.split-pay-head span:last-child{flex:none;width:118px;text-align:right}
+.split-empty-fld{align-self:stretch;text-align:left}
 .split-pay-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
 .split-pay-name{font-size:13.5px;font-weight:800;color:#2b2233;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .split-pay-amt{flex:none;width:118px;text-align:right;font-size:15px!important;font-weight:900!important;padding:8px 10px!important}
@@ -1098,6 +1160,12 @@ img.ic.gem{margin-right:5px}
 #app[data-sky="light"] .fin-stats-pixel-panel{
   background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.45);
   box-shadow:0 8px 20px rgba(30,20,55,.09);color:#2B2233}
+.stats-period-seg{display:flex;gap:6px;width:100%;margin:0 0 12px;background:rgba(255,255,255,.5);border:2px solid var(--line);border-radius:12px;padding:4px}
+#app[data-sky="dark"] .stats-period-seg{background:rgba(255,255,255,.08)}
+.stats-period-btn{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:9px;font-family:var(--font);
+  font-size:13px;font-weight:900;color:#6a6280;cursor:pointer;transition:background .15s,color .15s}
+#app[data-sky="dark"] .stats-period-btn{color:#c9bfe0}
+.stats-period-btn.on{background:var(--gold);color:#4a3410}
 .fin-stats-kpi-stack{display:flex;flex-direction:column;gap:12px;width:100%;margin-top:2px}
 .fin-stats-kpi-row{
   display:flex;flex-direction:row;justify-content:space-between;align-items:stretch;
@@ -2260,11 +2328,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
   <div id="txNotePopover" class="tx-note-overlay" style="display:none" aria-hidden="true" onclick="if(event.target===this)closeTxNotePopover()">
     <div class="tx-note-panel" role="dialog" aria-labelledby="txNotePopoverTitle">
       <div class="tx-note-head">
-        <b id="txNotePopoverTitle">完整備註</b>
+        <b id="txNotePopoverTitle">記帳詳情</b>
         <button type="button" class="tx-note-x" onclick="closeTxNotePopover()" aria-label="關閉">✕</button>
       </div>
       <div class="tx-note-body" id="txNotePopoverBody"></div>
-      <button type="button" class="tx-note-ok" onclick="closeTxNotePopover()">確定</button>
+      <button type="button" class="tx-note-ok" onclick="closeTxNotePopover()">關閉</button>
     </div>
   </div>
   <div id="timeBoxModal" class="tbox-cam-overlay" style="display:none" aria-hidden="true" onclick="if(event.target===this)closeTimeBoxModal()">
@@ -5065,6 +5133,7 @@ function txInPeriod(t,period){
   const ds=txDate(t);
   if(period==='day')return ds===todayStr();
   if(period==='week')return ds>=weekStartStr()&&ds<=todayStr();
+  if(period==='year')return ds.slice(0,4)===todayStr().slice(0,4);
   return ds.slice(0,7)===todayStr().slice(0,7);
 }
 function periodBudget(period){
@@ -5742,7 +5811,8 @@ function renderSplitEmpty(){
     <div class="split-empty-hero">🧾</div>
     <div class="split-empty-title">還沒有分帳群組</div>
     <div class="split-empty-sub">建一個出遊／聚餐群組，記下誰付了什麼，自動算出誰該還誰、最少幾筆轉帳。</div>
-    <input id="splitNewName" class="split-input" type="text" placeholder="主題名稱" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup();}">
+    <label class="fld split-empty-fld">主題名稱</label>
+    <input id="splitNewName" class="split-input" type="text" placeholder="例如：墾丁三日遊" maxlength="30" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();createSplitGroup();}">
     <button class="btn split-primary" onclick="createSplitGroup()">建立分帳主題</button>
     <button type="button" class="split-secondary" onclick="openSplitGroups()">查看既有主題</button>
   </div>`;
@@ -5845,8 +5915,9 @@ function renderSplitGroup(){
     <div class="card split-card">
       <div class="split-sec-head">成員 <span class="split-count">${members.length}</span></div>
       <div class="split-mems">${memChips}</div>
+      <label class="fld">新增成員名字</label>
       <div class="split-addmem">
-        <input id="splitMemName" class="split-input" type="text" placeholder="成員名字" maxlength="16" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addSplitMember();}">
+        <input id="splitMemName" class="split-input" type="text" placeholder="輸入名字後按 ＋" maxlength="16" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addSplitMember();}">
         <button type="button" class="split-add-btn" onclick="addSplitMember()">＋</button>
       </div>
     </div>
@@ -5952,11 +6023,15 @@ function openSplitExpense(expense){
       :(expense.paidBy?[expense.paidBy]:[g.members[0].id]);
     let shares=null;
     if(expense.paidShares){shares={};Object.entries(expense.paidShares).forEach(([id,v])=>{shares[id]=String(v);});}
+    let custom=null;
+    if(expense.splitType==='custom'&&expense.customShares){custom={};Object.entries(expense.customShares).forEach(([id,v])=>{custom[id]=String(v);});}
     splitExpDraft={id:expense.id,description:expense.description,amount:String(expense.amount),
-      category:expense.category,participants:[...expense.participants],payers,paidShares:shares};
+      category:expense.category,participants:[...expense.participants],payers,paidShares:shares,
+      splitType:expense.splitType==='custom'?'custom':'equal',customShares:custom};
   }else{
     splitExpDraft={id:null,description:'',amount:'',category:'food',
-      participants:g.members.map(m=>m.id),payers:[g.members[0].id],paidShares:null};
+      participants:g.members.map(m=>m.id),payers:[g.members[0].id],paidShares:null,
+      splitType:'equal',customShares:null};
   }
   showOverlay(renderSplitExpenseForm());
   setTimeout(()=>{const d=$('#splitExpDesc');d&&d.focus();},50);
@@ -5977,6 +6052,40 @@ function splitPayDistribute(){
   d.payers.forEach((id,i)=>{d.paidShares[id]=String(base+(i<rem?1:0));});
 }
 function splitPayDistributeAndRender(){splitPayDistribute();showOverlay(renderSplitExpenseForm());}
+/* ---- 自訂分攤（各自實花）---- */
+function syncCustomSharesShape(){
+  const d=splitExpDraft;if(!d)return;
+  if(d.splitType!=='custom'){return;}
+  if(!d.customShares)d.customShares={};
+  Object.keys(d.customShares).forEach(id=>{if(!d.participants.includes(id))delete d.customShares[id];});
+  d.participants.forEach(id=>{if(d.customShares[id]==null)d.customShares[id]='';});
+}
+function splitCustomDistribute(){
+  const d=splitExpDraft;if(!d)return;
+  const amt=Math.abs(parseInt(d.amount||'0',10));
+  const n=d.participants.length;if(!n||!amt)return;
+  const base=Math.floor(amt/n);let rem=amt-base*n;
+  d.customShares={};
+  d.participants.forEach((id,i)=>{d.customShares[id]=String(base+(i<rem?1:0));});
+}
+function setSplitMode(mode){
+  const d=splitExpDraft;if(!d)return;
+  d.splitType=(mode==='custom')?'custom':'equal';
+  if(d.splitType==='custom'){
+    syncCustomSharesShape();
+    if(!d.customShares||Object.values(d.customShares).every(v=>!v))splitCustomDistribute();
+  }
+  showOverlay(renderSplitExpenseForm());
+}
+function splitCustomDistributeAndRender(){splitCustomDistribute();showOverlay(renderSplitExpenseForm());}
+function openSplitCustomNumpad(id){
+  if(!splitExpDraft||!splitExpDraft.customShares)return;
+  openNumpadModal({
+    kind:'splitCustom',fieldId:'#splitCustom_'+id,value:splitExpDraft.customShares[id]||'',title:'這位實際花了多少',
+    onChange(raw){if(splitExpDraft.customShares){splitExpDraft.customShares[id]=raw;const el=$('#splitCustom_'+id);if(el)el.value=raw;}},
+    onConfirm(raw){if(splitExpDraft.customShares)splitExpDraft.customShares[id]=raw;showOverlay(renderSplitExpenseForm());}
+  });
+}
 function renderSplitExpenseForm(){
   const d=splitExpDraft;if(!d)return '';
   const g=splitData.group;
@@ -5993,25 +6102,45 @@ function renderSplitExpenseForm(){
     }).join('');
     const paid=d.payers.reduce((s,id)=>s+Math.abs(parseInt((d.paidShares&&d.paidShares[id])||'0',10)),0);
     const remain=amt-paid;
-    payDetail=`<div class="split-pay-detail">${rows}<div class="split-pay-sum ${remain===0?'ok':'bad'}">已填 $${fmt(paid)} / 總額 $${fmt(amt)}${remain===0?' ✓':`（差 $${fmt(Math.abs(remain))}）`}</div><button type="button" class="split-pay-even" onclick="splitPayDistributeAndRender()">平均分配</button></div>`;
+    payDetail=`<div class="split-pay-detail"><div class="split-pay-head"><span>付款人</span><span>付了多少</span></div>${rows}<div class="split-pay-sum ${remain===0?'ok':'bad'}">已填 $${fmt(paid)} / 總額 $${fmt(amt)}${remain===0?' ✓':`（差 $${fmt(Math.abs(remain))}）`}</div><button type="button" class="split-pay-even" onclick="splitPayDistributeAndRender()">平均分配</button></div>`;
   }
   const catChips=SPLIT_CATS.map(c=>`<button type="button" class="chip ${d.category===c[0]?'on':''}" onclick="setSplitCat('${c[0]}')">${c[1]} ${c[2]}</button>`).join('');
   const partChips=g.members.map(m=>`<button type="button" class="chip ${d.participants.includes(m.id)?'on':''}" onclick="toggleSplitPart('${m.id}')">${esc(m.name)}</button>`).join('');
   const per=(d.participants.length&&amt)?Math.round(amt/d.participants.length):0;
+  const isCustom=d.splitType==='custom';
+  const modeSeg=`<div class="split-mode-seg">
+      <button type="button" class="split-mode-btn ${!isCustom?'on':''}" onclick="setSplitMode('equal')">平均分攤</button>
+      <button type="button" class="split-mode-btn ${isCustom?'on':''}" onclick="setSplitMode('custom')">各自實花</button>
+    </div>`;
+  let customDetail='';
+  if(isCustom){
+    const rows=d.participants.map(id=>{
+      const m=g.members.find(x=>x.id===id);
+      const v=(d.customShares&&d.customShares[id])||'';
+      return `<div class="split-pay-row"><span class="split-pay-name">${esc(m?m.name:'')}</span><input id="splitCustom_${id}" class="numpad-field split-pay-amt" type="text" readonly inputmode="none" value="${esc(v)}" placeholder="0" onclick="openSplitCustomNumpad('${id}')"></div>`;
+    }).join('');
+    const used=d.participants.reduce((s,id)=>s+Math.abs(parseInt((d.customShares&&d.customShares[id])||'0',10)),0);
+    const remain=amt-used;
+    customDetail=`<div class="split-pay-detail"><div class="split-pay-head"><span>分攤人</span><span>各自實花</span></div>${rows}<div class="split-pay-sum ${remain===0?'ok':'bad'}">已分 $${fmt(used)} / 總額 $${fmt(amt)}${remain===0?' ✓':`（差 $${fmt(Math.abs(remain))}）`}</div><button type="button" class="split-pay-even" onclick="splitCustomDistributeAndRender()">平均分配</button></div>`;
+  }
+  const partLabel=isCustom?`${d.participants.length} 人，各自輸入實花`:`${d.participants.length} 人，每人約 $${fmt(per)}`;
   return `<div class="txedit-wrap split-form">
     <div class="txedit-head"><b>${isEdit?'修改分帳':'記一筆分帳'}</b><button type="button" class="chatX" onclick="closeSplitExpense()" aria-label="關閉">✕</button></div>
     <div class="txedit-body">
-      <label class="fld">項目</label>
-      <input id="splitExpDesc" type="text" value="${esc(d.description)}" placeholder="" maxlength="30" oninput="if(splitExpDraft)splitExpDraft.description=this.value">
-      <label class="fld">金額</label>
+      <label class="fld" for="splitExpDesc">項目名稱</label>
+      <input id="splitExpDesc" type="text" value="${esc(d.description)}" placeholder="輸入項目名稱" maxlength="30" oninput="if(splitExpDraft)splitExpDraft.description=this.value">
+      <label class="fld" for="splitExpAmt">金額</label>
       <input id="splitExpAmt" type="text" readonly inputmode="none" class="numpad-field" value="${esc(d.amount)}" placeholder="0" onclick="openSplitAmtNumpad()">
-      <label class="fld">誰付的（可複選）</label>
+      <label class="fld">付款人（可複選）</label>
       <div class="chips split-chips">${payChips}</div>
       ${payDetail}
       <label class="fld">分類</label>
       <div class="chips split-chips">${catChips}</div>
-      <label class="fld">誰要分攤（${d.participants.length} 人，每人約 $${fmt(per)}）</label>
+      <label class="fld">分攤方式</label>
+      ${modeSeg}
+      <label class="fld">參與人（${partLabel}）</label>
       <div class="chips split-chips">${partChips}</div>
+      ${customDetail}
       <div class="txedit-actions"><button type="button" class="txedit-save" style="flex:1" onclick="saveSplitExpense()">${isEdit?'儲存修改':'加入分帳'}</button></div>
     </div>
   </div>`;
@@ -6029,7 +6158,8 @@ function setSplitCat(c){if(splitExpDraft){splitExpDraft.category=c;showOverlay(r
 function toggleSplitPart(id){
   if(!splitExpDraft)return;
   const a=splitExpDraft.participants,i=a.indexOf(id);
-  if(i>=0)a.splice(i,1);else a.push(id);
+  if(i>=0){if(a.length>1)a.splice(i,1);}else a.push(id);
+  syncCustomSharesShape();
   showOverlay(renderSplitExpenseForm());
 }
 function openSplitAmtNumpad(){
@@ -6057,6 +6187,12 @@ async function saveSplitExpense(){
   if(!d.payers.length){toast('至少選一位付款人');return;}
   if(!d.participants.length){toast('至少選一位分攤成員');return;}
   const body={description:d.description.trim(),amount,category:d.category,splitType:'equal',participants:d.participants};
+  if(d.splitType==='custom'){
+    const cs={};let csum=0;
+    d.participants.forEach(id=>{const v=Math.abs(parseInt((d.customShares&&d.customShares[id])||'0',10));cs[id]=v;csum+=v;});
+    if(csum!==amount){toast(`各自實花加總 $${fmt(csum)} 要等於總額 $${fmt(amount)}`);return;}
+    body.splitType='custom';body.customShares=cs;
+  }
   if(d.payers.length>1){
     const shares={};let sum=0;
     d.payers.forEach(id=>{const v=Math.abs(parseInt((d.paidShares&&d.paidShares[id])||'0',10));shares[id]=v;sum+=v;});
@@ -6120,8 +6256,36 @@ function renderQuickLedger(){
     <input id="note" type="text" placeholder="">
     ${renderTimeBox()}
     <button class="btn mt ledger-submit-btn" style="width:100%" onclick="addTx()">記上一筆</button>
-    <button type="button" class="dream-history-btn" onclick="openHistoryModal()">查看歷史記帳紀錄</button>
+    ${renderLedgerRecentSection()}
     ${isLedgerDebugEnabled()?`<button type="button" class="ledger-debug-btn" onclick="debugFreeCoins()">🛠️ 開發測試：免費領 100 硬幣</button>`:''}`;
+}
+function getRecentLedgerTx(limit){
+  const n=Math.max(1,Math.min(5,limit==null?3:limit));
+  return (Array.isArray(S.tx)?S.tx:[])
+    .slice()
+    .sort((a,b)=>new Date(b.ts)-new Date(a.ts))
+    .slice(0,n);
+}
+function renderLedgerRecentItem(t){
+  const c=(CATS[t.type].find(x=>x[1]===t.category)||['✨'])[0];
+  return `<div class="tx-item">
+    <div class="tx-ic">${catIconCell(t.category,c)}</div>
+    <div class="tx-main"><div class="t">${txTitleLineHtml(t)}</div><div class="s">${formatTxTime(t.ts)}</div></div>
+    <div class="tx-amt ${t.type==='expense'?'amt-exp':'amt-inc'}">${t.type==='expense'?'−':'+'}$${fmt(t.amount)}</div>
+  </div>`;
+}
+function renderLedgerRecentSection(){
+  const recent=getRecentLedgerTx(3);
+  const list=recent.length
+    ?`<div class="ledger-recent-list">${recent.map(renderLedgerRecentItem).join('')}</div>`
+    :`<div class="ledger-recent-empty">尚無記帳紀錄，趕緊記下第一筆吧！</div>`;
+  return `<div class="ledger-recent" role="button" tabindex="0" aria-label="查看歷史記帳紀錄" onclick="openHistoryModal()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHistoryModal();}">
+    <div class="ledger-recent-head">
+      <b>最近紀錄</b>
+      <button type="button" class="ledger-recent-all" onclick="event.stopPropagation();openHistoryModal()">查看全部 ›</button>
+    </div>
+    ${list}
+  </div>`;
 }
 /* ===== 圓夢浮島：多目標存錢工具 ===== */
 let goalEditing=false; // false | 'new' | goalId
@@ -6404,10 +6568,6 @@ function txTitleLineHtml(t){
   if(note)return `${cat} · <span class="tx-note-text">${note}</span>${shredded?' '+shredded:''}`;
   return `${cat}${shredded?' '+shredded:''}`;
 }
-const TX_NOTE_EXPAND_MIN=10;
-function txNoteExpandable(t){
-  return !!(t.note&&String(t.note).trim().length>TX_NOTE_EXPAND_MIN);
-}
 function txHistoryAmtHtml(t){
   const sign=t.type==='expense'?'−':'+';
   const text=`${sign}$${fmt(t.amount)}`;
@@ -6428,14 +6588,11 @@ function renderTxListItems(items,opts){
     const photoData=txPhotoDataSrc(t);
     const thumb=photoData?txPhotoThumbHtml(photoData):'';
     const amt=history?txHistoryAmtHtml(t):`<span class="tx-amt ${t.type==='expense'?'amt-exp':'amt-inc'}">${t.type==='expense'?'−':'+'}$${fmt(t.amount)}</span>`;
-    const expandable=history&&txNoteExpandable(t);
-    const mainClass=`tx-main${expandable?' tx-main--expand':''}`;
-    const mainClick=expandable?` onclick="openTxNotePopover(${t.id})" role="button" tabindex="0" aria-label="查看完整備註"`:'';
     if(history){
-      return `<div class="tx-item">
+      return `<div class="tx-item tx-item--clickable" role="button" tabindex="0" aria-label="查看完整記帳詳情" onclick="openTxDetailPopover(${t.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTxDetailPopover(${t.id});}">
       <div class="tx-left">
         <div class="tx-ic">${catIconCell(t.category,c)}</div>
-        <div class="${mainClass}"${mainClick}><div class="t">${txTitleLineHtml(t)}</div><div class="s">${formatTxTime(t.ts)}</div></div>
+        <div class="tx-main"><div class="t">${txTitleLineHtml(t)}</div><div class="s">${formatTxTime(t.ts)}</div></div>
       </div>
       <div class="tx-right-rail">
         <div class="tx-photo-cell">${thumb}</div>
@@ -6447,21 +6604,32 @@ function renderTxListItems(items,opts){
     return `<div class="tx-item">
       <div class="tx-left">
         <div class="tx-ic">${catIconCell(t.category,c)}</div>
-        <div class="${mainClass}"${mainClick}><div class="t">${txTitleLineHtml(t)}</div><div class="s">${formatTxTime(t.ts)}</div></div>
+        <div class="tx-main"><div class="t">${txTitleLineHtml(t)}</div><div class="s">${formatTxTime(t.ts)}</div></div>
       </div>
       <div class="tx-right">${thumb}${amt}</div>
     </div>`;
   }).join('');
 }
-function openTxNotePopover(txId){
-  const t=S.tx.find(x=>x.id===txId);
-  if(!t||!t.note)return;
-  const body=$('#txNotePopoverBody'),ov=$('#txNotePopover');
+function openTxDetailPopover(txId){
+  const t=(Array.isArray(S.tx)?S.tx:[]).find(x=>x.id===txId);
+  if(!t)return;
+  const body=$('#txNotePopoverBody'),ov=$('#txNotePopover'),title=$('#txNotePopoverTitle');
   if(!body||!ov)return;
-  body.textContent=t.note;
+  if(title)title.textContent='記帳詳情';
+  const sign=t.type==='expense'?'−':'+';
+  const amtClass=t.type==='expense'?'amt-exp':'amt-inc';
+  const note=String(t.note||'').trim();
+  const name=txCatLabel(t)+(t.shredded?'（🗒️留字）':'');
+  body.innerHTML=`
+    <div class="tx-detail-row"><span class="tx-detail-label">完整名稱</span><span class="tx-detail-value">${esc(name)}</span></div>
+    <div class="tx-detail-row"><span class="tx-detail-label">完整備註</span><span class="tx-detail-value${note?'':' tx-detail-empty'}">${note?esc(note):'（沒有備註）'}</span></div>
+    <div class="tx-detail-row"><span class="tx-detail-label">金額</span><span class="tx-detail-value ${amtClass}">${sign}$${fmt(t.amount)}</span></div>
+    <div class="tx-detail-row"><span class="tx-detail-label">時間</span><span class="tx-detail-value">${esc(formatTxTime(t.ts))}</span></div>
+    <div class="tx-detail-row"><span class="tx-detail-label">類型</span><span class="tx-detail-value">${t.type==='income'?'收入':'支出'}</span></div>`;
   ov.style.display='flex';
   ov.setAttribute('aria-hidden','false');
 }
+function openTxNotePopover(txId){openTxDetailPopover(txId);}
 function closeTxNotePopover(){
   const ov=$('#txNotePopover');
   if(ov){ov.style.display='none';ov.setAttribute('aria-hidden','true');}
@@ -6945,6 +7113,7 @@ async function startTimeBoxCamera(){
       timeBoxStream=await navigator.mediaDevices.getUserMedia(constraints);
       const v=$('#tboxVideo');if(!v)return;
       v.srcObject=timeBoxStream;
+      v.style.transform=(timeBoxFacing==='user')?'scaleX(-1)':'';  // 自拍鏡像預覽
       await v.play();
       return;
     }catch(_){/* try next constraint set */}
@@ -7073,6 +7242,7 @@ async function captureTimeBoxFrame(video){
   off.width=w;off.height=h;
   const ctx=off.getContext('2d');
   ctx.imageSmoothingEnabled=true;
+  if(timeBoxFacing==='user'){ ctx.translate(w,0); ctx.scale(-1,1); }  // 自拍：拍下的照片與鏡像預覽一致
   ctx.drawImage(video,0,0,w,h);
   try{
     const blob=await canvasToPhotoBlob(off);
@@ -8763,12 +8933,20 @@ const STATS_PIE_COLORS={
   '娛樂':'#F0B8C8','醫療':'#F0A8C0','學習':'#A8E0E8','投資':'#F0E8B0','其他':'#C8C8D8'
 };
 let statsHighlightCat=null;
-function statsMonthData(){
-  const m=todayStr().slice(0,7);
+let statsPeriod='month'; // 'day' | 'week' | 'month' | 'year'
+const STATS_PERIOD_LABELS={day:'本日',week:'本週',month:'本月',year:'本年'};
+function statsPeriodLabel(){return STATS_PERIOD_LABELS[statsPeriod]||'本月';}
+function setStatsPeriod(p){
+  if(!STATS_PERIOD_LABELS[p])return;
+  statsPeriod=p; statsHighlightCat=null;
+  if(curTab==='stats')renderStats();
+}
+function statsMonthData(period){
+  period=period||statsPeriod;
   const byCat={};
   let exp=0,inc=0;
   S.tx.forEach(t=>{
-    if(t.ts.slice(0,7)!==m)return;
+    if(!txInPeriod(t,period))return;
     if(t.type==='expense'){byCat[t.category]=(byCat[t.category]||0)+t.amount;exp+=t.amount;}
     else inc+=t.amount;
   });
@@ -8868,7 +9046,7 @@ function applyStatsHighlight(cat){
       center.classList.add('is-cat');
       center.style.setProperty('--dc-accent',statsPieColor(cat));
     }else{
-      if(lab)lab.textContent='本月總支出';
+      if(lab)lab.textContent=statsPeriodLabel()+'總支出';
       if(amt)amt.textContent=center.dataset.total||'';
       if(sub)sub.textContent='';
       center.classList.remove('is-cat');
@@ -8880,7 +9058,7 @@ function renderStatsCorePanel(cats,exp,catBudget,highlightCat){
   const hasExp=cats.filter(([,v])=>v>0).length>0;
   const pieHtml=hasExp?buildStatsPieSvg(cats,exp,highlightCat):'<div class="fin-stats-pie-empty">尚無支出</div>';
   const centerHtml=hasExp?`<div class="fin-stats-donut-center" id="statsDonutCenter" data-total="$${fmt(exp)}">
-        <div class="dc-label">本月總支出</div>
+        <div class="dc-label">${statsPeriodLabel()}總支出</div>
         <div class="dc-amt">$${fmt(exp)}</div>
         <div class="dc-sub"></div>
       </div>`:'';
@@ -8913,18 +9091,22 @@ function fitStatsKpiIncome(){
 }
 function renderStats(){
   const {cats,exp,inc,rate,catBudget}=statsMonthData();
+  const PL=statsPeriodLabel();
+  const periodSeg=[['day','日'],['week','週'],['month','月'],['year','年']]
+    .map(([k,l])=>`<button type="button" class="stats-period-btn ${statsPeriod===k?'on':''}" onclick="setStatsPeriod('${k}')">${l}</button>`).join('');
   $('#sheetRight').textContent='';
   $('#sheetBody').innerHTML=`
     <div class="fin-stats-page stats-panel page-panel">
       <div class="fin-stats-glass">
+        <div class="stats-period-seg">${periodSeg}</div>
         <div class="fin-stats-kpi-stack">
           <div class="fin-stats-kpi-row fin-stats-kpi-row--top">
             <div class="fin-stats-kpi-card fin-stats-kpi-card--inc fin-stats-pixel-panel">
-              <div class="fin-stats-kpi-label">本月總收入</div>
+              <div class="fin-stats-kpi-label">${PL}總收入</div>
               <div class="fin-stats-kpi-val inc">$${fmt(inc)}</div>
             </div>
             <div class="fin-stats-kpi-card fin-stats-kpi-card--save fin-stats-pixel-panel">
-              <div class="fin-stats-kpi-label">本月儲蓄率</div>
+              <div class="fin-stats-kpi-label">${PL}儲蓄率</div>
               <div class="fin-stats-kpi-val save">${rate}%</div>
             </div>
           </div>
