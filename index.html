@@ -5801,8 +5801,14 @@ async function bootSplitBill(){
     splitData={group,balances,settlement,friends,me};
     renderSplitGroup();
   }catch(e){
-    if(/HTTP 404/.test(e.message)){localStorage.removeItem(SPLIT_GROUP_LS);renderSplitEmpty();return;}
-    root.innerHTML=`<div class="card split-card"><div class="split-hint">分帳後端沒連上或發生錯誤：<br>${esc(e.message)}<br><br>（本機請用 npm start 啟動 Node 後端；靜態開啟無法使用分帳）</div></div>`;
+    const msg=String(e&&e.message||'');
+    // 雲端暫存碟被清／群組已刪：清掉本機記的舊 ID，回到建立畫面（勿顯示「後端沒連上」）
+    if(/HTTP 404|找不到這個行程群組|找不到.*群組/.test(msg)){
+      localStorage.removeItem(SPLIT_GROUP_LS);
+      renderSplitEmpty();
+      return;
+    }
+    root.innerHTML=`<div class="card split-card"><div class="split-hint">分帳後端沒連上或發生錯誤：<br>${esc(msg)}<br><br>（本機請用 npm start 啟動 Node 後端；靜態開啟無法使用分帳）</div></div>`;
   }
 }
 function renderSplitEmpty(){

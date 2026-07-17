@@ -45,6 +45,12 @@ function checkIndexHtml() {
   'routes/photos.js',
   'routes/admin.js',
   'lib/feed/feed.routes.js',
+  'lib/split-bill/splitBill.store.js',
+  'lib/split-bill/splitBill.store-file.js',
+  'lib/split-bill/splitBill.store-pg.js',
+  'lib/friends/friends.store.js',
+  'lib/friends/friends.store-file.js',
+  'lib/friends/friends.store-pg.js',
 ].forEach(checkJs);
 checkIndexHtml();
 
