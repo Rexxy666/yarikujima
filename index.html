@@ -7380,6 +7380,27 @@ function addTx(){
   if(!amt){toast('請輸入金額');return;}
   void addTxAsync(amt);
 }
+/** 登入後將記帳寫入 PostgreSQL（經 /api/pet-ledger Zod 安檢） */
+async function pushPetLedgerCloud({amount,item,petName}){
+  const token=localStorage.getItem(AUTH_LS);
+  if(!token||localStorage.getItem(GUEST_LS)==='1')return null;
+  try{
+    const res=await fetch(apiUrl('/api/pet-ledger'),{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+      body:JSON.stringify({amount,item,petName}),
+    });
+    if(!res.ok){
+      const j=await res.json().catch(()=>({}));
+      console.warn('[pet-ledger] cloud write failed',res.status,j);
+      return null;
+    }
+    return await res.json();
+  }catch(e){
+    console.warn('[pet-ledger] cloud write error',e);
+    return null;
+  }
+}
 async function addTxAsync(amt){
   let photoData=null;
   let photoMeta=null;
@@ -7390,18 +7411,22 @@ async function addTxAsync(amt){
       photoData=typeof photoMeta==='string'?photoMeta:(photoMeta.remoteUrl||null);
     }
   }
-  const r=recordTx({type:draft.type,amount:amt,category:draft.cat,subcategory:draft.subcat,note:$('#note').value.trim(),
+  const noteVal=($('#note')?.value||'').trim();
+  const r=recordTx({type:draft.type,amount:amt,category:draft.cat,subcategory:draft.subcat,note:noteVal,
     hasPhoto:!!photoData,photo:photoMeta,photoData});
   releasePhotoAsset(draft.photo);
   draft.photo=null;
   closeTimeBoxModal(true);
+  const cloudItem=(noteVal||draft.cat||'其他').slice(0,50);
+  const cloudPet=String(S.pet?.name||'未命名').slice(0,40);
   draft.amt='';
   draft.subcat=null;ledgerCatOpen=null;subcatManage=false;subcatAddVal='';
   say(r.crit&&r.expGain>0?'相片暴擊！額外經驗與心情加成～':recordLine(r));
   toast(formatLedgerRewardToast(r,!!photoData));
   renderAll();hop();switchTab('ledger');
-  if(photoData&&localStorage.getItem(AUTH_LS)&&localStorage.getItem(GUEST_LS)!=='1'){
-    void syncAuthStateNow();
+  if(localStorage.getItem(AUTH_LS)&&localStorage.getItem(GUEST_LS)!=='1'){
+    void pushPetLedgerCloud({amount:amt,item:cloudItem,petName:cloudPet});
+    if(photoData)void syncAuthStateNow();
   }
 }
 // 有動作（記帳/收入/超支）時的即時對應台詞
@@ -9676,7 +9701,7 @@ const ZODIAC_NAMES=['鼠','牛','虎','兔','龍','蛇','馬','羊','猴','雞',
 function zodiacIndexFromYear(y){return ((y-4)%12+12)%12;}
 let onboardZodiac=null;
 let bdayDraft={year:'2000',month:'1',day:'1'};
-const BDAY_MIN_YEAR=1990;
+const BDAY_MIN_YEAR=1920;
 const DATE_WHEEL_ITEM_H=40;
 const DATE_WHEEL_PAD=2;
 function dateDaysInMonth(y,m){
