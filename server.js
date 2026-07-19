@@ -257,6 +257,9 @@ app.use('/api/friends', require('./lib/friends/friends.routes'));
 // 社群動態牆（好友＋自己可見）
 app.use('/api/feed', require('./lib/feed/feed.routes'));
 
+// 寵物記帳新增（Zod 驗證）
+app.use('/api/pet-ledger', require('./lib/ledger/petLedger.routes'));
+
 // 靜態檔
 app.use(express.static(__dirname, { index: 'index.html' }));
 

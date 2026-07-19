@@ -45,6 +45,8 @@ function checkIndexHtml() {
   'routes/photos.js',
   'routes/admin.js',
   'lib/feed/feed.routes.js',
+  'lib/ledger/petLedger.schema.js',
+  'lib/ledger/petLedger.routes.js',
   'lib/split-bill/splitBill.store.js',
   'lib/split-bill/splitBill.store-file.js',
   'lib/split-bill/splitBill.store-pg.js',
