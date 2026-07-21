@@ -1978,16 +1978,22 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
   background:rgba(255,209,102,.24);border-radius:8px;
   box-shadow:inset 0 2px 0 rgba(192,122,16,.18),inset 0 -2px 0 rgba(192,122,16,.18)}
 .bday-wheel-list{
-  position:relative;z-index:2;height:100%;overflow-y:auto;scroll-snap-type:y mandatory;
+  position:relative;z-index:2;height:100%;overflow-x:hidden;overflow-y:auto;scroll-snap-type:y mandatory;
   -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   scrollbar-width:none;padding:0;margin:0;list-style:none;touch-action:pan-y}
 .bday-wheel-list::-webkit-scrollbar{display:none}
 .bday-wheel-item{
-  height:40px;display:flex;align-items:center;justify-content:center;
-  scroll-snap-align:center;font-size:14px;font-weight:800;color:#b0a090;
-  transition:color .12s,font-size .12s,opacity .12s,transform .12s;cursor:pointer;user-select:none}
-.bday-wheel-item.on{font-size:20px;font-weight:900;color:#2b2233;transform:scale(1.04)}
-.bday-wheel-item.near{font-size:15px;color:#8a7a6a;opacity:.62}
+  height:40px;width:100%;max-width:100%;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;
+  scroll-snap-align:center;font-size:13px;font-weight:800;color:#b0a090;
+  font-variant-numeric:tabular-nums;letter-spacing:0;
+  line-height:1;padding:0 4px;overflow:hidden;white-space:nowrap;text-overflow:clip;
+  transition:color .12s,font-size .12s,opacity .12s;cursor:pointer;user-select:none}
+.bday-wheel-item.on{font-size:16px;font-weight:900;color:#2b2233}
+.bday-wheel-item.near{font-size:13px;color:#8a7a6a;opacity:.62}
+.bday-wheel-col-year .bday-wheel-item{font-size:12px}
+.bday-wheel-col-year .bday-wheel-item.on{font-size:15px}
+.bday-wheel-col-year .bday-wheel-item.near{font-size:12px}
 .bday-wheel-spacer{pointer-events:none;visibility:hidden}
 .bday-inp{flex:1;min-width:0;font-size:15px;padding:9px 2px;text-align:center;
   border:3px solid var(--line);border-radius:8px;background:#fffdf7;color:#2b2233;font-weight:700;
@@ -2228,7 +2234,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
     <div id="sheetHead">
       <div class="sheet-title" id="sheetTitleWrap">
         <img id="sheetTitleIc" class="sheet-title-ic" alt="" aria-hidden="true">
-        <b id="sheetTitle">首頁</b>
+        <b id="sheetTitle">主島</b>
       </div>
       <span id="sheetRight" class="mini"></span>
     </div>
@@ -2243,7 +2249,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coin);ba
 
   <!-- 底部導覽 -->
   <div id="nav">
-    <button class="tab active" data-tab="home"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">首頁</span></button>
+    <button class="tab active" data-tab="home"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">主島</span></button>
     <button class="tab" data-tab="war"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">社群</span></button>
     <button class="tab" data-tab="ledger"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">記帳</span></button>
     <button class="tab" data-tab="stats"><span class="tab-ic"><img class="em" alt=""></span><span class="tab-lbl">統計</span></button>
@@ -4980,7 +4986,7 @@ function monthWeather(){
 
 /* ---- 分頁 ---- */
 const TABS={home:renderHome,ledger:renderLedger,war:renderSocial,shop:renderShop,stats:renderStats,settings:renderSettings};
-const TITLES={home:'浮島首頁',ledger:'誠實記帳',war:'社群',shop:'像素商店',stats:'財務統計',settings:'設定'};
+const TITLES={home:'主島',ledger:'誠實記帳',war:'社群',shop:'像素商店',stats:'財務統計',settings:'設定'};
 function setSheetTitle(t){
   const ic=$('#sheetTitleIc'),title=$('#sheetTitle');
   if(title)title.textContent=TITLES[t]||'';
@@ -10012,19 +10018,19 @@ const TUTORIAL_STEPS=[
   { tab:'home', title:'歡迎來到浮島記帳！', demo:'welcome',
     lead:'這是一款「養寵物 × 誠實記帳」的遊戲。記帳照顧財務，也照顧浮島上的寵物。下面快速帶你認識各功能，可隨時按右上角「跳過」。',
     lines:[
-      '畫面最下方有 <b>5 個分頁</b>：首頁、社群、記帳、統計、設定',
+      '畫面最下方有 <b>5 個分頁</b>：主島、社群、記帳、統計、設定',
       '另外還有 <b>商店</b> 按鈕可進入換裝',
       '接著一頁一頁介紹每個功能～'
     ]},
-  { tab:'home', title:'首頁 · 你的寵物', demo:'pet',
+  { tab:'home', title:'主島 · 你的寵物', demo:'pet',
     lines:[
       '點 <b>寵物</b> 可互動；上方是你的 <b>金幣／點卷</b>',
-      '首頁 <b>左滑到餐廳</b> 餵食，<b>右滑是寢室</b>',
+      '主島 <b>左滑到餐廳</b> 餵食，<b>右滑是寢室</b>',
       '寵物的 <b>飢餓／心情／健康</b> 會隨記帳與照顧變化',
       '天氣反映 <b>本月結餘</b>，超支會下雨'
     ]},
-  { tab:'home', title:'首頁 · 跟寵物對話記帳', demo:'chat',
-    lead:'點首頁的 <b>聊天鈕</b> 就能跟寵物聊天，牠還會一邊聊一邊幫你記帳！',
+  { tab:'home', title:'主島 · 跟寵物對話記帳', demo:'chat',
+    lead:'點主島的 <b>聊天鈕</b> 就能跟寵物聊天，牠還會一邊聊一邊幫你記帳！',
     lines:[
       '直接說「剛買咖啡花了 120」，牠會自動記成一筆',
       '也能聊近況、問理財建議，牠都會回你',
@@ -10033,7 +10039,7 @@ const TUTORIAL_STEPS=[
   { tab:'ledger', sub:'quick', title:'記帳 · 記上一筆', demo:'record',
     lines:[
       '切換支出／收入、輸入金額後，點 <b>大分類</b> 會展開小分類',
-      '可 <b>拍照</b> 記錄心情或物品，照片在首頁相簿回顧',
+      '可 <b>拍照</b> 記錄心情或物品，照片在主島相簿回顧',
       '選完要按 <b>「記上一筆」</b> 才會完成'
     ]},
   { tab:'ledger', sub:'dream', title:'記帳 · 圓夢浮島', demo:'piggy',
