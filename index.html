@@ -3008,25 +3008,44 @@ function initMarketIfNeeded(){
 }
 
 function finishGoogleLogin(data){
-  localStorage.setItem(AUTH_LS,data.token);
-  localStorage.removeItem(GUEST_LS);
-  applyAuthUser(data.user,data.user.isNewUser);
-  hideAuthGate();
-  initMarketIfNeeded();
-  save();
-  if(typeof _bootGameCore==='function')_bootGameCore();
-  // 一律嘗試上行同步：新用戶若本機已有記帳（例如 DB 重建後被當成新戶）也要把資料救回雲端
-  void syncAuthStateNow();
-  if(!S.onboarded||needsPetNaming())return;
-  decay();
-  S._lastDecay=Date.now();
-  renderAll();
-  switchTab(loadSavedTab());
-  const welcome=data.user.isNewUser
-    ?`歡迎！新指揮官獲得 ${fmt(data.user.wallet.coins)}${coinIc(true)}`
-    :`歡迎回來！`;
-  toast(welcome);
-  setTimeout(()=>say(`嗨 ${S.pet.name}！一起征戰股市吧！`),500);
+  try{
+    if(!data?.token||!data?.user)throw new Error('登入回應不完整');
+    localStorage.setItem(AUTH_LS,data.token);
+    localStorage.removeItem(GUEST_LS);
+    applyAuthUser(data.user,!!data.user.isNewUser);
+    // 確保關鍵狀態存在，避免後續 render 因 null 整頁掛掉
+    if(!S.pet||typeof S.pet!=='object')S.pet=fresh().pet;
+    if(!S.wallet||typeof S.wallet!=='object')S.wallet={coins:50000,gems:50};
+    if(!Array.isArray(S.tx))S.tx=[];
+    hideAuthGate();
+    hideAuthBootLoading();
+    _gameBooted=false;
+    initMarketIfNeeded();
+    try{save();}catch(saveErr){console.warn('[auth] save after login failed:',saveErr);}
+    if(typeof _bootGameCore==='function')_bootGameCore();
+    void syncAuthStateNow();
+    if(!S.onboarded||needsPetNaming())return;
+    decay();
+    S._lastDecay=Date.now();
+    try{
+      renderAll();
+      switchTab(loadSavedTab()||'home');
+    }catch(renderErr){
+      console.error('[auth] render after login failed:',renderErr);
+      try{curTab='home';updateTabChrome('home');setSheetTitle('home');renderAll();}catch(e2){console.error(e2);}
+    }
+    const coins=+(data.user.wallet&&data.user.wallet.coins);
+    const welcome=data.user.isNewUser
+      ?`歡迎！新指揮官獲得 ${fmt(Number.isFinite(coins)?coins:50000)}${coinIc(true)}`
+      :`歡迎回來！`;
+    toast(welcome);
+    setTimeout(()=>say(`嗨 ${S.pet.name||'夥伴'}！一起征戰股市吧！`),500);
+  }catch(err){
+    console.error('[auth] finishGoogleLogin failed:',err);
+    try{showAuthGate();}catch(e){}
+    const el=$('#authGateErr');
+    if(el)el.textContent=(err&&err.message)||'登入後載入失敗，請再試一次或改用訪客試玩';
+  }
 }
 
 async function postGoogleToken(idToken){
@@ -3174,7 +3193,19 @@ async function initAuth(){
   const token=localStorage.getItem(AUTH_LS);
   if(token){
     const session=await restoreAuthSession(token);
-    if(session.ok&&session.user){applyAuthUser(session.user,false);hideAuthGate();save();return true;}
+    if(session.ok&&session.user){
+      try{
+        applyAuthUser(session.user,false);
+        if(!S.pet||typeof S.pet!=='object')S.pet=fresh().pet;
+        if(!S.wallet||typeof S.wallet!=='object')S.wallet={coins:50000,gems:50};
+        hideAuthGate();
+        try{save();}catch(saveErr){console.warn('[auth] save after restore failed:',saveErr);}
+        return true;
+      }catch(err){
+        console.error('[auth] restore apply failed:',err);
+        localStorage.removeItem(AUTH_LS);
+      }
+    }
     if(session.invalid)localStorage.removeItem(AUTH_LS);
   }
 
@@ -3529,10 +3560,19 @@ function importGameState(g){
       );
       return;
     }
-    if(k==='pet'&&S.pet&&g.pet&&typeof g.pet==='object')S.pet={...S.pet,...g.pet};
-    else if(k==='wallet'&&g.wallet)S.wallet={...S.wallet,...g.wallet};
-    else if(k==='cosmetics'&&g.cosmetics)S.cosmetics={...S.cosmetics,...g.cosmetics};
-    else S[k]=g[k];
+    if(k==='pet'){
+      if(g.pet&&typeof g.pet==='object')S.pet={...(S.pet||{}),...g.pet};
+      return;
+    }
+    if(k==='wallet'){
+      if(g.wallet&&typeof g.wallet==='object')S.wallet={...(S.wallet||{coins:0,gems:0}),...g.wallet};
+      return;
+    }
+    if(k==='cosmetics'){
+      if(g.cosmetics&&typeof g.cosmetics==='object')S.cosmetics={...(S.cosmetics||{owned:[],decos:[],skin:null}),...g.cosmetics};
+      return;
+    }
+    S[k]=g[k];
   });
   S.deletedTxIds=deleted;
   if(g._historyWipedAt)S._historyWipedAt=Math.max(+(S._historyWipedAt||0),+g._historyWipedAt);
@@ -3540,11 +3580,15 @@ function importGameState(g){
   migrateSavingGoals();
 }
 function save(){
-  S._savedAt=Date.now();
-  const owner=currentOwnerKey();
-  if(owner)persistOwnerState(owner);
-  else localStorage.setItem(LS,JSON.stringify(stateForPersist()));
-  if(typeof scheduleAuthSync==='function')scheduleAuthSync();
+  try{
+    S._savedAt=Date.now();
+    const owner=currentOwnerKey();
+    if(owner)persistOwnerState(owner);
+    else localStorage.setItem(LS,JSON.stringify(stateForPersist()));
+    if(typeof scheduleAuthSync==='function')scheduleAuthSync();
+  }catch(err){
+    console.warn('[save] failed:',err);
+  }
 }
 function rollDay(){if(S.daily.date!==todayStr())S.daily={date:todayStr(),recruits:0,deploys:0};}
 
@@ -4906,31 +4950,36 @@ function syncChromeInsets(){
   }
 }
 function renderHUD(){
-  $('#coinTxt').textContent=fmt(S.wallet.coins);
-  $('#gemTxt').textContent=fmt(S.wallet.gems);
-  const need=lvlNeed(S.pet.level);
-  $('#lvTxt').textContent='Lv.'+S.pet.level;
-  $('#xpTxt').textContent=S.pet.exp+'/'+need;
-  $('#xpFill').style.width=clamp(S.pet.exp/need*100)+'%';
+  const coinTxt=$('#coinTxt'),gemTxt=$('#gemTxt'),lvTxt=$('#lvTxt'),xpTxt=$('#xpTxt'),xpFill=$('#xpFill');
+  if(coinTxt)coinTxt.textContent=fmt(S.wallet?.coins||0);
+  if(gemTxt)gemTxt.textContent=fmt(S.wallet?.gems||0);
+  const need=lvlNeed(S.pet?.level||1);
+  if(lvTxt)lvTxt.textContent='Lv.'+(S.pet?.level||1);
+  if(xpTxt)xpTxt.textContent=(S.pet?.exp||0)+'/'+need;
+  if(xpFill)xpFill.style.width=clamp((S.pet?.exp||0)/need*100)+'%';
   syncHudOffset();
 }
 function lvlNeed(l){return 80+l*40;}
 function renderScene(){
-  const p=S.pet, sc=$('#scene');
+  const p=S.pet||{};
   setupPetDisplay();
   syncPetMoodState();
-  $('#petAnchor').classList.toggle('sick',p.health<30);
-  document.querySelectorAll('.pet-stage-anchor').forEach(a=>a.classList.toggle('sick',p.health<30));
-  $('#petName').textContent=`${p.name}・${STAGE_NM[p.stage]||''}`;
-  $('#barHunger').style.width=p.hunger+'%';
-  $('#barHappy').style.width=p.happiness+'%';
-  $('#barHealth').style.width=p.health+'%';
+  const petAnchor=$('#petAnchor');
+  if(petAnchor)petAnchor.classList.toggle('sick',(p.health||0)<30);
+  document.querySelectorAll('.pet-stage-anchor').forEach(a=>a.classList.toggle('sick',(p.health||0)<30));
+  const petNameEl=$('#petName');
+  if(petNameEl)petNameEl.textContent=`${p.name||'寵物'}・${STAGE_NM[p.stage]||''}`;
+  const barH=$('#barHunger'),barHappy=$('#barHappy'),barHealth=$('#barHealth');
+  if(barH)barH.style.width=(p.hunger||0)+'%';
+  if(barHappy)barHappy.style.width=(p.happiness||0)+'%';
+  if(barHealth)barHealth.style.width=(p.health||0)+'%';
   // 天氣：本月結餘率決定（天空由時段控制，天氣只影響下雨與太陽明暗）
   const w=monthWeather();
   _weatherCls=w.cls;
   refreshSky();
   if(typeof renderMiniPets==='function')renderMiniPets();
-  $('#weatherTag').innerHTML=w.tag;
+  const weatherTag=$('#weatherTag');
+  if(weatherTag)weatherTag.innerHTML=w.tag;
 }
 function makeRain(){const r=$('#rain');if(r.children.length)return;let h='';for(let i=0;i<40;i++){h+=`<span class="drop" style="left:${Math.random()*100}%;animation-duration:${.5+Math.random()*.6}s;animation-delay:${Math.random()}s"></span>`;}r.innerHTML=h;}
 /* ── 動態預算判斷（時間進度 × 消費進度）──
@@ -10524,31 +10573,40 @@ let _gameBooted=false;
 _bootGameCore=function bootGameCore(){
   if(_gameBooted)return;
   _gameBooted=true;
-  initMarketIfNeeded();
-  if(ensureOnboarding()){
+  try{
+    initMarketIfNeeded();
+    if(ensureOnboarding()){
+      startMarketTicker();
+      layoutSheet();
+      initScenes();
+      scheduleTimeOfDay();
+      if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
+      return;
+    }
+    if(S.auth||S.guestMode){
+      decay();S._lastDecay=Date.now();renderAll();
+    }else{
+      if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;
+      decay();S._lastDecay=Date.now();renderAll();
+      setTimeout(()=>sayPetLine(null,LINES.idle),600);
+    }
+    applyRecurring();
+    switchTab(loadSavedTab());
     startMarketTicker();
     layoutSheet();
     initScenes();
     scheduleTimeOfDay();
     if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
-    return;
+    setInterval(()=>{decay();applyRecurring();renderScene();save();},60000);
+    scheduleChatter();
+  }catch(err){
+    console.error('[boot] bootGameCore failed:',err);
+    _gameBooted=false;
+    try{
+      if(!S.onboarded)startOnboard();
+      else{switchTab('home');renderAll();}
+    }catch(e2){console.error('[boot] recovery failed:',e2);}
   }
-  if(S.auth||S.guestMode){
-    decay();S._lastDecay=Date.now();renderAll();
-  }else{
-    if(S.pet.animal==null)S.pet.animal=PET_TIGER_IDX;
-    decay();S._lastDecay=Date.now();renderAll();
-    setTimeout(()=>sayPetLine(null,LINES.idle),600);
-  }
-  applyRecurring();
-  switchTab(loadSavedTab());
-  startMarketTicker();
-  layoutSheet();
-  initScenes();
-  scheduleTimeOfDay();
-  if(isTigerSprite()){loadTigerSheets();loadTiger4Sheet();loadFoodSheet();}
-  setInterval(()=>{decay();applyRecurring();renderScene();save();},60000);
-  scheduleChatter();
 };
 (async function bootGame(){
   await resolveApiBase();
@@ -10558,6 +10616,11 @@ _bootGameCore=function bootGameCore(){
     const authed=await initAuth();
     if(!authed)return;
     _bootGameCore();
+  }catch(err){
+    console.error('[boot] bootGame failed:',err);
+    try{showAuthGate();}catch(e){}
+    const el=$('#authGateErr');
+    if(el)el.textContent='載入失敗，請重新登入或改用訪客試玩';
   }finally{
     hideAuthBootLoading();
   }
